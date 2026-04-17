@@ -541,13 +541,37 @@
             showToast('🔄', 'Mind map reset')
         }
 
-        // ── Panel toggle ─────────────────────────────────────────────
-        window.togglePanel = function () {
-            const panel = document.getElementById('controls-panel')
-            const btn   = document.getElementById('toggle-btn')
-            panel.classList.toggle('collapsed')
-            btn.classList.toggle('visible')
+        // ── Panel toggle & Auto-collapse ─────────────────────────────
+        const panelEl = document.getElementById('controls-panel')
+        const btnEl   = document.getElementById('toggle-btn')
+        let collapseTimer = null
+
+        function startCollapseTimer() {
+            clearTimeout(collapseTimer)
+            collapseTimer = setTimeout(() => {
+                if (!panelEl.classList.contains('collapsed')) {
+                    panelEl.classList.add('collapsed')
+                    btnEl.classList.add('visible')
+                }
+            }, 5000)
         }
+
+        panelEl.addEventListener('mouseenter', () => clearTimeout(collapseTimer))
+        panelEl.addEventListener('mouseleave', startCollapseTimer)
+
+        window.togglePanel = function () {
+            panelEl.classList.toggle('collapsed')
+            btnEl.classList.toggle('visible')
+            
+            if (!panelEl.classList.contains('collapsed')) {
+                startCollapseTimer()
+            } else {
+                clearTimeout(collapseTimer)
+            }
+        }
+
+        // Start initial countdown on load
+        startCollapseTimer()
 
         // ── Toast helper ─────────────────────────────────────────────
         window.showToast = function (icon, msg) {
