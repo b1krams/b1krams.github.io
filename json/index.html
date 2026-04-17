@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Fix & Format</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.css" rel="stylesheet"
+        type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.js"></script>
+    <style>
+        :root {
+            --jsoneditor-font-family: 'Inter', ui-sans-serif, system-ui;
+            --jsoneditor-bg: #1e293b;
+        }
+
+        body {
+            background: radial-gradient(circle at top left, #1e293b, #0f172a);
+            min-height: 100vh;
+        }
+
+        /* Customizing the JSON Editor to look modern */
+        .jsoneditor {
+            border: none !important;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .jsoneditor-menu {
+            background-color: #334155 !important;
+            border-bottom: 1px solid #475569 !important;
+        }
+
+        .jsoneditor-footer {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="text-slate-200 p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold tracking-tight text-white mb-2">JSON <span
+                    class="text-indigo-400">Refiner</span></h1>
+            <p class="text-slate-400">Paste messy JSON below to fix, format, and explore nodes.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <label class="font-medium text-slate-300">Raw Input</label>
+                    <button onclick="processJSON()"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-sm transition-all shadow-lg shadow-indigo-500/20">
+                        Fix & Format →
+                    </button>
+                </div>
+                <textarea id="jsonInput"
+                    class="w-full h-[500px] bg-slate-800/50 border border-slate-700 rounded-xl p-4 font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none text-emerald-400 placeholder-slate-500"
+                    placeholder='{"tip": "Paste messy or broken JSON here..."}'></textarea>
+            </div>
+
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <label class="font-medium text-slate-300">Formatted Output</label>
+                    <button onclick="copyToClipboard()"
+                        class="bg-slate-700 hover:bg-slate-600 text-slate-100 px-4 py-1.5 rounded-lg text-sm transition-all border border-slate-600">
+                        Copy JSON
+                    </button>
+                </div>
+                <div id="jsoneditor" class="h-[500px] shadow-2xl"></div>
+            </div>
+
+        </div>
+
+        <footer class="mt-12 text-center text-slate-500 text-xs">
+            Built with JSONEditor • Supports Collapsible Nodes • Auto-Fixes minor syntax issues
+        </footer>
+    </div>
+
+    <script>
+        // Initialize JSON Editor
+        const container = document.getElementById("jsoneditor");
+        const options = {
+            mode: 'view', // 'view' allows collapsing, 'tree' allows editing
+            modes: ['view', 'tree', 'code', 'preview'],
+            mainMenuBar: true,
+            navigationBar: false,
+            statusBar: true,
+        };
+        const editor = new JSONEditor(container, options);
+
+        // Function to fix and format
+        function processJSON() {
+            const rawValue = document.getElementById('jsonInput').value.trim();
+            if (!rawValue) return;
+
+            try {
+                // Try to parse normally
+                const parsed = JSON.parse(rawValue);
+                editor.set(parsed);
+                editor.expandAll();
+            } catch (e) {
+                // Attempt a "lazy" fix for minor issues (like single quotes or missing quotes)
+                try {
+                    const fixed = eval('(' + rawValue + ')');
+                    editor.set(fixed);
+                    editor.expandAll();
+                } catch (err) {
+                    alert("Invalid JSON: Could not automatically fix this syntax error.");
+                }
+            }
+        }
+
+        // Copy functionality
+        function copyToClipboard() {
+            const json = JSON.stringify(editor.get(), null, 2);
+            navigator.clipboard.writeText(json).then(() => {
+                const btn = event.target;
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                btn.classList.add('bg-emerald-600');
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.classList.remove('bg-emerald-600');
+                }, 2000);
+            });
+        }
+
+        // Load dummy data on start
+        const initialData = { "status": "success", "message": "Paste your JSON on the left", "features": ["Collapsible", "Fixes single quotes", "Modern UI"], "count": 3 };
+        editor.set(initialData);
+    </script>
+</body>
+
+</html>
