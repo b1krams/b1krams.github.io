@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZenTime | Pomodoro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3)); }
+        .progress-ring__circle { transition: stroke-dashoffset 0.5s ease-in-out; stroke-linecap: round; }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-50 flex flex-col justify-between items-center h-[100dvh] m-0 overflow-hidden select-none">
+
+    <!-- Header -->
+    <header class="w-full pt-8 pb-4 text-center">
+        <h1 class="font-semibold tracking-[4px] opacity-80 uppercase text-xs text-sky-400 m-0">ZenTime</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col items-center justify-center w-full max-w-sm px-6">
+        
+        <!-- Mode Selector (Segmented Control) -->
+        <div class="flex w-full bg-slate-900/50 p-1 rounded-full mb-12 shadow-inner border border-white/5">
+            <button class="mode-btn flex-1 text-xs py-2.5 rounded-full font-medium transition-all active:scale-95 text-slate-50 relative bg-slate-700 shadow-md transform text-sky-400" data-time="25">Focus</button>
+            <button class="mode-btn flex-1 text-xs py-2.5 rounded-full font-medium transition-all active:scale-95 text-slate-400 hover:text-slate-200" data-time="5">Short</button>
+            <button class="mode-btn flex-1 text-xs py-2.5 rounded-full font-medium transition-all active:scale-95 text-slate-400 hover:text-slate-200" data-time="15">Long</button>
+        </div>
+
+        <!-- Timer Circle -->
+        <div class="relative w-[240px] h-[240px] flex items-center justify-center mb-12">
+            <svg class="progress-ring origin-center absolute w-full h-full" width="240" height="240" viewBox="0 0 240 240">
+                <!-- Background track -->
+                <circle class="stroke-slate-800" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" />
+                <!-- Progress track -->
+                <circle class="progress-ring__circle stroke-sky-400" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" />
+            </svg>
+            <div class="z-10 flex flex-col items-center">
+                <div class="text-[4rem] font-light tracking-tight" id="timer">25:00</div>
+                <div class="text-xs font-medium text-slate-400 uppercase tracking-wider mt-1" id="timerLabel">Session</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex gap-4 w-full">
+            <button class="flex-1 bg-sky-500 text-white border-none font-semibold py-4 rounded-2xl shadow-lg shadow-sky-500/25 active:scale-95 transition-all text-base tracking-wide flex items-center justify-center gap-2" id="startBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                <span>Start</span>
+            </button>
+            <button class="w-16 flex items-center justify-center bg-slate-800 border border-white/5 text-slate-300 py-4 rounded-2xl active:scale-95 transition-all hover:bg-slate-700 shadow-md" id="resetBtn" aria-label="Reset">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full pb-8 text-center pt-2">
+        <button class="text-[0.65rem] opacity-40 hover:opacity-100 transition-opacity uppercase tracking-widest bg-transparent border-none text-slate-50 cursor-pointer p-2" id="notifStatus" onclick="requestNotification()">Enable Notifications</button>
+    </footer>
+
+    <script>
+        let timeLeft = 25 * 60;
+        let timerId = null;
+        let totalTime = 25 * 60;
+        const circle = document.querySelector('.progress-ring__circle');
+        const radius = circle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+
+        const timerLabel = document.getElementById('timerLabel');
+
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        modeBtns.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                modeBtns.forEach(b => {
+                    b.className = "mode-btn flex-1 text-xs py-2.5 rounded-full font-medium transition-all active:scale-95 text-slate-400 hover:text-slate-200 cursor-pointer bg-transparent border-none";
+                });
+                btn.className = "mode-btn flex-1 text-xs py-2.5 rounded-full font-medium transition-all active:scale-95 text-slate-50 relative bg-slate-700 shadow-md transform text-sky-400 border-none cursor-pointer";
+                
+                const timeStr = btn.getAttribute('data-time');
+                totalTime = parseInt(timeStr) * 60;
+                timeLeft = totalTime;
+                
+                // Update Label
+                if (index === 0) timerLabel.innerText = "Focus";
+                else if (index === 1) timerLabel.innerText = "Short Break";
+                else if (index === 2) timerLabel.innerText = "Long Break";
+                
+                if (timerId) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    updatePlayBtn(false);
+                }
+                updateDisplay();
+            });
+        });
+
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100 * circumference);
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function updateDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            document.getElementById('timer').textContent =
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            const percent = totalTime === 0 ? 0 : ((totalTime - timeLeft) / totalTime) * 100;
+            setProgress(100 - percent);
+        }
+
+        function requestNotification() {
+            if (!("Notification" in window)) return;
+            Notification.requestPermission().then(permission => {
+                const btn = document.getElementById('notifStatus');
+                if (permission === 'granted') {
+                    btn.textContent = 'Notifications Enabled';
+                    btn.style.opacity = '1';
+                    btn.style.color = '#38bdf8';
+                } else {
+                    btn.textContent = 'Notifications Denied';
+                }
+            });
+        }
+
+        function notify() {
+            if (Notification.permission === "granted") {
+                new Notification("ZenTime", {
+                    body: "Session complete. Time to switch gears!",
+                    icon: "https://cdn-icons-png.flaticon.com/512/2523/2523315.png"
+                });
+            } else {
+                alert("Session complete!");
+            }
+        }
+        
+        const startBtn = document.getElementById('startBtn');
+        function updatePlayBtn(isPlaying) {
+            if (isPlaying) {
+                startBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    <span>Pause</span>
+                `;
+                startBtn.classList.replace('bg-sky-500', 'bg-rose-500');
+                startBtn.classList.replace('shadow-sky-500/25', 'shadow-rose-500/25');
+            } else {
+                startBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    <span>Resume</span>
+                `;
+                if(timeLeft === totalTime) {
+                    startBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                        <span>Start</span>
+                    `;
+                }
+                startBtn.classList.replace('bg-rose-500', 'bg-sky-500');
+                startBtn.classList.replace('shadow-rose-500/25', 'shadow-sky-500/25');
+            }
+        }
+
+        startBtn.addEventListener('click', () => {
+            if(Notification.permission === 'default') requestNotification();
+            
+            if (timerId) {
+                // Pause it
+                clearInterval(timerId);
+                timerId = null;
+                updatePlayBtn(false);
+            } else {
+                // Start it
+                updatePlayBtn(true);
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerId);
+                        timerId = null;
+                        updatePlayBtn(false);
+                        notify();
+                        
+                        // Auto reset after 2 sec
+                        setTimeout(() => {
+                            timeLeft = totalTime;
+                            updateDisplay();
+                            updatePlayBtn(false);
+                        }, 2000);
+                    }
+                }, 1000);
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            clearInterval(timerId);
+            timerId = null;
+            timeLeft = totalTime;
+            updateDisplay();
+            updatePlayBtn(false);
+        });
+
+        updateDisplay();
+        
+        // Initial setup
+        if(Notification.permission === 'granted') {
+             const btn = document.getElementById('notifStatus');
+             btn.textContent = 'Notifications Enabled';
+             btn.style.opacity = '0.5';
+        }
+    </script>
+</body>
+</html>
