@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Mind Map</title>
+    <meta name="description" content="A beautiful, interactive mind mapping tool powered by Mind Elixir.">
+
+    <!-- Mind Elixir v5+ CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mind-elixir/dist/style.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #574fd6;
+            --surface: rgba(255, 255, 255, 0.12);
+            --surface-solid: #1e1e2e;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --danger: #f56565;
+            --success: #48bb78;
+            --radius: 14px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background: #0f0f1a;
+        }
+
+        /* ─── Mind Map Canvas ─── */
+        #map {
+            width: 100vw;
+            height: 100vh;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(108, 99, 255, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(99, 179, 237, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 60% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
+                #0f0f1a;
+        }
+
+        /* ─── Floating Panel ─── */
+        .panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(20, 20, 35, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 20px;
+            z-index: 1000;
+            width: 230px;
+            box-shadow: var(--shadow);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .panel:hover {
+            border-color: rgba(108, 99, 255, 0.4);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .panel-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.02em;
+        }
+
+        /* ─── Shortcut List ─── */
+        .shortcuts {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .shortcuts li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .shortcuts li .emoji {
+            font-size: 14px;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        kbd {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 5px;
+            padding: 1px 6px;
+            font-size: 10px;
+            font-family: 'Inter', monospace;
+            color: #c4b5fd;
+            letter-spacing: 0.04em;
+        }
+
+        /* ─── Divider ─── */
+        .divider {
+            height: 1px;
+            background: var(--glass-border);
+            margin-bottom: 14px;
+        }
+
+        /* ─── Buttons ─── */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border-radius: 9px;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.02em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.5);
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--text);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-accent:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* ─── Section label ─── */
+        .section-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        /* ─── Drop-zone overlay ─── */
+        #drop-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            background: rgba(108, 99, 255, 0.18);
+            border: 3px dashed var(--primary);
+            border-radius: 16px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+        }
+
+        #drop-overlay.active {
+            display: flex;
+        }
+
+        #drop-overlay .drop-icon {
+            font-size: 52px;
+            animation: bounce 0.8s ease infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to   { transform: translateY(-12px); }
+        }
+
+        /* ─── Toast Notification ─── */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: rgba(20, 20, 35, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            padding: 12px 22px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 2000;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast .toast-icon {
+            margin-right: 6px;
+        }
+
+        /* ─── Toggle collapse button ─── */
+        .collapse-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(20, 20, 35, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .collapse-btn:hover {
+            background: rgba(108, 99, 255, 0.3);
+            border-color: var(--primary);
+        }
+
+        .panel.collapsed {
+            opacity: 0;
+            transform: translateX(-110%);
+            pointer-events: none;
+        }
+
+        .collapse-btn.visible {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Floating Controls Panel -->
+    <div class="panel" id="controls-panel">
+        <div class="panel-header">
+            <div class="panel-icon">🧠</div>
+            <span class="panel-title">Mind Map</span>
+        </div>
+
+        <ul class="shortcuts">
+            <li>
+                <span class="emoji">➕</span>
+                <span>Click <kbd>+</kbd> on a node to add child</span>
+            </li>
+            <li>
+                <span class="emoji">⌨️</span>
+                <kbd>Enter</kbd> <span>— Add sibling</span>
+            </li>
+            <li>
+                <span class="emoji">⌨️</span>
+                <kbd>Tab</kbd> <span>— Add child</span>
+            </li>
+            <li>
+                <span class="emoji">🖱️</span>
+                <span>Drag nodes or canvas to pan</span>
+            </li>
+            <li>
+                <span class="emoji">🗑️</span>
+                <kbd>Del</kbd> <span>— Remove selected node</span>
+            </li>
+            <li>
+                <span class="emoji">✏️</span>
+                <span>Double-click to rename</span>
+            </li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <p class="section-label">File</p>
+        <div class="btn-group">
+            <button id="btn-export-file" class="btn btn-success" onclick="exportFile()">
+                💾 Export as File
+            </button>
+            <button id="btn-import" class="btn btn-accent" onclick="triggerImport()">
+                📂 Import File
+            </button>
+            <input type="file" id="file-input" accept=".json" style="display:none" onchange="importFile(event)">
+        </div>
+
+        <div class="divider" style="margin-top:14px;"></div>
+
+        <p class="section-label">Misc</p>
+        <div class="btn-group">
+            <button id="btn-reset" class="btn btn-ghost" onclick="resetMap()">
+                🔄 Reset Map
+            </button>
+        </div>
+    </div>
+
+    <!-- Panel toggle button (shown when panel is collapsed) -->
+    <button class="collapse-btn" id="toggle-btn" title="Toggle panel" onclick="togglePanel()">🧠</button>
+
+    <!-- Drag-and-drop overlay -->
+    <div id="drop-overlay">
+        <span class="drop-icon">📂</span>
+        <span>Drop your .json mind map file</span>
+    </div>
+
+    <!-- Mind Map Canvas -->
+    <div id="map"></div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span class="toast-icon"></span>
+        <span id="toast-msg"></span>
+    </div>
+
+    <!-- Mind Elixir v5+ ESM (type="module" required) -->
+    <script type="module">
+        import MindElixir from 'https://cdn.jsdelivr.net/npm/mind-elixir/dist/MindElixir.js'
+
+        const options = {
+            el: '#map',
+            direction: MindElixir.SIDE,
+            draggable: true,
+            contextMenu: true,
+            toolBar: true,
+            nodeMenu: true,
+            keypress: true,
+            locale: 'en',
+        }
+
+        const mind = new MindElixir(options)
+        
+        const CACHE_KEY = 'mind_elixir_data'
+
+        // ── Cache Loading & Auto-Save ────────────────────────────────
+        let initialData
+        try {
+            const cached = localStorage.getItem(CACHE_KEY)
+            if (cached) initialData = JSON.parse(cached)
+        } catch (e) {
+            console.warn('Failed to parse cache', e)
+        }
+
+        if (!initialData) {
+            initialData = MindElixir.new('✨ New Creative Idea')
+        }
+
+        // v5 API: pass data to init()
+        mind.init(initialData)
+
+        // Save on every operation
+        mind.bus.addListener('operation', () => {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(mind.getData()))
+            } catch (e) {
+                console.warn('Failed to save to cache:', e)
+            }
+        })
+
+        // ── Export as JSON file ──────────────────────────────────────
+        window.exportFile = function () {
+            try {
+                const mapData = mind.getData()
+                const json    = JSON.stringify(mapData, null, 2)
+                const blob    = new Blob([json], { type: 'application/json' })
+                const url     = URL.createObjectURL(blob)
+                const rootTopic = mapData?.nodeData?.topic ?? 'mind-map'
+                const safeName  = rootTopic.replace(/[^a-z0-9]/gi, '_').toLowerCase()
+                const a         = document.createElement('a')
+                a.href          = url
+                a.download      = `${safeName}_${Date.now()}.json`
+                a.click()
+                URL.revokeObjectURL(url)
+                showToast('💾', 'Mind map saved as file')
+            } catch (e) {
+                showToast('❌', 'Export failed — check console')
+                console.error(e)
+            }
+        }
+
+        // ── Trigger file picker ──────────────────────────────────────
+        window.triggerImport = function () {
+            document.getElementById('file-input').click()
+        }
+
+        // ── Import from JSON file ────────────────────────────────────
+        window.importFile = function (event) {
+            const file = event.target.files[0]
+            if (!file) return
+            const reader = new FileReader()
+            reader.onload = function (e) {
+                try {
+                    const mapData = JSON.parse(e.target.result)
+                    mind.init(mapData)
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(mapData))
+                    showToast('📂', `Loaded: ${file.name}`)
+                } catch (err) {
+                    showToast('❌', 'Invalid file — not a valid mind map')
+                    console.error(err)
+                }
+            }
+            reader.readAsText(file)
+            // Reset so the same file can be re-imported
+            event.target.value = ''
+        }
+
+        // ── Drag-and-drop import ─────────────────────────────────────
+        const dropOverlay = document.getElementById('drop-overlay')
+        let dragCounter = 0
+
+        document.addEventListener('dragenter', (e) => {
+            if ([...e.dataTransfer.items].some(i => i.kind === 'file')) {
+                dragCounter++
+                dropOverlay.classList.add('active')
+            }
+        })
+        document.addEventListener('dragleave', () => {
+            dragCounter--
+            if (dragCounter <= 0) { dragCounter = 0; dropOverlay.classList.remove('active') }
+        })
+        document.addEventListener('dragover', (e) => e.preventDefault())
+        document.addEventListener('drop', (e) => {
+            e.preventDefault()
+            dragCounter = 0
+            dropOverlay.classList.remove('active')
+            const file = e.dataTransfer.files[0]
+            if (!file || !file.name.endsWith('.json')) {
+                showToast('❌', 'Please drop a .json mind map file')
+                return
+            }
+            const reader = new FileReader()
+            reader.onload = (ev) => {
+                try {
+                    const mapData = JSON.parse(ev.target.result)
+                    mind.init(mapData)
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(mapData))
+                    showToast('📂', `Loaded: ${file.name}`)
+                } catch (err) {
+                    showToast('❌', 'Invalid file — not a valid mind map')
+                    console.error(err)
+                }
+            }
+            reader.readAsText(file)
+        })
+
+        // ── Reset ───────────────────────────────────────────────────
+        window.resetMap = function () {
+            if (!confirm('Reset the mind map? This will clear all nodes.')) return
+            const newData = MindElixir.new('✨ New Creative Idea')
+            mind.init(newData)
+            localStorage.setItem(CACHE_KEY, JSON.stringify(newData))
+            showToast('🔄', 'Mind map reset')
+        }
+
+        // ── Panel toggle ─────────────────────────────────────────────
+        window.togglePanel = function () {
+            const panel = document.getElementById('controls-panel')
+            const btn   = document.getElementById('toggle-btn')
+            panel.classList.toggle('collapsed')
+            btn.classList.toggle('visible')
+        }
+
+        // ── Toast helper ─────────────────────────────────────────────
+        window.showToast = function (icon, msg) {
+            const toast   = document.getElementById('toast')
+            const iconEl  = toast.querySelector('.toast-icon')
+            const msgEl   = document.getElementById('toast-msg')
+            iconEl.textContent = icon
+            msgEl.textContent  = msg
+            toast.classList.add('show')
+            setTimeout(() => toast.classList.remove('show'), 3000)
+        }
+
+        // Make mind accessible globally for debugging
+        window._mind = mind
+    </script>
+
+</body>
+</html>
