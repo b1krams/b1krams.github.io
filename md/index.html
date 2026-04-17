@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scribe | Modern Markdown Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcfcfd;
+        }
+
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Custom scrollbar for elegance */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+
+        /* Elegant Typography for Preview */
+        #preview-content h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        #preview-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+
+        #preview-content p {
+            line-height: 1.75;
+            margin-bottom: 1.25rem;
+            color: #475569;
+        }
+
+        #preview-content code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            color: #be185d;
+            font-size: 0.9em;
+        }
+
+        #preview-content pre {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        #preview-content blockquote {
+            border-left: 4px solid #6366f1;
+            padding-left: 1.25rem;
+            font-style: italic;
+            color: #64748b;
+            margin: 1.5rem 0;
+        }
+
+        #preview-content ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1.25rem;
+            color: #475569;
+        }
+
+        #preview-content a {
+            color: #6366f1;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <nav class="h-14 border-b border-gray-200 bg-white flex items-center justify-between px-6 z-10 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 text-white p-1.5 rounded-lg shadow-indigo-200 shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                    <polyline points="14 2 14 8 20 8" />
+                </svg>
+            </div>
+            <span class="font-semibold text-gray-800 tracking-tight">Scribe MD</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button onclick="clearAll()"
+                class="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-red-600 transition-colors">
+                Clear
+            </button>
+            <div class="h-4 w-[1px] bg-gray-200 mx-2"></div>
+            <button onclick="downloadFile()"
+                class="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md border border-indigo-200 transition-all active:scale-95">
+                Save HTML
+            </button>
+            <button onclick="downloadPDF()"
+                class="px-4 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-md shadow-indigo-100 transition-all active:scale-95">
+                PDF
+            </button>
+            <button onclick="downloadDocx()"
+                class="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md shadow-blue-100 transition-all active:scale-95">
+                Word (DOCX)
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-1 flex overflow-hidden">
+
+        <section class="w-1/2 flex flex-col border-r border-gray-200 bg-white">
+            <div class="h-8 flex items-center px-4 bg-gray-50 border-b border-gray-200">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Markdown Editor</span>
+            </div>
+            <textarea id="editor" spellcheck="false"
+                class="flex-1 p-8 outline-none code-font text-[14px] leading-relaxed text-gray-700 placeholder-gray-300 resize-none"
+                placeholder="# Start writing..."># Hello World
+
+Welcome to this **elegant** editor. 
+
+## Try these:
+1. Write Markdown on the left
+2. See the magic on the right
+3. Export your work
+
+> "The best way to predict the future is to invent it."
+
+```javascript
+const app = () => console.log("Modern & Fast");
+```</textarea>
+        </section>
+
+        <section class="w-1/2 flex flex-col bg-[#fcfcfd]">
+            <div class="h-8 flex items-center px-4 bg-gray-50 border-b border-gray-200">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Live Preview</span>
+            </div>
+            <div id="preview-container" class="flex-1 overflow-y-auto p-10">
+                <div id="preview-content" class="max-w-2xl mx-auto">
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer
+        class="h-8 border-t border-gray-200 bg-white px-6 flex items-center justify-between text-[11px] text-gray-400 font-medium">
+        <div class="flex gap-4">
+            <span id="charCount">0 characters</span>
+            <span id="wordCount">0 words</span>
+        </div>
+        <div>UTF-8 Standard</div>
+    </footer>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview-content');
+        const charCount = document.getElementById('charCount');
+        const wordCount = document.getElementById('wordCount');
+
+        // Configure Marked.js for line breaks
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+
+        function render() {
+            const text = editor.value;
+            preview.innerHTML = marked.parse(text);
+
+            // Update Stats
+            charCount.innerText = `${text.length} characters`;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            wordCount.innerText = `${words} words`;
+        }
+
+        function clearAll() {
+            if (confirm("Are you sure you want to clear your work?")) {
+                editor.value = '';
+                render();
+            }
+        }
+
+        function downloadFile() {
+            const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #333; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        code { font-family: monospace; background: #eee; padding: 2px 4px; border-radius: 3px; }
+        blockquote { border-left: 5px solid #ccc; margin: 1.5em 10px; padding: 0.5em 10px; color: #666; }
+    </style>
+</head>
+<body>
+    ${preview.innerHTML}
+</body>
+</html>`;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'document.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('preview-content');
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     'document.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function downloadDocx() {
+            const content = document.getElementById('preview-content').innerHTML;
+            const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Document</title></head><body>${content}</body></html>`;
+            const docxBlob = htmlDocx.asBlob(fullHtml);
+            const url = URL.createObjectURL(docxBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'document.docx';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Listen for input
+        editor.addEventListener('input', render);
+
+        // Initial render
+        render();
+    </script>
+</body>
+
+</html>
