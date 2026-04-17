@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Now — Today's Headlines</title>
+    <meta name="description" content="A curated, elegant digest of the latest news from India's most trusted sources.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f0f2f5;
+            --surface: #ffffff;
+            --card: #ffffff;
+            --card-hover: #f7f8fa;
+            --border: rgba(0, 0, 0, 0.08);
+            --accent: #b5793a;
+            --accent-dim: rgba(181, 121, 58, 0.1);
+            --accent2: #4a6cf7;
+            --text-primary: #111318;
+            --text-sec: #4a5066;
+            --text-muted: #9098b0;
+            --tag-bg: rgba(74, 108, 247, 0.08);
+            --tag-color: #3a5ce4;
+            --danger: #d94040;
+            --danger-dim: rgba(217, 64, 64, 0.08);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, sans-serif;
+            font-weight: 400;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ── HEADER ── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(240, 242, 245, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 68px;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 0.6rem;
+        }
+
+        .brand-name {
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+        }
+
+        .brand-name span { color: var(--accent); }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        nav button {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            padding: 0.45rem 0.9rem;
+            transition: background 0.2s, color 0.2s;
+            background: transparent;
+            color: var(--text-sec);
+        }
+
+        nav button:hover {
+            background: rgba(0, 0, 0, 0.06);
+            color: var(--text-primary);
+        }
+
+        nav button.active {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .btn-refresh {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            border-radius: 6px;
+            padding: 0.45rem 1.1rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            margin-left: 0.5rem;
+        }
+
+        .btn-refresh:hover {
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        /* Settings gear button */
+        .btn-settings {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-sec);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            margin-left: 0.6rem;
+            flex-shrink: 0;
+        }
+
+        .btn-settings:hover {
+            background: rgba(0, 0, 0, 0.06);
+            color: var(--text-primary);
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-settings svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.4s ease;
+        }
+
+        .btn-settings.open svg { transform: rotate(90deg); }
+
+        /* ── HERO STRIP ── */
+        .hero-strip {
+            max-width: 1200px;
+            margin: 3rem auto 0;
+            padding: 0 2rem;
+        }
+
+        .hero-strip h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(1.9rem, 4vw, 2.8rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+        }
+
+        .hero-strip h2 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero-strip p {
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+            color: var(--text-sec);
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        .divider {
+            width: 48px;
+            height: 2px;
+            background: var(--accent);
+            margin: 1.2rem 0;
+            border-radius: 2px;
+        }
+
+        /* ── MAIN ── */
+        main {
+            max-width: 1200px;
+            margin: 2rem auto 5rem;
+            padding: 0 2rem;
+        }
+
+        /* ── LOADER ── */
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 6rem 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── GRID ── */
+        #news-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            animation: fadeUp 0.45s ease both;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
+            border-color: rgba(200, 151, 90, 0.25);
+            background: var(--card-hover);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-img-wrap { position: relative; overflow: hidden; height: 190px; }
+
+        .card-img-wrap img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover .card-img-wrap img { transform: scale(1.04); }
+
+        .card-no-img {
+            height: 190px;
+            background: linear-gradient(135deg, #e4e8f0 0%, #d8dde8 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .card-no-img svg { opacity: 0.25; stroke: #6b7280; }
+
+        .card-body {
+            padding: 1.25rem 1.4rem 1.4rem;
+            display: flex; flex-direction: column; flex: 1;
+        }
+
+        .card-source {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: var(--tag-bg); color: var(--tag-color);
+            font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em;
+            text-transform: uppercase; padding: 0.25rem 0.65rem;
+            border-radius: 4px; margin-bottom: 0.85rem; align-self: flex-start;
+        }
+
+        .card-title {
+            font-size: 1rem; font-weight: 700; letter-spacing: -0.02em;
+            line-height: 1.4; color: var(--text-primary); margin-bottom: 0.75rem;
+        }
+
+        .card-desc {
+            font-size: 0.84rem; font-weight: 300; color: var(--text-sec);
+            line-height: 1.7;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+            overflow: hidden; margin-bottom: 1.2rem; flex: 1;
+        }
+
+        .card-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border);
+        }
+
+        .card-date {
+            display: flex; flex-direction: column; gap: 0.15rem;
+        }
+
+        .card-date-day {
+            font-size: 0.75rem; color: var(--text-muted);
+            font-weight: 500; letter-spacing: 0.02em;
+        }
+
+        .card-date-time {
+            font-size: 0.7rem; color: var(--text-muted);
+            font-weight: 400; opacity: 0.75;
+            display: flex; align-items: center; gap: 0.2rem;
+        }
+
+        .card-link {
+            font-size: 0.78rem; font-weight: 600; color: var(--accent);
+            text-decoration: none; display: flex; align-items: center; gap: 0.3rem;
+            transition: gap 0.2s;
+        }
+
+        .card-link:hover { gap: 0.55rem; }
+
+        /* ── FOOTER ── */
+        footer {
+            text-align: center; padding: 2rem; color: var(--text-muted);
+            font-size: 0.8rem; border-top: 1px solid var(--border); letter-spacing: 0.03em;
+        }
+
+        /* ════════════════════════════════
+           SETTINGS OVERLAY & DRAWER
+        ════════════════════════════════ */
+        #settings-overlay {
+            position: fixed; inset: 0; z-index: 200;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #settings-overlay.open { opacity: 1; pointer-events: all; }
+
+        #settings-drawer {
+            position: fixed; top: 0; right: 0; z-index: 201;
+            width: min(460px, 100vw);
+            height: 100vh;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        #settings-drawer.open { transform: translateX(0); }
+
+        .drawer-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .drawer-title {
+            font-size: 1rem; font-weight: 700; letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        .drawer-close {
+            width: 32px; height: 32px; border-radius: 6px;
+            border: 1px solid var(--border); background: transparent;
+            color: var(--text-sec); cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .drawer-close:hover { background: rgba(0,0,0,0.05); color: var(--text-primary); }
+
+        .drawer-body {
+            flex: 1; overflow-y: auto; padding: 1.5rem;
+            scrollbar-width: thin; scrollbar-color: var(--card-hover) transparent;
+        }
+
+        .drawer-body::-webkit-scrollbar { width: 4px; }
+        .drawer-body::-webkit-scrollbar-thumb { background: var(--card-hover); border-radius: 4px; }
+
+        /* Section label */
+        .settings-section-label {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--text-muted);
+            margin-bottom: 0.85rem;
+        }
+
+        /* Category group */
+        .settings-category {
+            margin-bottom: 1.75rem;
+        }
+
+        .settings-category-name {
+            font-size: 0.82rem; font-weight: 600; color: var(--text-sec);
+            letter-spacing: 0.04em; margin-bottom: 0.6rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .settings-category-name::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        /* Source toggle row */
+        .source-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.65rem 0.85rem;
+            border-radius: 8px;
+            margin-bottom: 0.35rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            gap: 0.75rem;
+            transition: border-color 0.2s;
+        }
+
+        .source-row:hover { border-color: rgba(0,0,0,0.15); }
+
+        .source-row.custom-row { border-style: dashed; }
+
+        .source-info { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; flex: 1; }
+
+        .source-name {
+            font-size: 0.85rem; font-weight: 500; color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .source-url {
+            font-size: 0.7rem; color: var(--text-muted);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .source-row-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+
+        /* Toggle switch */
+        .toggle {
+            position: relative; width: 38px; height: 22px;
+            flex-shrink: 0; cursor: pointer;
+        }
+
+        .toggle input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-track {
+            position: absolute; inset: 0; border-radius: 100px;
+            background: #d1d5de; border: 1px solid rgba(0,0,0,0.1);
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .toggle input:checked + .toggle-track {
+            background: var(--accent-dim); border-color: var(--accent);
+        }
+
+        .toggle-knob {
+            position: absolute; top: 3px; left: 3px;
+            width: 14px; height: 14px; border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .toggle input:checked ~ .toggle-knob {
+            transform: translateX(16px); background: var(--accent);
+        }
+
+        /* Delete custom source */
+        .btn-del-source {
+            width: 26px; height: 26px; border-radius: 5px;
+            border: none; background: var(--danger-dim); color: var(--danger);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .btn-del-source:hover { background: rgba(224, 92, 92, 0.25); }
+
+        /* Divider */
+        .settings-divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+
+        /* Add custom feed form */
+        .add-feed-form { display: flex; flex-direction: column; gap: 0.75rem; }
+
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+
+        .form-label {
+            font-size: 0.75rem; font-weight: 500;
+            color: var(--text-sec); letter-spacing: 0.03em;
+        }
+
+        .form-input {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem; font-weight: 400;
+            color: var(--text-primary);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .form-input::placeholder { color: var(--text-muted); }
+
+        .form-input:focus { border-color: var(--accent); }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+
+        .form-select {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem; color: var(--text-primary);
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 0.6rem 0.85rem;
+            outline: none; cursor: pointer; width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .form-select:focus { border-color: var(--accent); }
+
+        .btn-add-feed {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem; font-weight: 600;
+            letter-spacing: 0.04em;
+            background: var(--accent-dim); color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 8px; padding: 0.65rem 1.2rem;
+            cursor: pointer; align-self: flex-start;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-add-feed:hover { background: var(--accent); color: #ffffff; }
+
+        /* Form feedback */
+        .form-msg {
+            font-size: 0.78rem; padding: 0.5rem 0.75rem;
+            border-radius: 6px; display: none;
+        }
+
+        .form-msg.success { background: rgba(80,200,120,0.1); color: #60c880; display: block; }
+        .form-msg.error   { background: var(--danger-dim); color: var(--danger); display: block; }
+
+        /* Drawer footer */
+        .drawer-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 1rem; flex-shrink: 0;
+        }
+
+        .drawer-footer-note {
+            font-size: 0.72rem; color: var(--text-muted);
+        }
+
+        .btn-apply {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem; font-weight: 700;
+            letter-spacing: 0.04em;
+            background: var(--accent); color: #ffffff;
+            border: none; border-radius: 8px;
+            padding: 0.65rem 1.4rem; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-apply:hover { opacity: 0.88; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 600px) {
+            .header-inner { height: auto; flex-direction: column; padding: 1rem 0; gap: 0.75rem; }
+            nav { flex-wrap: wrap; justify-content: center; }
+            .hero-strip, main { padding: 0 1rem; }
+            .hero-strip { margin-top: 1.5rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── SETTINGS OVERLAY ── -->
+    <div id="settings-overlay" onclick="closeSettings()"></div>
+
+    <!-- ── SETTINGS DRAWER ── -->
+    <div id="settings-drawer" role="dialog" aria-label="Source settings">
+        <div class="drawer-header">
+            <span class="drawer-title">⚙ Source Settings</span>
+            <button class="drawer-close" id="btn-drawer-close" onclick="closeSettings()" aria-label="Close settings">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="drawer-body">
+            <p class="settings-section-label">Enable / disable sources</p>
+            <div id="settings-sources-list"></div>
+
+            <div class="settings-divider"></div>
+
+            <p class="settings-section-label" style="margin-bottom:1rem;">Add a custom RSS feed</p>
+            <div class="add-feed-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="input-feed-name">Display name</label>
+                        <input class="form-input" id="input-feed-name" type="text" placeholder="e.g. BBC India" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="input-feed-category">Category</label>
+                        <select class="form-select" id="input-feed-category">
+                            <option value="national">National</option>
+                            <option value="business">Business</option>
+                            <option value="tech">Technology</option>
+                            <option value="world">International</option>
+                            <option value="kids">Kids</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="input-feed-url">RSS feed URL</label>
+                    <input class="form-input" id="input-feed-url" type="url" placeholder="https://example.com/feed.rss" autocomplete="off">
+                </div>
+                <div id="form-msg" class="form-msg"></div>
+                <button class="btn-add-feed" onclick="addCustomFeed()">+ Add feed</button>
+            </div>
+        </div>
+
+        <div class="drawer-footer">
+            <span class="drawer-footer-note">Settings saved automatically in your browser.</span>
+            <button class="btn-apply" onclick="applyAndClose()">Apply &amp; refresh</button>
+        </div>
+    </div>
+
+    <!-- ── HEADER ── -->
+    <header>
+        <div class="header-inner">
+            <div class="brand">
+                <span class="brand-name"><span>News</span> NOW</span>
+            </div>
+            <div class="header-right">
+                <nav id="nav">
+                    <button onclick="switchCategory('national')" id="btn-national" class="active">National</button>
+                    <button onclick="switchCategory('business')" id="btn-business">Business</button>
+                    <button onclick="switchCategory('tech')" id="btn-tech">Technology</button>
+                    <button onclick="switchCategory('world')" id="btn-world">World</button>
+                    <button onclick="switchCategory('kids')" id="btn-kids">🧒 Kids</button>
+                    <button class="btn-refresh" onclick="fetchAll()">↻ All</button>
+                </nav>
+                <button class="btn-settings" id="btn-settings-toggle" onclick="openSettings()" aria-label="Open settings" title="Source settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="hero-strip">
+        <h2>Today's <em>Headlines</em></h2>
+        <p id="subtitle">Curated from India's most trusted newsrooms</p>
+        <div class="divider"></div>
+    </div>
+
+    <main>
+        <div id="loading">
+            <div class="spinner"></div>
+            Fetching latest headlines…
+        </div>
+        <div id="news-container"></div>
+    </main>
+
+    <footer>
+        Made with ❤️ by Bikram
+    </footer>
+
+    <script>
+    // ─────────────────────────────────────────────
+    //  DEFAULT SOURCES  (built-in, can be toggled)
+    // ─────────────────────────────────────────────
+    const DEFAULT_SOURCES = [
+        // ── India: National ──
+        { id: 'the-hindu',          name: 'The Hindu',          category: 'national', url: 'https://www.thehindu.com/news/national/feeder/default.rss', builtin: true },
+        { id: 'indian-express',     name: 'Indian Express',     category: 'national', url: 'https://indianexpress.com/feed/', builtin: true },
+        { id: 'ndtv-india',         name: 'NDTV India',         category: 'national', url: 'https://feeds.feedburner.com/ndtvnews-india-news', builtin: true },
+        // ── India: Business ──
+        { id: 'economic-times',     name: 'Economic Times',     category: 'business', url: 'https://economictimes.indiatimes.com/rssfeedsdefault.cms', builtin: true },
+        { id: 'financial-express',  name: 'Financial Express',  category: 'business', url: 'https://www.financialexpress.com/feed/', builtin: true },
+        // ── India: Tech ──
+        { id: 'gadgets360',         name: 'Gadgets 360',        category: 'tech',     url: 'https://feeds.feedburner.com/gadgets360-latest', builtin: true },
+        // ── International: World News ──
+        { id: 'bbc-world',          name: 'BBC News',           category: 'world',    url: 'http://feeds.bbci.co.uk/news/world/rss.xml', builtin: true },
+        { id: 'reuters-world',      name: 'Reuters',            category: 'world',    url: 'https://feeds.reuters.com/reuters/topNews', builtin: true },
+        { id: 'ap-news',            name: 'AP News',            category: 'world',    url: 'https://feeds.apnews.com/rss/apf-topnews', builtin: true },
+        { id: 'al-jazeera',         name: 'Al Jazeera',         category: 'world',    url: 'https://www.aljazeera.com/xml/rss/all.xml', builtin: true },
+        { id: 'guardian-world',     name: 'The Guardian',       category: 'world',    url: 'https://www.theguardian.com/world/rss', builtin: true },
+        { id: 'dw-world',           name: 'DW News',            category: 'world',    url: 'https://rss.dw.com/rdf/rss-en-world', builtin: true },
+        { id: 'france24',           name: 'France 24',          category: 'world',    url: 'https://www.france24.com/en/rss', builtin: true },
+        // ── International: Business ──
+        { id: 'ft-world',           name: 'Financial Times',    category: 'world',    url: 'https://www.ft.com/?format=rss', builtin: true },
+        { id: 'bloomberg',          name: 'Bloomberg',          category: 'world',    url: 'https://feeds.bloomberg.com/markets/news.rss', builtin: true },
+        // ── International: Tech ──
+        { id: 'techcrunch',         name: 'TechCrunch',         category: 'world',    url: 'https://techcrunch.com/feed/', builtin: true },
+        { id: 'ars-technica',       name: 'Ars Technica',       category: 'world',    url: 'http://feeds.arstechnica.com/arstechnica/index', builtin: true },
+        { id: 'wired',              name: 'Wired',              category: 'world',    url: 'https://www.wired.com/feed/rss', builtin: true },
+        // ── Kids: India ──
+        { id: 'down-to-earth',      name: 'Down to Earth 🇮🇳',  category: 'kids',     url: 'https://www.downtoearth.org.in/feed', builtin: true },
+        { id: 'better-india',       name: 'The Better India 🇮🇳', category: 'kids',   url: 'https://www.thebetterindia.com/feed/', builtin: true },
+        // ── Kids: International ──
+        { id: 'nasa-news',          name: 'NASA News',          category: 'kids',     url: 'https://www.nasa.gov/rss/dyn/breaking_news.rss', builtin: true },
+        { id: 'sci-news-students',  name: 'Science News Explores', category: 'kids', url: 'https://www.snexplores.org/feed', builtin: true },
+        { id: 'natgeo-kids',        name: 'Nat Geo Kids',       category: 'kids',     url: 'https://feeds.nationalgeographic.com/ng/News/News_Main', builtin: true },
+        { id: 'smithsonian-tween',  name: 'Smithsonian Magazine', category: 'kids',   url: 'https://www.smithsonianmag.com/rss/latest_articles/', builtin: true },
+        { id: 'dk-findout',         name: 'BBC Science Focus',  category: 'kids',     url: 'https://www.sciencefocus.com/feed', builtin: true },
+        { id: 'kids-discover',      name: 'Popular Science',    category: 'kids',     url: 'https://www.popsci.com/feed/', builtin: true },
+    ];
+
+    const LS_KEY = 'newsnow_settings_v1';
+
+    // ─────────────────────────────────────────────
+    //  SETTINGS STORE — load / save / merge
+    // ─────────────────────────────────────────────
+    function loadSettings() {
+        try {
+            const raw = localStorage.getItem(LS_KEY);
+            if (raw) return JSON.parse(raw);
+        } catch (_) {}
+        // default: all builtin sources enabled, no custom
+        return {
+            disabled: [],       // array of source IDs that are turned off
+            custom: []          // array of { id, name, category, url }
+        };
+    }
+
+    function saveSettings(settings) {
+        localStorage.setItem(LS_KEY, JSON.stringify(settings));
+    }
+
+    // Returns full list (builtin + custom) with enabled flag
+    function getActiveSources(settings) {
+        const all = [
+            ...DEFAULT_SOURCES,
+            ...settings.custom
+        ];
+        return all.filter(s => !settings.disabled.includes(s.id));
+    }
+
+    // ─────────────────────────────────────────────
+    //  DOM refs
+    // ─────────────────────────────────────────────
+    const container = document.getElementById('news-container');
+    const loader    = document.getElementById('loading');
+    const subtitle  = document.getElementById('subtitle');
+
+    const categoryLabels = {
+        national: "Curated from India's most trusted newsrooms",
+        business: 'Markets, economy & corporate news',
+        tech:     'Technology, gadgets & innovation',
+        world:    'Top stories from international newsrooms',
+        kids:     '🌍 Science, space & curiosity for young minds',
+        custom:   'Your custom feeds',
+    };
+
+    // ─────────────────────────────────────────────
+    //  SETTINGS DRAWER
+    // ─────────────────────────────────────────────
+    let settingsOpen = false;
+    let currentSettings = loadSettings();
+
+    function openSettings() {
+        settingsOpen = true;
+        currentSettings = loadSettings();
+        renderSettingsPanel();
+        document.getElementById('settings-overlay').classList.add('open');
+        document.getElementById('settings-drawer').classList.add('open');
+        document.getElementById('btn-settings-toggle').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSettings() {
+        settingsOpen = false;
+        document.getElementById('settings-overlay').classList.remove('open');
+        document.getElementById('settings-drawer').classList.remove('open');
+        document.getElementById('btn-settings-toggle').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function applyAndClose() {
+        saveSettings(currentSettings);
+        closeSettings();
+        fetchAll();
+    }
+
+    function renderSettingsPanel() {
+        const list = document.getElementById('settings-sources-list');
+        const allSources = [...DEFAULT_SOURCES, ...currentSettings.custom];
+
+        // Group by category
+        const cats = {};
+        allSources.forEach(s => {
+            if (!cats[s.category]) cats[s.category] = [];
+            cats[s.category].push(s);
+        });
+
+        const catOrder = ['national', 'business', 'tech', 'world', 'kids', 'custom'];
+        const catLabels = { national: 'National', business: 'Business', tech: 'Technology', world: 'International', kids: '🧒 Kids', custom: 'Custom' };
+
+        list.innerHTML = catOrder.filter(c => cats[c]).map(cat => `
+            <div class="settings-category">
+                <div class="settings-category-name">${catLabels[cat] || cat}</div>
+                ${cats[cat].map(src => sourceRowHTML(src)).join('')}
+            </div>
+        `).join('');
+    }
+
+    function sourceRowHTML(src) {
+        const enabled = !currentSettings.disabled.includes(src.id);
+        const isCustom = !src.builtin;
+        return `
+        <div class="source-row${isCustom ? ' custom-row' : ''}" id="row-${src.id}">
+            <div class="source-info">
+                <span class="source-name">${src.name}</span>
+                <span class="source-url">${src.url}</span>
+            </div>
+            <div class="source-row-actions">
+                ${isCustom ? `<button class="btn-del-source" onclick="deleteCustomSource('${src.id}')" title="Remove">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>` : ''}
+                <label class="toggle" title="${enabled ? 'Enabled' : 'Disabled'}">
+                    <input type="checkbox" ${enabled ? 'checked' : ''} onchange="toggleSource('${src.id}', this.checked)">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-knob"></div>
+                </label>
+            </div>
+        </div>`;
+    }
+
+    function toggleSource(id, enabled) {
+        if (enabled) {
+            currentSettings.disabled = currentSettings.disabled.filter(x => x !== id);
+        } else {
+            if (!currentSettings.disabled.includes(id)) currentSettings.disabled.push(id);
+        }
+        // auto-save on toggle
+        saveSettings(currentSettings);
+    }
+
+    function deleteCustomSource(id) {
+        currentSettings.custom = currentSettings.custom.filter(s => s.id !== id);
+        currentSettings.disabled = currentSettings.disabled.filter(x => x !== id);
+        saveSettings(currentSettings);
+        renderSettingsPanel();
+    }
+
+    function addCustomFeed() {
+        const name = document.getElementById('input-feed-name').value.trim();
+        const url  = document.getElementById('input-feed-url').value.trim();
+        const cat  = document.getElementById('input-feed-category').value;
+        const msg  = document.getElementById('form-msg');
+
+        msg.className = 'form-msg';
+
+        if (!name) { showMsg('error', 'Please enter a display name.'); return; }
+        if (!url || !url.startsWith('http')) { showMsg('error', 'Please enter a valid feed URL.'); return; }
+
+        const id = 'custom-' + Date.now();
+        const newFeed = { id, name, category: cat, url, builtin: false };
+        currentSettings.custom.push(newFeed);
+        saveSettings(currentSettings);
+        renderSettingsPanel();
+
+        document.getElementById('input-feed-name').value = '';
+        document.getElementById('input-feed-url').value  = '';
+        showMsg('success', `"${name}" added successfully.`);
+    }
+
+    function showMsg(type, text) {
+        const msg = document.getElementById('form-msg');
+        msg.textContent = text;
+        msg.className = 'form-msg ' + type;
+        setTimeout(() => { msg.className = 'form-msg'; }, 3500);
+    }
+
+    // ─────────────────────────────────────────────
+    //  NEWS FETCHING
+    // ─────────────────────────────────────────────
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    async function fetchRSS(feed) {
+        const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`;
+        try {
+            const res  = await fetch(proxyUrl);
+            if (res.status === 429) {
+                console.warn(`Rate limited (${feed.name}), retrying after 1s…`);
+                await delay(1000);
+                const retry = await fetch(proxyUrl);
+                const data  = await retry.json();
+                return (data.items || []).map(item => ({ ...item, source: feed.name }));
+            }
+            const data = await res.json();
+            return (data.items || []).map(item => ({ ...item, source: feed.name }));
+        } catch (err) {
+            console.error(`Feed error (${feed.name}):`, err);
+            return [];
+        }
+    }
+
+    // Fetch feeds sequentially with a small gap to avoid proxy rate-limits
+    async function fetchAllFeeds(feeds) {
+        const results = [];
+        for (const feed of feeds) {
+            results.push(await fetchRSS(feed));
+            await delay(300);
+        }
+        return results;
+    }
+
+    function setActiveBtn(cat) {
+        document.querySelectorAll('#nav button:not(.btn-refresh)').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('btn-' + cat);
+        if (btn) btn.classList.add('active');
+        subtitle.textContent = categoryLabels[cat] || '';
+    }
+
+    async function switchCategory(cat) {
+        setActiveBtn(cat);
+        loader.style.display = 'flex';
+        container.innerHTML = '';
+        const settings = loadSettings();
+        const active = getActiveSources(settings).filter(s => s.category === cat);
+        if (!active.length) {
+            loader.style.display = 'none';
+            container.innerHTML = `<p style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:4rem 0;">
+                No sources enabled for this category. Open Settings (⚙) to add some.
+            </p>`;
+            return;
+        }
+        const stories = await fetchAllFeeds(active);
+        renderNews(stories.flat().sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate)));
+    }
+
+    async function fetchAll() {
+        document.querySelectorAll('#nav button:not(.btn-refresh)').forEach(b => b.classList.remove('active'));
+        subtitle.textContent = 'All enabled sources';
+        loader.style.display = 'flex';
+        container.innerHTML = '';
+        const settings = loadSettings();
+        const active = getActiveSources(settings);
+        if (!active.length) {
+            loader.style.display = 'none';
+            container.innerHTML = `<p style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:4rem 0;">
+                No sources enabled. Open Settings (⚙) to enable some.
+            </p>`;
+            return;
+        }
+        const stories = await fetchAllFeeds(active);
+        renderNews(stories.flat().sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate)));
+    }
+
+    function formatDate(str) {
+        const d = new Date(str);
+        if (isNaN(d)) return { date: '', time: '' };
+        const date = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        const time = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
+        return { date, time };
+    }
+
+    function renderNews(stories) {
+        loader.style.display = 'none';
+        if (!stories.length) {
+            container.innerHTML = `<p style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:4rem 0;">No stories found. Check your connection.</p>`;
+            return;
+        }
+
+        container.innerHTML = stories.map((post, i) => {
+            const imgSrc = post.thumbnail || post.enclosure?.link;
+            const desc = (post.description || '').replace(/<[^>]*>?/gm, '').trim();
+            const delay = Math.min(i * 40, 400);
+
+            const imgHtml = imgSrc
+                ? `<div class="card-img-wrap"><img src="${imgSrc}" alt="" loading="lazy" onerror="this.parentElement.outerHTML=noImgHtml()"></div>`
+                : `<div class="card-no-img">${noImgSvg()}</div>`;
+
+            return `
+            <div class="card" style="animation-delay:${delay}ms">
+                ${imgHtml}
+                <div class="card-body">
+                    <span class="card-source">${post.source}</span>
+                    <h2 class="card-title">${post.title}</h2>
+                    ${desc ? `<p class="card-desc">${desc}</p>` : ''}
+                    <div class="card-footer">
+                        <span class="card-date">
+                            <span class="card-date-day">${formatDate(post.pubDate).date}</span>
+                            <span class="card-date-time">
+                                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDate(post.pubDate).time}
+                            </span>
+                        </span>
+                        <a href="${post.link}" target="_blank" rel="noopener" class="card-link">Read more <span>→</span></a>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function noImgSvg() {
+        return `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
+    }
+
+    function noImgHtml() {
+        return `<div class="card-no-img">${noImgSvg()}</div>`;
+    }
+
+    // Keyboard: Escape closes drawer
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && settingsOpen) closeSettings(); });
+
+    // Initial load
+    switchCategory('national');
+    </script>
+</body>
+
+</html>
