@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Player</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Montserrat:wght@700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg: #8d8d8d;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            padding: 40px 20px;
+        }
+
+        #app {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        h1,
+        .question-text {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+        }
+
+        .upload-area {
+            border: 2px dashed #e2e8f0;
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: 20px;
+        }
+
+        .error-banner {
+            background: #fef2f2;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #fecaca;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-btn {
+            padding: 18px;
+            border: 2px solid #f1f5f9;
+            border-radius: 16px;
+            background: white;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+        }
+
+        .option-btn.correct-choice {
+            border-color: var(--success);
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .option-btn.wrong-choice {
+            border-color: var(--error);
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .feedback-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .feedback-box.is-correct {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .feedback-box.is-wrong {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .btn-action {
+            margin-top: 20px;
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            background: var(--primary);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            margin-top: 12px;
+            width: auto;
+            padding: 12px 28px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-secondary.copied {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        /* Mobile-first touch targets */
+        .option-btn,
+        .btn-action {
+            min-height: 48px;
+        }
+
+        /* Tablets & small screens */
+        @media (max-width: 600px) {
+            body {
+                padding: 16px 8px;
+            }
+
+            #app {
+                padding: 24px 18px;
+                border-radius: 18px;
+            }
+
+            .question-text {
+                font-size: 1.15rem;
+            }
+
+            .option-btn {
+                font-size: 1rem;
+                padding: 14px;
+            }
+
+            .btn-action {
+                font-size: 1rem;
+                padding: 16px;
+            }
+
+            .upload-area {
+                padding: 40px 16px;
+            }
+
+            .upload-area .btn-action {
+                width: 100%;
+                padding: 16px;
+            }
+
+            .score-value {
+                font-size: 3rem !important;
+            }
+        }
+
+        /* Narrow phones */
+        @media (max-width: 400px) {
+            body {
+                padding: 8px 4px;
+            }
+
+            #app {
+                padding: 18px 12px;
+                border-radius: 14px;
+            }
+
+            h1 {
+                font-size: 1.4rem;
+            }
+
+            .question-text {
+                font-size: 1.05rem;
+                margin-bottom: 18px;
+            }
+
+            .option-btn {
+                font-size: 0.95rem;
+                padding: 12px;
+                border-radius: 12px;
+            }
+
+            .btn-action {
+                font-size: 0.95rem;
+                padding: 14px;
+                border-radius: 12px;
+            }
+
+            .feedback-box {
+                padding: 14px;
+            }
+
+            .score-value {
+                font-size: 2.5rem !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <div v-if="errorMessage" class="error-banner">⚠️ {{ errorMessage }}</div>
+
+        <div v-if="!questions.length" class="upload-area">
+            <h1>Quiz Player</h1>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Upload your .md file to start.</p>
+            <input type="file" @change="handleFileUpload" accept=".md" id="fileInput" style="display: none">
+            <button class="btn-action" style="width: auto; padding: 18px 40px;"
+                onclick="document.getElementById('fileInput').click()">Upload Markdown</button>
+            <br>
+            <button class="btn-secondary" :class="{ copied: templateCopied }" @click="copyTemplate">{{ templateCopied ?
+                '✓ Copied!' : '📋 Copy prompt for AI' }}</button>
+            <br>
+            <button class="btn-secondary" @click="downloadSample">⬇️ Download sample `questions.md`</button>
+        </div>
+
+        <div v-else-if="!quizCompleted">
+            <div
+                style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px;">
+                QUESTION {{ currentIndex + 1 }} OF {{ questions.length }}</div>
+            <div class="progress-bar">
+                <div class="progress-fill" :style="{ width: ((currentIndex + 1) / questions.length) * 100 + '%' }">
+                </div>
+            </div>
+
+            <div class="question-text">{{ currentQuestion.questionText }}</div>
+
+            <div class="options-grid" :key="currentIndex">
+                <button v-for="opt in currentQuestion.options" :key="opt.id" @click="checkAnswer(opt.id)"
+                    :disabled="showFeedback" :class="['option-btn', getOptionClass(opt.id)]">
+                    <strong>{{ opt.id }}</strong> &nbsp; {{ opt.text }}
+                </button>
+            </div>
+
+            <div v-if="showFeedback" :class="['feedback-box', isCorrect ? 'is-correct' : 'is-wrong']">
+                <h3 style="margin:0">{{ isCorrect ? '✓ Well Done!' : '✗ Not Quite' }}</h3>
+                <p>{{ currentQuestion.explanation }}</p>
+                <button class="btn-action" @click="nextQuestion">
+                    {{ currentIndex === questions.length - 1 ? 'Finish Quiz' : 'Continue' }}
+                </button>
+            </div>
+        </div>
+
+        <div v-else style="text-align: center;">
+            <h1>Assessment Complete</h1>
+            <div class="score-value" style="font-size: 4rem; font-weight: 800; color: var(--primary); margin: 20px 0;">
+                {{ Math.round((score/questions.length)*100) }}%</div>
+            <p style="font-size: 1.15rem; color: var(--text-muted); margin-bottom: 24px;">{{ score }} out of {{
+                questions.length }} correct</p>
+            <button class="btn-action" @click="resetQuiz">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                const questions = ref([]);
+                const currentIndex = ref(0);
+                const userSelection = ref(null);
+                const showFeedback = ref(false);
+                const score = ref(0);
+                const quizCompleted = ref(false);
+                const errorMessage = ref(null);
+                const templateCopied = ref(false);
+
+                const currentQuestion = computed(() => questions.value[currentIndex.value] || { options: [] });
+                const isCorrect = computed(() => userSelection.value === currentQuestion.value.correctAnswerId);
+
+                const renderMath = () => {
+                    nextTick(() => {
+                        if (window.renderMathInElement) {
+                            renderMathInElement(document.body, {
+                                delimiters: [
+                                    { left: '$$', right: '$$', display: true },
+                                    { left: '$', right: '$', display: false }
+                                ],
+                                throwOnError: false
+                            });
+                        }
+                    });
+                };
+
+                const parseMarkdown = (text) => {
+                    const lines = text.split('\n');
+                    const results = [];
+                    let q = null;
+
+                    lines.forEach(line => {
+                        const t = line.trim();
+                        if (t.startsWith('## Question')) {
+                            if (q) results.push(q);
+                            q = { questionText: '', options: [], correctAnswerId: '', explanation: '' };
+                            return;
+                        }
+                        if (!q) return;
+
+                        const optMatch = t.match(/^([A-D])\)\s*(.*)/);
+                        if (optMatch) {
+                            q.options.push({ id: optMatch[1], text: optMatch[2].trim() });
+                        } else if (t.match(/\*\*Correct Answer:\s*([A-D])\*\*/i)) {
+                            q.correctAnswerId = t.match(/\*\*Correct Answer:\s*([A-D])\*\*/i)[1].toUpperCase();
+                        } else if (t.startsWith('>') && t.includes('Explanation:')) {
+                            q.explanation = t.replace(/>\s*\*\*Explanation:\*\*/i, '').trim();
+                        } else if (t.startsWith('>') && q.explanation) {
+                            q.explanation += " " + t.replace(/^>/, '').trim();
+                        } else if (q.options.length === 0 && t !== '' && !t.startsWith('---') && !t.startsWith('#')) {
+                            q.questionText += (q.questionText ? ' ' : '') + t;
+                        }
+                    });
+                    if (q) results.push(q);
+                    return results;
+                };
+
+                const handleFileUpload = (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    errorMessage.value = null;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const parsed = parseMarkdown(e.target.result);
+                            if (parsed.length === 0) throw new Error("Could not find questions.");
+                            questions.value = parsed;
+                            currentIndex.value = 0;
+                            renderMath();
+                        } catch (err) {
+                            errorMessage.value = err.message;
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+
+                const checkAnswer = (id) => {
+                    userSelection.value = id;
+                    showFeedback.value = true;
+                    if (isCorrect.value) score.value++;
+                    renderMath();
+                };
+
+                const getOptionClass = (id) => {
+                    if (!showFeedback.value) return '';
+                    if (id === currentQuestion.value.correctAnswerId) return 'correct-choice';
+                    if (userSelection.value === id) return 'wrong-choice';
+                    return '';
+                };
+
+                const nextQuestion = () => {
+                    if (currentIndex.value < questions.value.length - 1) {
+                        currentIndex.value++;
+                        userSelection.value = null;
+                        showFeedback.value = false;
+                        renderMath();
+                    } else {
+                        quizCompleted.value = true;
+                    }
+                };
+
+                const copyTemplate = () => {
+                    const lines = [
+                        "**Role:** Expert Educator and Markdown Architect.",
+                        "**Task:** Create a comprehensive 20-question quiz based on the content uploaded.",
+                        "**Content Requirements:**",
+                        "1.  **Pedagogy:** Every question must have four options (A, B, C, D).",
+                        "2.  **Difficulty:** Distractors (wrong answers) must be plausible and closely related to the correct answer to test deep understanding, but only one answer must be objectively correct.",
+                        "3.  **LaTeX Support:** Use LaTeX for all chemical formulas (e.g., $CO_{2}$, $O_{2}$) and mathematical notations.",
+                        "4.  **Explanations:** Provide a detailed explanation for every question, explaining why the correct answer is right and briefly clarifying the distractors.",
+                        "",
+                        "**Markdown Formatting Requirements:**",
+                        "The output must be formatted using clean, professional Markdown according to these specifications:",
+                        "* **Title:** Use a Level 1 Header (`#`) for the quiz title.",
+                        "* **Question Structure:** Use Level 2 Headers (`##`) for each question (e.g., `## Question 1`).",
+                        "* **Options:** List options using a lettered list (A, B, C, D).",
+                        "* **Key & Explanation:** Use a horizontal rule (`---`) to separate the question/options from the answer key. Use **bolding** for the \"Correct Answer\" label and a blockquote (`>`) for the explanation.",
+                        "",
+                        "**Validation Step (Mandatory):**",
+                        "Before providing the final output, verify the following:",
+                        "* Ensure all LaTeX symbols are correctly enclosed in single `$` for inline or `$$` for display.",
+                        "* Check that there are no broken lists or formatting artifacts.",
+                        "* Verify that the \"Correct Answer\" matches the provided explanation.",
+                        "",
+                        "**Output:** Provide only the formatted Markdown. No introductory or concluding text.",
+                        "",
+                        "**Example structure to follow:**",
+                        "",
+                        "# The Fundamental Unit of Life",
+                        "",
+                        "## Question 1",
+                        "By which process do substances like carbon dioxide ($CO_{2}$) and oxygen ($O_{2}$) move across the cell membrane?",
+                        "A) Osmosis",
+                        "B) Diffusion",
+                        "C) Plasmolysis",
+                        "D) Endocytosis",
+                        "",
+                        "---",
+                        "**Correct Answer: B**",
+                        "> **Explanation:** Gaseous exchange of $CO_{2}$ and $O_{2}$ occurs via diffusion, which is the spontaneous movement of substances from a region of high concentration to low concentration. Osmosis refers specifically to the movement of water, while endocytosis involves the cell membrane engulfing large particles."
+                    ];
+                    const template = lines.join("\n");
+                    navigator.clipboard.writeText(template).then(() => {
+                        templateCopied.value = true;
+                        setTimeout(() => { templateCopied.value = false; }, 2000);
+                    });
+                };
+
+                const downloadSample = () => {
+                    const lines = [
+                        "# Sample Quiz",
+                        "",
+                        "## Question 1",
+                        "What is the powerhouse of the cell?",
+                        "",
+                        "A) Nucleus",
+                        "B) Ribosome",
+                        "C) Mitochondria",
+                        "D) Golgi apparatus",
+                        "",
+                        "**Correct Answer: C**",
+                        "",
+                        "> **Explanation:** The mitochondria produce ATP through cellular respiration, earning the nickname 'powerhouse of the cell'. The nucleus contains DNA, ribosomes synthesize proteins, and the Golgi apparatus packages and ships materials.",
+                        "",
+                        "---",
+                        "",
+                        "## Question 2",
+                        "Which gas do plants absorb during photosynthesis?",
+                        "",
+                        "A) Oxygen ($O_{2}$)",
+                        "B) Nitrogen ($N_{2}$)",
+                        "C) Carbon Dioxide ($CO_{2}$)",
+                        "D) Hydrogen ($H_{2}$)",
+                        "",
+                        "**Correct Answer: C**",
+                        "",
+                        "> **Explanation:** Plants absorb $CO_{2}$ and water, using sunlight to convert them into glucose and $O_{2}$ during photosynthesis. Oxygen is a byproduct, not an input.",
+                        "",
+                        "---"
+                    ];
+                    const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "questions.md";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                };
+
+                const resetQuiz = () => {
+                    questions.value = [];
+                    currentIndex.value = 0;
+                    score.value = 0;
+                    showFeedback.value = false;
+                    quizCompleted.value = false;
+                    errorMessage.value = null;
+                };
+
+                return {
+                    questions, currentIndex, currentQuestion, userSelection,
+                    showFeedback, isCorrect, score, quizCompleted, errorMessage,
+                    handleFileUpload, checkAnswer, nextQuestion, resetQuiz, getOptionClass,
+                    copyTemplate, templateCopied, downloadSample
+                };
+            }
+        }).mount('#app');
+    </script>
+
+</body>
+
+</html>
