@@ -1,1 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniTools</title>
+    <meta name="description" content="A comprehensive collection of developer tools including JSON formatter, Markdown editor, PDF utilities, and more.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --gradient-start: #3b82f6;
+            --gradient-end: #8b5cf6;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 4rem 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .tool-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .tool-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .icon-wrapper {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover .icon-wrapper {
+            background: rgba(59, 130, 246, 0.1);
+            transform: scale(1.1);
+        }
+
+        .tool-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tool-title::after {
+            content: '→';
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+            color: var(--accent);
+        }
+
+        .tool-card:hover .tool-title::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tool-desc {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            flex-grow: 1;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .container {
+                padding: 2rem 1rem;
+            }
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OmniTools</h1>
+            <p class="subtitle">A comprehensive collection of web-based utilities and tools to streamline your workflow and boost productivity.</p>
+        </header>
+
+        <main class="tools-grid">
+            <a href="./decide/" class="tool-card">
+                <div class="icon-wrapper">⚖️</div>
+                <h2 class="tool-title">Decision Maker</h2>
+                <p class="tool-desc">Make choices easier with this interactive decision wheel and tool.</p>
+            </a>
+            
+            <a href="./image/" class="tool-card">
+                <div class="icon-wrapper">🖼️</div>
+                <h2 class="tool-title">Image Tools</h2>
+                <p class="tool-desc">Quickly process, convert, and manipulate your images right in the browser.</p>
+            </a>
+            
+            <a href="./json/" class="tool-card">
+                <div class="icon-wrapper">{" "}</div>
+                <h2 class="tool-title">JSON Formatter</h2>
+                <p class="tool-desc">Format, parse, minify, and validate your JSON data structures easily.</p>
+            </a>
+            
+            <a href="./md/" class="tool-card">
+                <div class="icon-wrapper">📝</div>
+                <h2 class="tool-title">Markdown Editor</h2>
+                <p class="tool-desc">Write, edit, and preview markdown with real-time rendering capabilities.</p>
+            </a>
+            
+            <a href="./mind/" class="tool-card">
+                <div class="icon-wrapper">🧠</div>
+                <h2 class="tool-title">Mind Map</h2>
+                <p class="tool-desc">Visualize your thoughts, brainstorm, and organize complex ideas graphically.</p>
+            </a>
+            
+            <a href="./news/" class="tool-card">
+                <div class="icon-wrapper">📰</div>
+                <h2 class="tool-title">News Reader</h2>
+                <p class="tool-desc">Stay updated with the latest headlines and articles in a clean interface.</p>
+            </a>
+            
+            <a href="./pdf/" class="tool-card">
+                <div class="icon-wrapper">📄</div>
+                <h2 class="tool-title">PDF Utilities</h2>
+                <p class="tool-desc">Merge, split, compress, and manipulate your PDF documents locally.</p>
+            </a>
+            
+            <a href="./pomo/" class="tool-card">
+                <div class="icon-wrapper">⏱️</div>
+                <h2 class="tool-title">Pomodoro Timer</h2>
+                <p class="tool-desc">Boost your focus and productivity with the proven Pomodoro technique.</p>
+            </a>
+            
+            <a href="./quiz/" class="tool-card">
+                <div class="icon-wrapper">❓</div>
+                <h2 class="tool-title">Quiz Maker</h2>
+                <p class="tool-desc">Create, test, and take interactive quizzes for learning and assessment.</p>
+            </a>
+        </main>
+        <footer style="text-align: center; margin-top: 4rem; padding-bottom: 2rem; color: var(--text-secondary); font-size: 0.875rem; opacity: 0.7;">
+            Made with ❤️ by Bikram
+        </footer>
+    </div>
+</body>
+</html>

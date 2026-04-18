@@ -40,7 +40,7 @@
 
 <body class="text-slate-200 p-4 md:p-8">
 
-    <div class="max-w-6xl mx-auto">
+    <div class="w-full">
         <header class="mb-8 text-center">
             <h1 class="text-4xl font-bold tracking-tight text-white mb-2">JSON <span
                     class="text-indigo-400">Refiner</span></h1>
@@ -58,7 +58,7 @@
                     </button>
                 </div>
                 <textarea id="jsonInput"
-                    class="w-full h-[500px] bg-slate-800/50 border border-slate-700 rounded-xl p-4 font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none text-emerald-400 placeholder-slate-500"
+                    class="w-full h-[500px] lg:h-[calc(100vh-250px)] bg-slate-800/50 border border-slate-700 rounded-xl p-4 font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none text-emerald-400 placeholder-slate-500"
                     placeholder='{"tip": "Paste messy or broken JSON here..."}'></textarea>
             </div>
 
@@ -70,13 +70,13 @@
                         Copy JSON
                     </button>
                 </div>
-                <div id="jsoneditor" class="h-[500px] shadow-2xl"></div>
+                <div id="jsoneditor" class="h-[500px] lg:h-[calc(100vh-250px)] shadow-2xl"></div>
             </div>
 
         </div>
 
         <footer class="mt-12 text-center text-slate-500 text-xs">
-            Built with JSONEditor • Supports Collapsible Nodes • Auto-Fixes minor syntax issues
+            Made with ❤️ by Bikram
         </footer>
     </div>
 
