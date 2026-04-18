@@ -9,8 +9,26 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
+
+    <!-- KaTeX CSS & JS, Marked Extension for LaTeX support -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-katex-extension@5.1.2/lib/index.umd.js"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap"
         rel="stylesheet">
+
     <style>
         :root {
             --primary: #6366f1;
@@ -25,7 +43,7 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Custom scrollbar for elegance */
+        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -67,7 +85,8 @@
             color: #475569;
         }
 
-        #preview-content code {
+        /* Inline Code */
+        #preview-content :not(pre)>code {
             background: #f1f5f9;
             padding: 0.2rem 0.4rem;
             border-radius: 4px;
@@ -75,13 +94,16 @@
             font-size: 0.9em;
         }
 
+        /* Block Code Overrides for Prism */
         #preview-content pre {
-            background: #1e293b;
-            color: #f8fafc;
+            background: #1e293b !important;
+            /* Matches your dark theme */
             padding: 1.25rem;
             border-radius: 8px;
-            overflow-x: auto;
             margin: 1.5rem 0;
+            font-size: 14px;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         #preview-content blockquote {
@@ -104,6 +126,37 @@
             text-decoration: underline;
             text-underline-offset: 4px;
         }
+
+        /* Extended Elements Styling */
+        #preview-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+
+        #preview-content th, #preview-content td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+        }
+
+        #preview-content th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        #preview-content input[type="checkbox"] {
+            margin-right: 0.5rem;
+            accent-color: #6366f1;
+            cursor: not-allowed;
+        }
+
+        #preview-content hr {
+            margin: 2.5rem 0;
+            border: 0;
+            border-top: 2px solid #e2e8f0;
+        }
     </style>
 </head>
 
@@ -123,117 +176,217 @@
 
         <div class="flex items-center gap-2">
             <button onclick="clearAll()"
-                class="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-red-600 transition-colors">
-                Clear
-            </button>
+                class="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-red-600 transition-colors">Clear</button>
             <div class="h-4 w-[1px] bg-gray-200 mx-2"></div>
             <button onclick="downloadFile()"
-                class="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md border border-indigo-200 transition-all active:scale-95">
-                Save HTML
-            </button>
+                class="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md border border-indigo-200 transition-all active:scale-95">HTML</button>
             <button onclick="downloadPDF()"
-                class="px-4 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-md shadow-indigo-100 transition-all active:scale-95">
-                PDF
-            </button>
+                class="px-4 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-md shadow-indigo-100 transition-all active:scale-95">PDF</button>
             <button onclick="downloadDocx()"
-                class="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md shadow-blue-100 transition-all active:scale-95">
-                Word (DOCX)
-            </button>
+                class="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md shadow-blue-100 transition-all active:scale-95">Word
+                (.docx)</button>
         </div>
     </nav>
 
     <main class="flex-1 flex overflow-hidden">
-
         <section class="w-1/2 flex flex-col border-r border-gray-200 bg-white">
             <div class="h-8 flex items-center px-4 bg-gray-50 border-b border-gray-200">
                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Markdown Editor</span>
             </div>
             <textarea id="editor" spellcheck="false"
                 class="flex-1 p-8 outline-none code-font text-[14px] leading-relaxed text-gray-700 placeholder-gray-300 resize-none"
-                placeholder="# Start writing..."># Hello World
+                placeholder="# Start writing..."># Comprehensive Markdown Example
 
-Welcome to this **elegant** editor. 
+Welcome to Scribe. This document demonstrates various Markdown features and syntax highlighting capabilities across multiple languages.
 
-## Try these:
-1. Write Markdown on the left
-2. See the magic on the right
-3. Export your work
+## Typography
 
-> "The best way to predict the future is to invent it."
+You can use **bold**, *italic*, or ~~strikethrough~~ text.
+You can also use inline `code` for small snippets.
 
+## Lists
+
+### Unordered List
+* Item 1
+* Item 2
+  * Nested Item
+  * Another Nested Item
+
+### Ordered List
+1. First step
+2. Second step
+3. Third step
+
+## Blockquotes
+
+> "The only way to do great work is to love what you do."
+> — Steve Jobs
+
+## Links & Images
+
+Check out [PrismJS](https://prismjs.com) for more on syntax highlighting.
+
+![Markdown Logo](https://upload.wikimedia.org/wikipedia/commons/4/48/Markdown-mark.svg)
+
+## Icons 
+Markdown natively supports emojis: 🚀 🔥 ✅ 💻.
+With the included library, you can also use FontAwesome HTML tags directly!
+<i class="fa-solid fa-rocket" style="color: #6366f1;"></i>
+<i class="fa-solid fa-code" style="color: #10b981;"></i>
+<i class="fa-brands fa-markdown" style="color: #f59e0b; font-size: 1.5em;"></i>
+
+## LaTeX (Math Equations)
+Scribe supports inline and block LaTeX rendered beautifully via KaTeX!
+
+**Inline Math:** Euler's Identity is $e^{i\pi} + 1 = 0$.
+
+**Block Math:** The quadratic formula is:
+
+$$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
+
+**Calculus & Integrals:**
+
+$$ \int_{a}^{b} x^2 dx = \left[ \frac{x^3}{3} \right]_{a}^{b} = \frac{b^3 - a^3}{3} $$
+
+**Matrices:**
+
+$$
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+7 & 8 & 9
+\end{bmatrix}
+$$
+
+---
+
+## Extended Features
+
+### Data Tables
+| Feature | Supported | Description |
+| ------- | :-------: | ----------- |
+| **Tables** | ✅ | Column alignment works! |
+| **Math** | ✅ | Powered by KaTeX. |
+| **Icons** | ✅ | FontAwesome included. |
+
+### Task Lists
+- [x] Create Markdown Editor
+- [x] Add Syntax Highlighting
+- [x] Configure PDF Exports
+- [ ] Implement Cloud Syncing (Coming Soon)
+
+---
+
+## Diverse Code Blocks
+
+### JavaScript
 ```javascript
-const app = () => console.log("Modern & Fast");
+function calculateFactorial(n) {
+  if (n === 0 || n === 1) return 1;
+  return n * calculateFactorial(n - 1);
+}
+console.log(calculateFactorial(5));
+```
+
+### Python
+```python
+def fibonacci(n):
+    a, b = 0, 1
+    for _ in range(n):
+        yield a
+        a, b = b, a + b
+
+print(list(fibonacci(5)))
+```
+
+### Java
+```java
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+```
+
+### Bash
+```bash
+#!/bin/bash
+echo "Updating packages..."
+sudo apt-get update && sudo apt-get upgrade -y
+```
+
+### CSS
+```css
+.code-preview {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+```
+
+### HTML
+```html
+<div class="card">
+  <h2>Title</h2>
+  <p>Hello Markdown!</p>
+</div>
 ```</textarea>
         </section>
 
-        <section class="w-1/2 flex flex-col bg-[#fcfcfd]">
+        <section class="w-1/2 flex flex-col bg-white">
             <div class="h-8 flex items-center px-4 bg-gray-50 border-b border-gray-200">
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Live Preview</span>
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Preview</span>
             </div>
-            <div id="preview-container" class="flex-1 overflow-y-auto p-10">
-                <div id="preview-content" class="max-w-2xl mx-auto">
-                </div>
+            <div id="preview-content" class="flex-1 p-8 overflow-y-auto">
+                <!-- Preview will be generated here -->
             </div>
         </section>
-
     </main>
-
-    <footer
-        class="h-8 border-t border-gray-200 bg-white px-6 flex items-center justify-between text-[11px] text-gray-400 font-medium">
-        <div class="flex gap-4">
-            <span id="charCount">0 characters</span>
-            <span id="wordCount">0 words</span>
-        </div>
-        <div>UTF-8 Standard</div>
-    </footer>
 
     <script>
         const editor = document.getElementById('editor');
-        const preview = document.getElementById('preview-content');
-        const charCount = document.getElementById('charCount');
-        const wordCount = document.getElementById('wordCount');
+        const previewContent = document.getElementById('preview-content');
 
-        // Configure Marked.js for line breaks
-        marked.setOptions({
-            breaks: true,
-            gfm: true
-        });
-
-        function render() {
-            const text = editor.value;
-            preview.innerHTML = marked.parse(text);
-
-            // Update Stats
-            charCount.innerText = `${text.length} characters`;
-            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-            wordCount.innerText = `${words} words`;
+        // Init KaTeX into Marked
+        if (window.markedKatex) {
+            marked.use(window.markedKatex.default ? window.markedKatex.default({ throwOnError: false }) : window.markedKatex({ throwOnError: false }));
         }
 
-        function clearAll() {
-            if (confirm("Are you sure you want to clear your work?")) {
-                editor.value = '';
-                render();
+        function updatePreview() {
+            const markdown = editor.value;
+            // Parse Markdown to HTML
+            const html = marked.parse(markdown);
+            previewContent.innerHTML = html;
+
+            // Re-run Prism.js syntax highlighting
+            if (window.Prism) {
+                Prism.highlightAllUnder(previewContent);
             }
         }
 
+        // Initialize and listen for changes
+        editor.addEventListener('input', updatePreview);
+        updatePreview(); // initial render
+
+        function clearAll() {
+            editor.value = '';
+            updatePreview();
+        }
+
         function downloadFile() {
-            const htmlContent = `
-<!DOCTYPE html>
-<html>
+            const headContent = document.head.innerHTML;
+            const fullHtml = `<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #333; }
-        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
-        code { font-family: monospace; background: #eee; padding: 2px 4px; border-radius: 3px; }
-        blockquote { border-left: 5px solid #ccc; margin: 1.5em 10px; padding: 0.5em 10px; color: #666; }
-    </style>
+    ${headContent}
 </head>
-<body>
-    ${preview.innerHTML}
+<body class="bg-gray-50 p-8">
+    <div id="preview-content" class="max-w-4xl mx-auto bg-white p-12 rounded-xl shadow-sm border border-gray-100">
+        ${previewContent.innerHTML}
+    </div>
 </body>
 </html>`;
-            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const blob = new Blob([fullHtml], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -248,29 +401,21 @@ const app = () => console.log("Modern & Fast");
                 margin:       [10, 10, 10, 10],
                 filename:     'document.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                html2canvas:  { scale: 2, letterRendering: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'avoid-all'] }
             };
             html2pdf().set(opt).from(element).save();
         }
 
         function downloadDocx() {
-            const content = document.getElementById('preview-content').innerHTML;
-            const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Document</title></head><body>${content}</body></html>`;
-            const docxBlob = htmlDocx.asBlob(fullHtml);
-            const url = URL.createObjectURL(docxBlob);
+            const html = '<!DOCTYPE html><html><body>' + previewContent.innerHTML + '</body></html>';
+            const converted = htmlDocx.asBlob(html);
             const a = document.createElement('a');
-            a.href = url;
+            a.href = URL.createObjectURL(converted);
             a.download = 'document.docx';
             a.click();
-            URL.revokeObjectURL(url);
         }
-
-        // Listen for input
-        editor.addEventListener('input', render);
-
-        // Initial render
-        render();
     </script>
 </body>
 
