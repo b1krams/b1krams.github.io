@@ -135,7 +135,8 @@
             font-size: 0.95em;
         }
 
-        #preview-content th, #preview-content td {
+        #preview-content th,
+        #preview-content td {
             border: 1px solid #e2e8f0;
             padding: 0.75rem;
         }
@@ -183,8 +184,7 @@
             <button onclick="downloadPDF()"
                 class="px-4 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-md shadow-indigo-100 transition-all active:scale-95">PDF</button>
             <button onclick="downloadDocx()"
-                class="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md shadow-blue-100 transition-all active:scale-95">Word
-                (.docx)</button>
+                class="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md shadow-blue-100 transition-all active:scale-95">Word</button>
         </div>
     </nav>
 
@@ -343,6 +343,10 @@ sudo apt-get update && sudo apt-get upgrade -y
         </section>
     </main>
 
+    <footer class="mt-8 text-center text-slate-500 text-sm pb-4">
+        Made with <span class="text-red-500">&hearts;</span> by Bikram
+    </footer>
+
     <script>
         const editor = document.getElementById('editor');
         const previewContent = document.getElementById('preview-content');
@@ -398,12 +402,12 @@ sudo apt-get update && sudo apt-get upgrade -y
         function downloadPDF() {
             const element = document.getElementById('preview-content');
             const opt = {
-                margin:       [10, 10, 10, 10],
-                filename:     'document.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, letterRendering: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['css', 'avoid-all'] }
+                margin: [10, 10, 10, 10],
+                filename: 'document.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['css', 'avoid-all'] }
             };
             html2pdf().set(opt).from(element).save();
         }
