@@ -18,6 +18,8 @@ SwissWeb includes a variety of powerful utilities:
 - **📄 PDF Utilities**: Merge, split, compress, and manipulate your PDF documents locally.
 - **⏱️ Pomodoro Timer**: Boost your focus and productivity with the proven Pomodoro technique.
 - **❓ Quiz Maker**: Create, test, and take interactive quizzes for learning and assessment.
+- **📡 Signal Scope**: Real-time audio signal visualizer with waveform and frequency spectrum views.
+- **💰 Finance Engine**: Investment comparison engine with post-tax compounded wealth projections.
 
 ## 🛠️ Tech Stack
 
@@ -37,6 +39,8 @@ SwissWeb includes a variety of powerful utilities:
 - `/pdf`: PDF manipulation utilities
 - `/pomo`: Pomodoro productivity timer
 - `/quiz`: Interactive quiz builder
+- `/signal`: Real-time audio signal visualizer
+- `/finance`: Investment comparison engine
 
 ## 💻 Local Development
 

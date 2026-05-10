@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalScope | Audio Visualizer</title>
+    <meta name="description" content="Real-time audio signal visualizer — capture line-in or microphone audio and display waveform and frequency spectrum.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0e14;
+            --panel-bg: #161b22;
+            --panel-border: #30363d;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --green: #22d3ee;
+            --amber: #fbbf24;
+            --green-dim: rgba(34,211,238,0.15);
+            --gradient-start: #6366f1;
+            --gradient-end: #22d3ee;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── Toolbar ────────────────────────────── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--panel-bg);
+            border-bottom: 1px solid var(--panel-border);
+            flex-shrink: 0;
+        }
+        .toolbar .brand {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: 0.5rem;
+            white-space: nowrap;
+        }
+        .toolbar .sep {
+            width: 1px;
+            height: 20px;
+            background: var(--panel-border);
+            flex-shrink: 0;
+        }
+
+        /* ── Controls (inline in toolbar) ──────── */
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: nowrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.5rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.45); }
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-primary.active {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            box-shadow: 0 4px 20px rgba(239,68,68,0.35);
+        }
+        .btn-secondary {
+            background: var(--panel-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--panel-border);
+        }
+        .btn-secondary:hover { border-color: var(--accent); color: var(--text-primary); }
+        .btn-secondary.selected { border-color: var(--accent); color: var(--accent); background: rgba(99,102,241,0.08); }
+
+        .device-select {
+            padding: 0.3rem 0.5rem;
+            border-radius: 0.5rem;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            border: 1px solid var(--panel-border);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            max-width: 220px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .device-select:hover, .device-select:focus { border-color: var(--accent); outline: none; }
+
+        /* ── Stats HUD (floating on canvas) ────── */
+        .stats-hud {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+            background: rgba(11,14,20,0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(48,54,61,0.5);
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            line-height: 1;
+        }
+        .stat-value {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--green);
+            font-variant-numeric: tabular-nums;
+            line-height: 1.3;
+        }
+
+        /* ── Canvas Area ────────────────────────── */
+        .viz-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding: 3px;
+            min-height: 0;
+            position: relative;
+        }
+
+        .canvas-panel {
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+        }
+        .canvas-panel canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .grid-canvas {
+            z-index: 1;
+        }
+        canvas:not(.grid-canvas) {
+            z-index: 2;
+        }
+        .canvas-label {
+            position: absolute;
+            top: 0.75rem;
+            left: 1rem;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Glow line at center of waveform */
+        .canvas-panel.waveform::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(99,102,241,0.3), transparent);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ── Idle State ─────────────────────────── */
+        .idle-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            gap: 0.75rem;
+            transition: opacity 0.4s ease;
+        }
+        .idle-overlay.hidden { opacity: 0; pointer-events: none; }
+        .idle-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(99,102,241,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-ring 2s ease-in-out infinite;
+        }
+        .idle-icon svg { width: 20px; height: 20px; color: var(--accent); }
+        .idle-text { font-size: 0.75rem; color: var(--text-secondary); }
+        @keyframes pulse-ring {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.25); }
+            50% { box-shadow: 0 0 0 16px rgba(99,102,241,0); }
+        }
+
+        /* ── Responsive ─────────────────────────── */
+        @media (max-width: 700px) {
+            .toolbar { flex-wrap: wrap; gap: 0.3rem; }
+            .toolbar .brand { display: none; }
+            .toolbar .sep { display: none; }
+            .stats-hud { gap: 0.5rem; }
+            .stat-value { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Compact Toolbar -->
+    <div class="toolbar">
+        <span class="brand">SignalScope</span>
+        <div class="sep"></div>
+        <div class="controls" id="controlsBar">
+            <select class="device-select" id="deviceSelect" title="Audio Input Device">
+                <option value="">— Select Input —</option>
+            </select>
+            <select class="device-select" id="gainSelect" title="Visual Sensitivity" style="width: 80px;">
+                <option value="1" selected>1x Gain</option>
+                <option value="2">2x Gain</option>
+                <option value="5">5x Gain</option>
+                <option value="10">10x Gain</option>
+                <option value="auto">Auto</option>
+            </select>
+            <button class="btn btn-primary" id="startBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                <span>Start</span>
+            </button>
+            <button class="btn btn-secondary" id="holdBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                <span>Hold</span>
+            </button>
+            <button class="btn btn-secondary selected" id="vizWaveform" data-mode="waveform">Wave</button>
+            <button class="btn btn-secondary" id="vizSpectrum" data-mode="spectrum">Spectrum</button>
+            <button class="btn btn-secondary" id="vizBoth" data-mode="both">Both</button>
+        </div>
+    </div>
+
+    <!-- Visualization (fills remaining space) -->
+    <div class="viz-container" id="vizContainer">
+        <!-- Stats HUD overlay -->
+        <div class="stats-hud" id="statsHud">
+            <div class="stat"><div class="stat-label">Peak</div><div class="stat-value" id="peakDb">—</div></div>
+            <div class="stat"><div class="stat-label">RMS</div><div class="stat-value" id="rmsDb">—</div></div>
+            <div class="stat"><div class="stat-label">Freq</div><div class="stat-value" id="freqPeak">—</div></div>
+            <div class="stat"><div class="stat-label">Rate</div><div class="stat-value" id="sampleRate">—</div></div>
+        </div>
+        <!-- Waveform panel -->
+        <div class="canvas-panel waveform" id="wavePanel">
+            <span class="canvas-label">Waveform</span>
+            <canvas id="waveGridCanvas" class="grid-canvas"></canvas>
+            <canvas id="waveCanvas"></canvas>
+            <div class="idle-overlay" id="idleWave">
+                <div class="idle-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h2l3-9 4 18 4-12 3 6h4"/></svg>
+                </div>
+                <div class="idle-text">Waiting for audio signal…</div>
+            </div>
+        </div>
+        <!-- Spectrum panel -->
+        <div class="canvas-panel" id="specPanel" style="display:none;">
+            <span class="canvas-label">Spectrum</span>
+            <canvas id="specGridCanvas" class="grid-canvas"></canvas>
+            <canvas id="specCanvas"></canvas>
+            <div class="idle-overlay" id="idleSpec">
+                <div class="idle-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="3" height="8" rx="1"/><rect x="7.5" y="8" width="3" height="12" rx="1"/><rect x="12" y="4" width="3" height="16" rx="1"/><rect x="16.5" y="10" width="3" height="10" rx="1"/></svg>
+                </div>
+                <div class="idle-text">Waiting for audio signal…</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (() => {
+        // ── DOM Refs ─────────────────────────────
+        const deviceSelect   = document.getElementById('deviceSelect');
+        const gainSelect     = document.getElementById('gainSelect');
+        const startBtn       = document.getElementById('startBtn');
+        const holdBtn        = document.getElementById('holdBtn');
+        const waveGridCanvas = document.getElementById('waveGridCanvas');
+        const specGridCanvas = document.getElementById('specGridCanvas');
+        const waveCanvas     = document.getElementById('waveCanvas');
+        const specCanvas     = document.getElementById('specCanvas');
+        const wavePanel      = document.getElementById('wavePanel');
+        const specPanel      = document.getElementById('specPanel');
+        const idleWave       = document.getElementById('idleWave');
+        const idleSpec       = document.getElementById('idleSpec');
+        const peakDbEl       = document.getElementById('peakDb');
+        const rmsDbEl        = document.getElementById('rmsDb');
+        const freqPeakEl     = document.getElementById('freqPeak');
+        const sampleRateEl   = document.getElementById('sampleRate');
+        const vizBtns        = document.querySelectorAll('[data-mode]');
+
+        const wgCtx = waveGridCanvas.getContext('2d', { alpha: false });
+        const wCtx  = waveCanvas.getContext('2d');
+        const sgCtx = specGridCanvas.getContext('2d', { alpha: false });
+        const sCtx  = specCanvas.getContext('2d');
+
+        // ── State ────────────────────────────────
+        let audioCtx     = null;
+        let analyserL    = null;
+        let analyserR    = null;
+        let analyserFreqL = null;
+        let analyserFreqR = null;
+        let stream       = null;
+        let isRunning    = false;
+        let isHeld       = false;
+        let animId       = null;
+        let vizMode      = 'waveform'; // waveform | spectrum | both
+        let autoGain     = 1.0;
+        const FFT_SIZE   = 4096;
+
+        // ── Pre-allocated Buffers ────────────────
+        const dataTimeL = new Float32Array(FFT_SIZE);
+        const dataTimeR = new Float32Array(FFT_SIZE);
+        const dataFreqL = new Float32Array(FFT_SIZE / 2);
+        const dataFreqR = new Float32Array(FFT_SIZE / 2);
+
+        // ── Throttling & Caching ─────────────────
+        let lastStatsUpdate = 0;
+        let specMapCache = null; // Will store { f, binIdx } array
+
+        // ── Populate Devices ─────────────────────
+        async function loadDevices() {
+            try {
+                // Need a temporary stream to trigger permission so labels appear
+                const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                tempStream.getTracks().forEach(t => t.stop());
+            } catch(e) { /* user may deny, that's ok */ }
+
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const inputs  = devices.filter(d => d.kind === 'audioinput');
+            deviceSelect.innerHTML = '';
+            if (inputs.length === 0) {
+                deviceSelect.innerHTML = '<option value="">No audio inputs found</option>';
+                return;
+            }
+            inputs.forEach((d, i) => {
+                const opt = document.createElement('option');
+                opt.value = d.deviceId;
+                opt.textContent = d.label || `Input ${i + 1}`;
+                deviceSelect.appendChild(opt);
+            });
+        }
+        loadDevices();
+
+        // ── Viz mode toggles ─────────────────────
+        vizBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                vizBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                vizMode = btn.dataset.mode;
+                layoutPanels();
+            });
+        });
+
+        function layoutPanels() {
+            if (vizMode === 'waveform') {
+                wavePanel.style.display = '';
+                specPanel.style.display = 'none';
+            } else if (vizMode === 'spectrum') {
+                wavePanel.style.display = 'none';
+                specPanel.style.display = '';
+            } else {
+                wavePanel.style.display = '';
+                specPanel.style.display = '';
+            }
+            resizeCanvases();
+        }
+
+        // ── Canvas Sizing ────────────────────────
+        function resizeCanvases() {
+            const panels = [
+                { canvas: waveCanvas, grid: waveGridCanvas, panel: wavePanel, redrawGrid: drawWaveformGrid, ctx: wgCtx },
+                { canvas: specCanvas, grid: specGridCanvas, panel: specPanel, redrawGrid: drawSpectrumGrid, ctx: sgCtx }
+            ];
+
+            panels.forEach(p => {
+                if (p.panel.style.display === 'none') return;
+                const rect = p.panel.getBoundingClientRect();
+                const dpr  = window.devicePixelRatio || 1;
+                const w = rect.width * dpr;
+                const h = rect.height * dpr;
+
+                [p.canvas, p.grid].forEach(c => {
+                    if (c.width !== w || c.height !== h) {
+                        c.width = w;
+                        c.height = h;
+                        c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+                    }
+                });
+
+                p.redrawGrid(p.ctx, rect.width, rect.height);
+                specMapCache = null; // Invalidate spectrum cache on resize
+            });
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // ── Start / Stop ─────────────────────────
+        startBtn.addEventListener('click', async () => {
+            if (isRunning) {
+                stopCapture();
+            } else {
+                await startCapture();
+            }
+        });
+
+        holdBtn.addEventListener('click', () => {
+            isHeld = !isHeld;
+            if (isHeld) {
+                holdBtn.classList.add('active');
+                holdBtn.querySelector('span').textContent = 'Resume';
+                holdBtn.style.background = 'rgba(245, 158, 11, 0.2)';
+                holdBtn.style.borderColor = '#f59e0b';
+                holdBtn.style.color = '#f59e0b';
+            } else {
+                holdBtn.classList.remove('active');
+                holdBtn.querySelector('span').textContent = 'Hold';
+                holdBtn.style.background = '';
+                holdBtn.style.borderColor = '';
+                holdBtn.style.color = '';
+            }
+        });
+
+        async function startCapture() {
+            const deviceId = deviceSelect.value;
+            const constraints = { 
+                audio: { 
+                    deviceId: deviceId ? { exact: deviceId } : undefined,
+                    channelCount: 2,
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl: false
+                } 
+            };
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+            } catch (err) {
+                alert('Could not access audio input. Please allow microphone/line-in permission.\n\n' + err.message);
+                return;
+            }
+
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioCtx.createMediaStreamSource(stream);
+            
+            // Create Splitter
+            const splitter = audioCtx.createChannelSplitter(2);
+            source.connect(splitter);
+
+            // Left Analysers
+            analyserL = audioCtx.createAnalyser();
+            analyserL.fftSize = FFT_SIZE;
+            analyserFreqL = audioCtx.createAnalyser();
+            analyserFreqL.fftSize = FFT_SIZE;
+            splitter.connect(analyserL, 0);
+            splitter.connect(analyserFreqL, 0);
+
+            // Right Analysers (if stereo exists)
+            analyserR = audioCtx.createAnalyser();
+            analyserR.fftSize = FFT_SIZE;
+            analyserFreqR = audioCtx.createAnalyser();
+            analyserFreqR.fftSize = FFT_SIZE;
+            
+            if (source.channelCount >= 2) {
+                splitter.connect(analyserR, 1);
+                splitter.connect(analyserFreqR, 1);
+            } else {
+                // Fallback for mono devices
+                splitter.connect(analyserR, 0);
+                splitter.connect(analyserFreqR, 0);
+            }
+
+            sampleRateEl.textContent = (audioCtx.sampleRate / 1000).toFixed(1) + ' kHz';
+
+            isRunning = true;
+            isHeld = false;
+            holdBtn.disabled = false;
+            startBtn.classList.add('active');
+            startBtn.querySelector('span').textContent = 'Stop';
+            idleWave.classList.add('hidden');
+            idleSpec.classList.add('hidden');
+
+            draw();
+        }
+
+        function stopCapture() {
+            isRunning = false;
+            isHeld = false;
+            holdBtn.disabled = true;
+            holdBtn.classList.remove('active');
+            holdBtn.querySelector('span').textContent = 'Hold';
+            holdBtn.style.background = ''; holdBtn.style.borderColor = ''; holdBtn.style.color = '';
+
+            if (animId) cancelAnimationFrame(animId);
+            if (stream) stream.getTracks().forEach(t => t.stop());
+            if (audioCtx) audioCtx.close();
+            stream = null; audioCtx = null; 
+            analyserL = null; analyserR = null; 
+            analyserFreqL = null; analyserFreqR = null;
+
+            startBtn.classList.remove('active');
+            startBtn.querySelector('span').textContent = 'Start';
+            idleWave.classList.remove('hidden');
+            idleSpec.classList.remove('hidden');
+
+            peakDbEl.textContent = '—';
+            rmsDbEl.textContent  = '—';
+            freqPeakEl.textContent = '—';
+            sampleRateEl.textContent = '—';
+
+            clearCanvas(wCtx, waveCanvas);
+            clearCanvas(sCtx, specCanvas);
+        }
+
+        function clearCanvas(ctx, canvas) {
+            const dpr = window.devicePixelRatio || 1;
+            ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+        }
+
+        // ── Drawing Loop ─────────────────────────
+        function draw(timestamp) {
+            if (!isRunning) return;
+            animId = requestAnimationFrame(draw);
+
+            if (!isHeld) {
+                // 1. Fetch data once per frame
+                analyserL.getFloatTimeDomainData(dataTimeL);
+                analyserR.getFloatTimeDomainData(dataTimeR);
+                
+                if (vizMode === 'spectrum' || vizMode === 'both') {
+                    analyserFreqL.getFloatFrequencyData(dataFreqL);
+                    analyserFreqR.getFloatFrequencyData(dataFreqR);
+                }
+
+                // 2. Clear canvases
+                clearFrontCanvases();
+
+                // 3. Draw
+                if (vizMode === 'waveform' || vizMode === 'both') {
+                    drawWaveform();
+                }
+                if (vizMode === 'spectrum' || vizMode === 'both') {
+                    drawSpectrum();
+                }
+            }
+
+            // 4. Update Stats (throttled to ~10fps)
+            if (timestamp - lastStatsUpdate > 100) {
+                updateStats();
+                lastStatsUpdate = timestamp;
+            }
+        }
+
+        function clearFrontCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            if (wavePanel.style.display !== 'none') {
+                wCtx.clearRect(0, 0, waveCanvas.width / dpr, waveCanvas.height / dpr);
+            }
+            if (specPanel.style.display !== 'none') {
+                sCtx.clearRect(0, 0, specCanvas.width / dpr, specCanvas.height / dpr);
+            }
+        }
+
+        function drawWaveformGrid(ctx, w, h) {
+            ctx.fillStyle = '#161b22'; // Matches --panel-bg
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.8)';
+            ctx.font = '500 10px Inter';
+            ctx.lineWidth = 1;
+
+            // Separate L/R grids
+            const mid = h / 2;
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
+            ctx.moveTo(0, mid);
+            ctx.lineTo(w, mid);
+            ctx.stroke();
+
+            const drawSubGrid = (yOffset, labelPrefix) => {
+                const subH = h / 2;
+                const levels = [
+                    { y: 0.1, label: '+1.0' },
+                    { y: 0.5, label: '0.0', bold: true },
+                    { y: 0.9, label: '-1.0' }
+                ];
+                levels.forEach(l => {
+                    const yPos = yOffset + l.y * subH;
+                    ctx.beginPath();
+                    ctx.strokeStyle = l.bold ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.1)';
+                    ctx.moveTo(0, yPos);
+                    ctx.lineTo(w, yPos);
+                    ctx.stroke();
+                    ctx.fillText(labelPrefix + ' ' + l.label, 8, yPos - 4);
+                });
+            };
+
+            drawSubGrid(0, 'L');
+            drawSubGrid(mid, 'R');
+
+            // Vertical lines
+            for (let i = 1; i < 10; i++) {
+                const xPos = (i / 10) * w;
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.08)';
+                ctx.moveTo(xPos, 0);
+                ctx.lineTo(xPos, h);
+                ctx.stroke();
+            }
+        }
+
+        function drawSpectrumGrid(ctx, w, h) {
+            ctx.fillStyle = '#161b22';
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.8)';
+            ctx.font = '500 10px Inter';
+            ctx.lineWidth = 1;
+
+            const mid = h / 2;
+            const subH = h / 2;
+
+            // Divider
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
+            ctx.moveTo(0, mid);
+            ctx.lineTo(w, mid);
+            ctx.stroke();
+
+            // dB scale (Vertical)
+            const drawDbScale = (yOffset, labelPrefix) => {
+                const dbs = [0, -20, -40, -60, -80, -100];
+                dbs.forEach(db => {
+                    const yPos = yOffset + (Math.abs(db) / 100) * subH * 0.9;
+                    ctx.beginPath();
+                    ctx.strokeStyle = db === 0 ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.1)';
+                    ctx.moveTo(0, yPos);
+                    ctx.lineTo(w, yPos);
+                    ctx.stroke();
+                    ctx.fillText(labelPrefix + ' ' + db + ' dB', 8, yPos - 4);
+                });
+            };
+
+            drawDbScale(0, 'L');
+            drawDbScale(mid, 'R');
+
+            // Frequency scale (Horizontal - Logarithmic)
+            const freqs = [100, 200, 500, 1000, 2000, 5000, 10000, 15000];
+            const minF = 50;
+            const maxF = 16000;
+            
+            freqs.forEach(f => {
+                const xPos = (Math.log(f / minF) / Math.log(maxF / minF)) * w;
+                if (xPos < 0 || xPos > w) return;
+                
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.15)';
+                ctx.moveTo(xPos, 0);
+                ctx.lineTo(xPos, h);
+                ctx.stroke();
+                
+                const label = f >= 1000 ? (f / 1000) + 'k' : f;
+                ctx.fillText(label, xPos + 3, h - 5);
+            });
+        }
+
+        // ── Waveform Drawing ─────────────────────
+        function drawWaveform() {
+            const bufLen = FFT_SIZE;
+            const dataL  = dataTimeL;
+            const dataR  = dataTimeR;
+
+            // Calculate gain (based on Left peak for consistency)
+            let multiplier = 1.0;
+            if (gainSelect.value === 'auto') {
+                let peak = 0;
+                for (let i = 0; i < bufLen; i++) {
+                    const abs = Math.max(Math.abs(dataL[i]), Math.abs(dataR[i]));
+                    if (abs > peak) peak = abs;
+                }
+                const target = peak > 0.001 ? 0.8 / peak : 1.0;
+                autoGain = autoGain * 0.95 + target * 0.05;
+                multiplier = Math.min(Math.max(autoGain, 1.0), 100.0);
+            } else {
+                multiplier = parseFloat(gainSelect.value);
+            }
+
+            const dpr = window.devicePixelRatio || 1;
+            const w   = waveCanvas.width  / dpr;
+            const h   = waveCanvas.height / dpr;
+            const μ   = 10; 
+
+            const channels = [
+                { data: dataL, color: 'rgba(34, 211, 238, 0.85)', glow: 'rgba(34, 211, 238, 0.4)', yOff: 0 },
+                { data: dataR, color: 'rgba(251, 191, 36, 0.85)', glow: 'rgba(251, 191, 36, 0.4)', yOff: h/2 }
+            ];
+
+            channels.forEach(ch => {
+                wCtx.save();
+                wCtx.shadowColor = ch.glow;
+                wCtx.shadowBlur  = 12;
+                wCtx.beginPath();
+                wCtx.strokeStyle = ch.color;
+                wCtx.lineWidth   = 1.5;
+
+                const sliceWidth = w / bufLen;
+                const subH = h / 2;
+                let x = 0;
+                for (let i = 0; i < bufLen; i++) {
+                    let v = ch.data[i] * multiplier;
+                    const absV = Math.abs(v);
+                    v = Math.sign(v) * (Math.log(1 + μ * absV) / Math.log(1 + μ));
+                    // Map -1...1 to 0...subH, then add yOff
+                    const y = ch.yOff + (1 - Math.max(-1, Math.min(1, v))) * subH / 2;
+                    if (i === 0) wCtx.moveTo(x, y);
+                    else wCtx.lineTo(x, y);
+                    x += sliceWidth;
+                }
+                wCtx.stroke();
+                wCtx.restore();
+            });
+        }
+
+        // ── Spectrum Drawing ─────────────────────
+        function drawSpectrum() {
+            const bufLen = dataFreqL.length;
+            const dataL  = dataFreqL;
+            const dataR  = dataFreqR;
+
+            let multiplier = 1.0;
+            let gainDb = 0;
+            if (gainSelect.value === 'auto') {
+                multiplier = autoGain;
+                gainDb = 20 * Math.log10(multiplier);
+            } else {
+                multiplier = parseFloat(gainSelect.value);
+                gainDb = 20 * Math.log10(multiplier);
+            }
+
+            const dpr = window.devicePixelRatio || 1;
+            const w   = specCanvas.width  / dpr;
+            const h   = specCanvas.height / dpr;
+
+            const minF = 50;
+            const maxF = 16000;
+            const barCount = 180;
+            const barW = w / barCount;
+
+            const mid = h / 2;
+            const subH = h / 2;
+
+            // Pre-calculate or use cached mapping
+            if (!specMapCache) {
+                specMapCache = new Int32Array(barCount);
+                for (let i = 0; i < barCount; i++) {
+                    const f = minF * Math.pow(maxF / minF, i / barCount);
+                    const binIdx = Math.floor(f / (audioCtx.sampleRate / FFT_SIZE));
+                    specMapCache[i] = Math.min(binIdx, bufLen - 1);
+                }
+            }
+
+            for (let i = 0; i < barCount; i++) {
+                const idx = specMapCache[i];
+                const valL = dataL[idx] + gainDb;
+                const valR = dataR[idx] + gainDb;
+                
+                // Draw Left (Top Half - grows downwards from mid)
+                const pctL = Math.max(0, (valL + 100) / 100);
+                const hL   = pctL * subH * 0.9;
+                sCtx.fillStyle = `rgba(34, 211, 238, 0.7)`; 
+                sCtx.fillRect(i * barW, mid - hL, barW - 1, hL);
+
+                // Draw Right (Bottom Half - grows upwards from bottom)
+                const pctR = Math.max(0, (valR + 100) / 100);
+                const hR   = pctR * subH * 0.9;
+                sCtx.fillStyle = `rgba(251, 191, 36, 0.7)`; 
+                sCtx.fillRect(i * barW, h - hR, barW - 1, hR);
+            }
+        }
+
+        // ── Stats ────────────────────────────────
+        function updateStats() {
+            const bufLen = FFT_SIZE;
+            const dataL  = dataTimeL;
+            const dataR  = dataTimeR;
+
+            function calc(data) {
+                let peak = 0, sumSq = 0;
+                for (let i = 0; i < bufLen; i++) {
+                    const abs = Math.abs(data[i]);
+                    if (abs > peak) peak = abs;
+                    sumSq += data[i] * data[i];
+                }
+                const rms = Math.sqrt(sumSq / bufLen);
+                return {
+                    peak: peak > 0 ? (20 * Math.log10(peak)).toFixed(1) : '-∞',
+                    rms: rms > 0 ? (20 * Math.log10(rms)).toFixed(1) : '-∞'
+                };
+            }
+
+            const statsL = calc(dataL);
+            const statsR = calc(dataR);
+
+            peakDbEl.innerHTML = `<span style="color:#22d3ee">L ${statsL.peak}</span> | <span style="color:#fbbf24">R ${statsR.peak}</span>`;
+            rmsDbEl.innerHTML  = `<span style="color:#22d3ee">L ${statsL.rms}</span> | <span style="color:#fbbf24">R ${statsR.rms}</span>`;
+
+            // Dominant frequency (Left)
+            const freqData = dataFreqL;
+            let maxVal = -Infinity, maxIdx = 0;
+            for (let i = 1; i < freqData.length; i++) {
+                if (freqData[i] > maxVal) { maxVal = freqData[i]; maxIdx = i; }
+            }
+            if (maxVal > -100) {
+                const freq = maxIdx * audioCtx.sampleRate / FFT_SIZE;
+                freqPeakEl.textContent = freq < 1000
+                    ? freq.toFixed(0) + ' Hz'
+                    : (freq / 1000).toFixed(2) + ' kHz';
+            } else {
+                freqPeakEl.textContent = '—';
+            }
+        }
+
+        // ── Initial layout ───────────────────────
+        layoutPanels();
+    })();
+    </script>
+</body>
+</html>
