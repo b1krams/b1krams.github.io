@@ -8,26 +8,26 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3)); }
+        .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.3)); }
         .progress-ring__circle { transition: stroke-dashoffset 0.5s ease-in-out; stroke-linecap: round; }
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-50 flex flex-col justify-between items-center h-[100dvh] m-0 overflow-hidden select-none">
+<body class="bg-[#0b0e14] text-slate-50 flex flex-col justify-between items-center h-[100dvh] m-0 overflow-hidden select-none">
 
     <!-- Header -->
     <header class="w-full pt-8 pb-4 text-center">
-        <h1 class="font-semibold tracking-[4px] opacity-80 uppercase text-xs text-sky-400 m-0">ZenTime</h1>
+        <h1 class="font-semibold tracking-[4px] opacity-80 uppercase text-xs text-indigo-500 m-0">ZenTime</h1>
     </header>
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col items-center justify-center w-full max-w-sm px-6">
         
         <!-- Mode Selector (Segmented Control) -->
-        <div class="flex w-full bg-slate-900/50 p-1 rounded-full mb-12 shadow-inner border border-white/5">
-            <button class="mode-btn flex-1 text-xs py-2.5 rounded-full font-medium transition-all active:scale-95 text-slate-50 relative bg-slate-700 shadow-md transform text-sky-400" data-time="25">Focus</button>
-            <button class="mode-btn flex-1 text-xs py-2.5 rounded-full font-medium transition-all active:scale-95 text-slate-400 hover:text-slate-200" data-time="5">Short</button>
-            <button class="mode-btn flex-1 text-xs py-2.5 rounded-full font-medium transition-all active:scale-95 text-slate-400 hover:text-slate-200" data-time="15">Long</button>
+        <div class="flex justify-center gap-2 mb-8 bg-[#0b0e14]/50 p-1.5 rounded-2xl border border-slate-800 w-fit mx-auto">
+            <button id="pomo-btn" class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 mode-btn active-mode bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" data-time="25">Pomodoro</button>
+            <button id="short-btn" class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 mode-btn text-slate-400 hover:bg-slate-800" data-time="5">Short Break</button>
+            <button id="long-btn" class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 mode-btn text-slate-400 hover:bg-slate-800" data-time="15">Long Break</button>
         </div>
 
         <!-- Timer Circle -->
@@ -36,22 +36,21 @@
                 <!-- Background track -->
                 <circle class="stroke-slate-800" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" />
                 <!-- Progress track -->
-                <circle class="progress-ring__circle stroke-sky-400" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" />
+                <circle class="progress-ring__circle stroke-indigo-500" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" />
             </svg>
             <div class="z-10 flex flex-col items-center">
                 <div class="text-[4rem] font-light tracking-tight" id="timer">25:00</div>
-                <div class="text-xs font-medium text-slate-400 uppercase tracking-wider mt-1" id="timerLabel">Session</div>
+                <div class="text-xs font-medium text-slate-400 uppercase tracking-wider mt-1" id="timerLabel">Focus</div>
             </div>
         </div>
 
         <!-- Controls -->
-        <div class="flex gap-4 w-full">
-            <button class="flex-1 bg-sky-500 text-white border-none font-semibold py-4 rounded-2xl shadow-lg shadow-sky-500/25 active:scale-95 transition-all text-base tracking-wide flex items-center justify-center gap-2" id="startBtn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+        <div class="flex justify-center gap-4 w-full">
+            <button id="startBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-indigo-900/40 text-lg flex items-center justify-center gap-2">
                 <span>Start</span>
             </button>
-            <button class="w-16 flex items-center justify-center bg-slate-800 border border-white/5 text-slate-300 py-4 rounded-2xl active:scale-95 transition-all hover:bg-slate-700 shadow-md" id="resetBtn" aria-label="Reset">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            <button id="resetBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 px-8 rounded-2xl transition-all border border-slate-700 text-lg" aria-label="Reset">
+                Reset
             </button>
         </div>
     </main>
@@ -78,9 +77,9 @@
         modeBtns.forEach((btn, index) => {
             btn.addEventListener('click', () => {
                 modeBtns.forEach(b => {
-                    b.className = "mode-btn flex-1 text-xs py-2.5 rounded-full font-medium transition-all active:scale-95 text-slate-400 hover:text-slate-200 cursor-pointer bg-transparent border-none";
+                    b.className = "px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 mode-btn text-slate-400 hover:bg-slate-800";
                 });
-                btn.className = "mode-btn flex-1 text-xs py-2.5 rounded-full font-medium transition-all active:scale-95 text-slate-50 relative bg-slate-700 shadow-md transform text-sky-400 border-none cursor-pointer";
+                btn.className = "px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 mode-btn active-mode bg-indigo-600 text-white shadow-lg shadow-indigo-500/20";
                 
                 const timeStr = btn.getAttribute('data-time');
                 totalTime = parseInt(timeStr) * 60;

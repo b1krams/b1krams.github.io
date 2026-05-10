@@ -20,24 +20,24 @@
         }
 
         :root {
-            --primary: #6c63ff;
-            --primary-dark: #574fd6;
-            --surface: rgba(255, 255, 255, 0.12);
-            --surface-solid: #1e1e2e;
-            --glass: rgba(255, 255, 255, 0.08);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --text: #e2e8f0;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --surface: rgba(255, 255, 255, 0.05);
+            --surface-solid: #161b22;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
             --text-muted: #94a3b8;
-            --danger: #f56565;
-            --success: #48bb78;
+            --danger: #ef4444;
+            --success: #10b981;
             --radius: 14px;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
         }
 
         body {
             font-family: 'Inter', sans-serif;
             overflow: hidden;
-            background: #0f0f1a;
+            background: #0b0e14;
         }
 
         /* ─── Mind Map Canvas ─── */
@@ -45,10 +45,10 @@
             width: 100vw;
             height: 100vh;
             background:
-                radial-gradient(ellipse at 20% 50%, rgba(108, 99, 255, 0.15) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 20%, rgba(99, 179, 237, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 60% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
-                #0f0f1a;
+                radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 60% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 50%),
+                #0b0e14;
         }
 
         /* ─── Floating Panel ─── */
@@ -56,7 +56,7 @@
             position: fixed;
             top: 20px;
             left: 20px;
-            background: rgba(20, 20, 35, 0.85);
+            background: rgba(11, 14, 20, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
@@ -165,9 +165,9 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
             color: #fff;
-            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.35);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
         .btn-primary:hover {
@@ -263,7 +263,7 @@
             bottom: 28px;
             left: 50%;
             transform: translateX(-50%) translateY(80px);
-            background: rgba(20, 20, 35, 0.92);
+            background: rgba(11, 14, 20, 0.92);
             backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
             color: var(--text);
@@ -294,7 +294,7 @@
             left: 20px;
             width: 40px;
             height: 40px;
-            background: rgba(20, 20, 35, 0.85);
+            background: rgba(11, 14, 20, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 10px;

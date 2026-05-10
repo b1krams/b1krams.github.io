@@ -11,13 +11,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: #0f1117;
-            background-image: radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.12) 0%, transparent 60%),
-                              radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.08) 0%, transparent 60%);
+            background: #0b0e14;
+            background-image: radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.1) 0%, transparent 60%),
+                              radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.05) 0%, transparent 60%);
             background-attachment: fixed;
         }
         .glass {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
@@ -97,7 +97,7 @@
                     <button onclick="mergePDFs()" class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg shadow-indigo-900/40">
                         <i class="fa-solid fa-layer-group mr-2"></i> Merge All to PDF
                     </button>
-                    <button onclick="splitPDFs()" class="btn-split flex items-center justify-center font-bold py-4 px-6 rounded-xl transition-all">
+                    <button onclick="splitPDFs()" class="btn-split flex items-center justify-center font-bold py-4 px-6 rounded-xl transition-all border-2 border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10">
                         <i class="fa-solid fa-scissors mr-2"></i> Split Pages to ZIP
                     </button>
                 </div>

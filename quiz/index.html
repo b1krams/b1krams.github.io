@@ -19,17 +19,17 @@
 
     <style>
         :root {
-            --primary: #8b5cf6; /* Vibrant Purple */
-            --primary-hover: #7c3aed;
+            --primary: #6366f1; /* Electric Indigo */
+            --primary-hover: #4f46e5;
             --success: #10b981;
             --error: #ef4444;
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --app-bg: rgba(30, 41, 59, 0.7); /* Glassmorphism */
+            --bg-gradient: radial-gradient(circle at top right, #161b22, #0b0e14);
+            --app-bg: rgba(22, 27, 34, 0.7); /* Glassmorphism */
             --text-main: #f8fafc;
-            --text-muted: #cbd5e1;
+            --text-muted: #94a3b8;
             --border-color: rgba(255, 255, 255, 0.1);
-            --option-bg: rgba(255, 255, 255, 0.05);
-            --option-hover-bg: rgba(255, 255, 255, 0.1);
+            --option-bg: rgba(255, 255, 255, 0.03);
+            --option-hover-bg: rgba(255, 255, 255, 0.06);
         }
 
         * {
@@ -76,7 +76,7 @@
         
         .upload-area:hover {
             border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.05);
+            background: rgba(99, 102, 241, 0.05);
         }
 
         .error-banner {
@@ -190,13 +190,13 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
         }
 
         .btn-action:hover {
             background: var(--primary-hover);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
         }
         
         .btn-action:active {

@@ -14,7 +14,7 @@
     <style>
         /* Custom UI Tweaks */
         body {
-            background-color: #0f172a;
+            background-color: #0b0e14;
             color: #f8fafc;
         }
 
@@ -24,17 +24,17 @@
         }
 
         .drop-zone.dragover {
-            border-color: #3b82f6;
-            background-color: rgba(59, 130, 246, 0.1);
+            border-color: #6366f1;
+            background-color: rgba(99, 102, 241, 0.1);
         }
 
         input[type=range] {
-            accent-color: #3b82f6;
+            accent-color: #6366f1;
         }
 
         .preview-container {
             height: 60vh;
-            background-image: repeating-linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b), repeating-linear-gradient(45deg, #1e293b 25%, #0f172a 25%, #0f172a 75%, #1e293b 75%, #1e293b);
+            background-image: repeating-linear-gradient(45deg, #161b22 25%, transparent 25%, transparent 75%, #161b22 75%, #161b22), repeating-linear-gradient(45deg, #161b22 25%, #0b0e14 25%, #0b0e14 75%, #161b22 75%, #161b22);
             background-position: 0 0, 10px 10px;
             background-size: 20px 20px;
         }
@@ -56,7 +56,7 @@
 
     <header class="mb-6 flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-white tracking-tight">Image<span class="text-blue-500">Flow</span></h1>
+            <h1 class="text-3xl font-bold text-white tracking-tight">Image<span class="text-indigo-500">Flow</span></h1>
             <p class="text-slate-400 text-sm mt-1">Local, client-side static image processing.</p>
         </div>
         <button id="resetBtn"
@@ -67,10 +67,10 @@
     <main class="flex-grow min-w-0 min-h-0 flex gap-6 flex-col lg:flex-row">
 
         <div
-            class="flex-grow min-w-0 min-h-0 bg-slate-900 rounded-xl border border-slate-800 overflow-hidden relative flex flex-col shadow-xl">
+            class="flex-grow min-w-0 min-h-0 bg-[#0b0e14] rounded-xl border border-slate-800 overflow-hidden relative flex flex-col shadow-xl">
 
             <div id="dropZone"
-                class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900 cursor-pointer drop-zone m-4 rounded-lg">
+                class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0b0e14] cursor-pointer drop-zone m-4 rounded-lg">
                 <svg class="w-16 h-16 text-slate-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
@@ -86,7 +86,7 @@
         </div>
 
         <aside id="controlsPanel"
-            class="w-full lg:w-96 bg-slate-900 rounded-xl border border-slate-800 p-6 flex flex-col gap-8 opacity-50 pointer-events-none transition-opacity duration-300 shadow-xl">
+            class="w-full lg:w-96 bg-[#161b22] rounded-xl border border-slate-800 p-6 flex flex-col gap-8 opacity-50 pointer-events-none transition-opacity duration-300 shadow-xl">
 
             <section>
                 <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -213,7 +213,7 @@
                 </div>
 
                 <button id="exportBtn"
-                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-blue-500/30 transition transform active:scale-95 flex items-center justify-center gap-2">
+                    class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-indigo-500/30 transition transform active:scale-95 flex items-center justify-center gap-2">
                     Process & Download
                 </button>
 
@@ -343,7 +343,7 @@
 
             // Curve Line
             lutMap = getSpline(curvePoints);
-            curveCtx.strokeStyle = '#3b82f6';
+            curveCtx.strokeStyle = '#6366f1';
             curveCtx.lineWidth = 2;
             curveCtx.beginPath();
             for(let i=0; i<256; i++) {
@@ -355,7 +355,7 @@
             curveCtx.stroke();
 
             // Points
-            curveCtx.fillStyle = '#60a5fa';
+            curveCtx.fillStyle = '#818cf8';
             for(let p of curvePoints) {
                 curveCtx.beginPath();
                 curveCtx.arc(p.x * w, h - p.y * h, 5, 0, Math.PI*2);
