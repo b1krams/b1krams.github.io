@@ -36,6 +36,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap"
         rel="stylesheet">
 
+    <!-- Mermaid, Footnotes, Prism Diff, Alerts, Heading IDs -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-footnote@1.2.4/dist/index.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-diff.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-alert/lib/index.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-gfm-heading-id/lib/index.umd.js"></script>
+
     <style>
         :root {
             --primary: #4f46e5;
@@ -195,6 +202,75 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             overflow-y: hidden;
             padding: 0.5em 0;
         }
+
+        /* Footnotes Styling */
+        .footnotes {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f1f5f9;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        .footnote-item {
+            margin-bottom: 0.5rem;
+        }
+        .footnote-backref {
+            margin-left: 0.5rem;
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        
+        /* Mermaid Styling */
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+            background: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        #preview-content dt {
+            font-weight: 700;
+            margin-top: 1rem;
+            color: #1e293b;
+        }
+        #preview-content dd {
+            margin-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+
+        /* GFM Alerts */
+        .markdown-alert {
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border-left: 0.25rem solid #e2e8f0;
+            border-radius: 0.375rem;
+            background: #f8fafc;
+        }
+        .markdown-alert .markdown-alert-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+            text-transform: capitalize;
+        }
+        .markdown-alert.markdown-alert-note { border-left-color: #0969da; background-color: #f6f8fa; }
+        .markdown-alert.markdown-alert-note .markdown-alert-title { color: #0969da; }
+        .markdown-alert.markdown-alert-tip { border-left-color: #1a7f37; background-color: #f0fdf4; }
+        .markdown-alert.markdown-alert-tip .markdown-alert-title { color: #1a7f37; }
+        .markdown-alert.markdown-alert-important { border-left-color: #8250df; background-color: #fbefff; }
+        .markdown-alert.markdown-alert-important .markdown-alert-title { color: #8250df; }
+        .markdown-alert.markdown-alert-warning { border-left-color: #9a6700; background-color: #fff8c5; }
+        .markdown-alert.markdown-alert-warning .markdown-alert-title { color: #9a6700; }
+        .markdown-alert.markdown-alert-caution { border-left-color: #cf222e; background-color: #fff5f5; }
+        .markdown-alert.markdown-alert-caution .markdown-alert-title { color: #cf222e; }
+
+        .mention { transition: all 0.2s; cursor: pointer; }
+        .mention:hover { background-color: #e0e7ff; color: #4338ca; }
     </style>
 </head>
 
@@ -232,142 +308,126 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             </div>
             <textarea id="editor" spellcheck="false"
                 class="flex-1 p-8 outline-none bg-transparent code-font text-[14px] leading-relaxed text-slate-900 placeholder-slate-300 resize-none"
-                placeholder="# Start writing..."># Comprehensive Markdown Example
+                placeholder="# Start writing..."># Comprehensive Markdown Guide
 
-Welcome to Scribe. This document demonstrates various Markdown features and syntax highlighting capabilities across multiple languages.
+Welcome to Scribe. This document demonstrates advanced Markdown features including diagrams, math, and interactive elements.
 
-## Typography
+## 1. Typography & Text Markers
 
 You can use **bold**, *italic*, or ~~strikethrough~~ text.
 You can also use inline `code` for small snippets.
+==Highlighting text== for emphasis.
+Subscripts: H~2~O, Superscripts: E=mc^2^.
 
-## Lists
+---
 
-### Unordered List
-* Item 1
-* Item 2
-  * Nested Item
-  * Another Nested Item
+## 2. Advanced Structural Features
 
-### Ordered List
-1. First step
-2. Second step
-3. Third step
+### Blockquotes & Alerts
+> This is a standard blockquote.
+> > It can even be nested!
 
-## Blockquotes
+> [!NOTE]
+> This is a note alert for helpful information.
 
-> "The only way to do great work is to love what you do."
-> — Steve Jobs
+> [!TIP]
+> Use this for helpful tips and tricks!
 
-## Links & Images
+> [!CAUTION]
+> High-risk actions that could cause data loss.
 
-Check out [PrismJS](https://prismjs.com) for more on syntax highlighting.
+### Accordions (Details/Summary)
+<details>
+<summary>Click to see more!</summary>
+This is hidden content that saves space. You can put anything inside here!
+</details>
 
-![Markdown Logo](https://upload.wikimedia.org/wikipedia/commons/4/48/Markdown-mark.svg)
+---
 
-## Icons 
-Markdown natively supports emojis: 🚀 🔥 ✅ 💻.
-With the included library, you can also use FontAwesome HTML tags directly!
+## 3. Lists & Tables
+
+### Definition Lists
+Markdown
+: A lightweight markup language with plain-text-formatting syntax.
+
+Scribe
+: The editor you are using right now.
+
+### Task Lists
+- [x] Basic Markdown support
+- [x] LaTeX Math rendering
+- [x] Mermaid Diagrams
+- [ ] Real-time Collaboration
+
+### Data Tables
+| Feature | Importance | Complexity |
+| ------- | :--------: | :--------: |
+| Footnotes | High | Simple |
+| Mermaid | High | Medium |
+| Accordions | Medium | HTML |
+
+---
+
+## 4. Media & Icons
+
+### Images
+![Nature](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80)
+
+### Emojis & FontAwesome
+Markdown supports emojis: 🚀 🔥 ✅ 💻.
 <i class="fa-solid fa-rocket" style="color: #6366f1;"></i>
 <i class="fa-solid fa-code" style="color: #10b981;"></i>
-<i class="fa-brands fa-markdown" style="color: #f59e0b; font-size: 1.5em;"></i>
 
-## LaTeX (Math Equations)
-Scribe supports inline and block LaTeX rendered beautifully via KaTeX!
+---
+
+## 5. Diagrams (Mermaid.js)
+
+### Flowchart
+```mermaid
+graph TD;
+    A[Start] --> B{Is it working?};
+    B -- Yes --> C[Great!];
+    B -- No --> D[Debug];
+    D --> B;
+    C --> E[End];
+```
+
+### Pie Chart
+```mermaid
+pie title Pets adopted by volunteers
+    "Dogs" : 386
+    "Cats" : 85
+    "Rats" : 15
+```
+
+---
+
+## 6. LaTeX (Math Equations)
 
 **Inline Math:** Euler's Identity is $e^{i\pi} + 1 = 0$.
 
-**Block Math:** The quadratic formula is:
-
-$$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
-
-**Calculus & Integrals:**
-
+**Complex Formulas:**
 $$ \int_{a}^{b} x^2 dx = \left[ \frac{x^3}{3} \right]_{a}^{b} = \frac{b^3 - a^3}{3} $$
 
-**Matrices:**
-
-$$
-\begin{bmatrix}
-1 & 2 & 3 \\
-4 & 5 & 6 \\
-7 & 8 & 9
-\end{bmatrix}
-$$
-
 ---
 
-## Extended Features
+## 7. Code & Development
 
-### Data Tables
-| Feature | Supported | Description |
-| ------- | :-------: | ----------- |
-| **Tables** | ✅ | Column alignment works! |
-| **Math** | ✅ | Powered by KaTeX. |
-| **Icons** | ✅ | FontAwesome included. |
-
-### Task Lists
-- [x] Create Markdown Editor
-- [x] Add Syntax Highlighting
-- [x] Configure PDF Exports
-- [ ] Implement Cloud Syncing (Coming Soon)
-
----
-
-## Diverse Code Blocks
-
-### JavaScript
-```javascript
-function calculateFactorial(n) {
-  if (n === 0 || n === 1) return 1;
-  return n * calculateFactorial(n - 1);
-}
-console.log(calculateFactorial(5));
+### Diff Blocks
+```diff
+- old_code_to_remove()
++ new_improved_code()
 ```
 
-### Python
-```python
-def fibonacci(n):
-    a, b = 0, 1
-    for _ in range(n):
-        yield a
-        a, b = b, a + b
+### Mentions & Issues
+Check out @user or reference #123. 
+Auto-links: https://github.com
 
-print(list(fibonacci(5)))
-```
+### Footnotes
+Here is a claim that needs a reference.[^1] 
 
-### Java
-```java
-public class HelloWorld {
-    public static void main(String[] args) {
-        System.out.println("Hello, World!");
-    }
-}
-```
-
-### Bash
-```bash
-#!/bin/bash
-echo "Updating packages..."
-sudo apt-get update && sudo apt-get upgrade -y
-```
-
-### CSS
-```css
-.code-preview {
-  background-color: #1e1e1e;
-  border-radius: 8px;
-  padding: 1.5rem;
-}
-```
-
-### HTML
-```html
-<div class="card">
-  <h2>Title</h2>
-  <p>Hello Markdown!</p>
-</div>
-```</textarea>
+[^1]: This is the footnote content at the bottom of the page.
+</textarea>
         </section>
 
         <section class="w-1/2 flex flex-col bg-white">
@@ -388,6 +448,9 @@ sudo apt-get update && sudo apt-get upgrade -y
         const editor = document.getElementById('editor');
         const previewContent = document.getElementById('preview-content');
 
+        // Initialize Mermaid
+        mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
         // Init KaTeX into Marked
         if (typeof window.markedKatex !== 'undefined') {
             const extension = window.markedKatex.default || window.markedKatex;
@@ -399,7 +462,117 @@ sudo apt-get update && sudo apt-get upgrade -y
             }));
         }
 
-        function updatePreview() {
+        if (typeof window.markedFootnote !== 'undefined') {
+            marked.use(markedFootnote());
+        }
+
+        if (typeof window.markedAlert !== 'undefined') {
+            marked.use(window.markedAlert.default || window.markedAlert());
+        }
+
+        if (typeof window.markedGfmHeadingId !== 'undefined') {
+            const extension = window.markedGfmHeadingId.gfmHeadingId || window.markedGfmHeadingId;
+            marked.use(extension());
+        }
+
+        // Highlight Extension (==text==)
+        const highlightExtension = {
+            name: 'highlight',
+            level: 'inline',
+            start(src) { return src.match(/==/)?.index; },
+            tokenizer(src, tokens) {
+                const rule = /^==([^=]+)==/;
+                const match = rule.exec(src);
+                if (match) {
+                    return { type: 'highlight', raw: match[0], text: match[1] };
+                }
+            },
+            renderer(token) { return `<mark class="bg-yellow-200 px-1 rounded text-slate-900">${token.text}</mark>`; }
+        };
+
+        // Sub/Sup Extension (~sub~, ^sup^)
+        const subSupExtension = {
+            name: 'subSup',
+            level: 'inline',
+            start(src) { return src.match(/[~^]/)?.index; },
+            tokenizer(src, tokens) {
+                const subRule = /^~([^~]+)~/;
+                const supRule = /^\^([^^]+)\^/;
+                let match;
+                if (match = subRule.exec(src)) return { type: 'subSup', raw: match[0], text: match[1], tag: 'sub' };
+                if (match = supRule.exec(src)) return { type: 'subSup', raw: match[0], text: match[1], tag: 'sup' };
+            },
+            renderer(token) { return `<${token.tag} class="text-[0.8em]">${token.text}</${token.tag}>`; }
+        };
+
+        // Mention Extension (@user)
+        const mentionExtension = {
+            name: 'mention',
+            level: 'inline',
+            start(src) { return src.match(/@/)?.index; },
+            tokenizer(src, tokens) {
+                const rule = /^@([a-zA-Z0-9_]+)/;
+                const match = rule.exec(src);
+                if (match) return { type: 'mention', raw: match[0], user: match[1] };
+            },
+            renderer(token) { return `<span class="mention bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-medium text-[0.9em]">@${token.user}</span>`; }
+        };
+
+        // Issue Extension (#123)
+        const issueExtension = {
+            name: 'issue',
+            level: 'inline',
+            start(src) { return src.match(/#/)?.index; },
+            tokenizer(src, tokens) {
+                const rule = /^#([0-9]+)/;
+                const match = rule.exec(src);
+                if (match) return { type: 'issue', raw: match[0], id: match[1] };
+            },
+            renderer(token) { return `<span class="issue text-emerald-600 font-semibold text-[0.9em]">#${token.id}</span>`; }
+        };
+
+        marked.use({ extensions: [highlightExtension, subSupExtension, mentionExtension, issueExtension] });
+
+        // Definition List Extension
+        const definitionListExtension = {
+            name: 'definitionList',
+            level: 'block',
+            start(src) { return src.match(/[^\n]+\n:/)?.index; },
+            tokenizer(src, tokens) {
+                const rule = /^([^\n]+)\n: ([^\n]+)(?:\n|$)/;
+                const match = rule.exec(src);
+                if (match) {
+                    return {
+                        type: 'definitionList',
+                        raw: match[0],
+                        dt: match[1].trim(),
+                        dd: match[2].trim()
+                    };
+                }
+            },
+            renderer(token) {
+                return `<dl><dt>${token.dt}</dt><dd>${token.dd}</dd></dl>`;
+            }
+        };
+        marked.use({ extensions: [definitionListExtension] });
+
+        // Custom renderer for Mermaid
+        marked.use({
+            renderer: {
+                code(obj) {
+                    // Support both old (code, lang) and new ({text, lang}) signatures
+                    const code = typeof obj === 'object' ? obj.text : arguments[0];
+                    const lang = typeof obj === 'object' ? obj.lang : arguments[1];
+
+                    if (lang === 'mermaid') {
+                        return `<pre class="mermaid">${code}</pre>`;
+                    }
+                    return false; // fallback to default
+                }
+            }
+        });
+
+        async function updatePreview() {
             const markdown = editor.value;
             // Parse Markdown to HTML
             const html = marked.parse(markdown);
@@ -408,6 +581,17 @@ sudo apt-get update && sudo apt-get upgrade -y
             // Re-run Prism.js syntax highlighting
             if (window.Prism) {
                 Prism.highlightAllUnder(previewContent);
+            }
+
+            // Re-run Mermaid
+            if (window.mermaid) {
+                try {
+                    await mermaid.run({
+                        nodes: previewContent.querySelectorAll('.mermaid'),
+                    });
+                } catch (err) {
+                    console.error('Mermaid error:', err);
+                }
             }
         }
 
