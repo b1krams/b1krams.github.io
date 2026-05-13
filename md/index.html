@@ -31,13 +31,13 @@
 
     <style>
         :root {
-            --primary: #6366f1;
+            --primary: #4f46e5;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0b0e14;
-            color: #f8fafc;
+            background-color: #ffffff;
+            color: #1e293b;
         }
 
         .code-font {
@@ -46,74 +46,88 @@
 
         /* Custom scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: transparent;
+            background: #f8fafc;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #30363d;
+            background: #e2e8f0;
             border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #484f58;
+            background: #cbd5e1;
         }
 
         /* Elegant Typography for Preview */
+        #preview-content {
+            color: #0f172a;
+            line-height: 1.6;
+        }
+
         #preview-content h1 {
             font-size: 2.25rem;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 1.5rem;
-            color: #f8fafc;
-            border-bottom: 1px solid #30363d;
+            color: #0f172a;
+            border-bottom: 2px solid #f1f5f9;
             padding-bottom: 0.5rem;
         }
 
         #preview-content h2 {
             font-size: 1.5rem;
-            font-weight: 600;
+            font-weight: 700;
             margin-top: 2rem;
             margin-bottom: 1rem;
-            color: #f1f5f9;
+            color: #1e293b;
         }
 
         #preview-content p {
-            line-height: 1.75;
             margin-bottom: 1.25rem;
-            color: #94a3b8;
         }
 
         /* Inline Code */
         #preview-content :not(pre)>code {
-            background: #1e293b;
+            background: #f1f5f9;
             padding: 0.2rem 0.4rem;
             border-radius: 4px;
-            color: #f472b6;
+            color: #be185d;
             font-size: 0.9em;
         }
 
         /* Block Code Overrides for Prism */
         #preview-content pre {
-            background: #1e293b !important;
-            /* Matches your dark theme */
+            background: #fdfdfd !important;
             padding: 1.25rem;
             border-radius: 8px;
             margin: 1.5rem 0;
             font-size: 14px;
+            border: 1px solid #e2e8f0;
             page-break-inside: avoid;
             break-inside: avoid;
         }
 
+        /* Darken Prism tokens for light background while keeping the hues */
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #64748b; }
+        .token.punctuation { color: #475569; }
+        .token.namespace { opacity: .7; }
+        .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: #b91c1c; }
+        .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: #15803d; }
+        .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string { color: #a16207; }
+        .token.atrule, .token.attr-value, .token.keyword { color: #7e22ce; }
+        .token.function, .token.class-name { color: #1d4ed8; }
+        .token.regex, .token.important, .token.variable { color: #ea580c; }
+
         #preview-content blockquote {
-            border-left: 4px solid #6366f1;
+            border-left: 4px solid #4f46e5;
             padding-left: 1.25rem;
             font-style: italic;
             color: #64748b;
             margin: 1.5rem 0;
-            background: rgba(99, 102, 241, 0.05);
+            background: #f8fafc;
             padding-top: 0.5rem;
             padding-bottom: 0.5rem;
             border-radius: 0 8px 8px 0;
@@ -123,13 +137,17 @@
             list-style-type: disc;
             margin-left: 1.5rem;
             margin-bottom: 1.25rem;
-            color: #94a3b8;
         }
 
         #preview-content a {
-            color: #6366f1;
-            text-decoration: underline;
-            text-underline-offset: 4px;
+            color: #4f46e5;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        #preview-content a:hover {
+            border-bottom-color: #4f46e5;
         }
 
         /* Extended Elements Styling */
@@ -142,50 +160,57 @@
 
         #preview-content th,
         #preview-content td {
-            border: 1px solid #30363d;
+            border: 1px solid #e2e8f0;
             padding: 0.75rem;
         }
 
         #preview-content th {
-            background-color: #161b22;
+            background-color: #f8fafc;
             font-weight: 600;
-            color: #f1f5f9;
+            color: #1e293b;
         }
 
         #preview-content input[type="checkbox"] {
             margin-right: 0.5rem;
-            accent-color: #6366f1;
-            cursor: not-allowed;
+            accent-color: #4f46e5;
         }
 
         #preview-content hr {
             margin: 2.5rem 0;
             border: 0;
-            border-top: 2px solid #30363d;
+            border-top: 2px solid #f1f5f9;
+        }
+
+        /* KaTeX specific tweaks for visibility on white */
+        .katex-display {
+            margin: 1.5em 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0.5em 0;
         }
     </style>
 </head>
 
 <body class="h-screen flex flex-col overflow-hidden">
 
-    <nav class="h-14 border-b border-slate-800 bg-[#0b0e14] flex items-center justify-between px-6 z-10 shadow-sm">
+    <nav class="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 z-10 shadow-sm">
         <div class="flex items-center gap-3">
-            <div class="bg-indigo-600 text-white p-1.5 rounded-lg shadow-indigo-900/20 shadow-lg">
+            <div class="bg-indigo-600 text-white p-1.5 rounded-lg shadow-indigo-200/50 shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
                     <polyline points="14 2 14 8 20 8" />
                 </svg>
             </div>
-            <span class="font-semibold text-slate-100 tracking-tight">Scribe MD</span>
+            <span class="font-semibold text-slate-900 tracking-tight">Scribe MD</span>
         </div>
 
         <div class="flex items-center gap-2">
             <button onclick="clearAll()"
-                class="px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-red-500 transition-colors">Clear</button>
-            <div class="h-4 w-[1px] bg-slate-800 mx-2"></div>
+                class="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-red-500 transition-colors">Clear</button>
+            <div class="h-4 w-[1px] bg-slate-200 mx-2"></div>
             <button onclick="downloadFile()"
-                class="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-md border border-indigo-500/20 transition-all active:scale-95">HTML</button>
+                class="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md border border-indigo-200 transition-all active:scale-95">HTML</button>
             <button onclick="downloadPDF()"
                 class="px-4 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-md shadow-indigo-100 transition-all active:scale-95">PDF</button>
             <button onclick="downloadDocx()"
@@ -194,12 +219,12 @@
     </nav>
 
     <main class="flex-1 flex overflow-hidden">
-        <section class="w-1/2 flex flex-col border-r border-slate-800 bg-[#0b0e14]">
-            <div class="h-8 flex items-center px-4 bg-[#161b22] border-b border-slate-800">
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Markdown Editor</span>
+        <section class="w-1/2 flex flex-col border-r border-slate-200 bg-white">
+            <div class="h-8 flex items-center px-4 bg-slate-50 border-b border-slate-200">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Markdown Editor</span>
             </div>
             <textarea id="editor" spellcheck="false"
-                class="flex-1 p-8 outline-none bg-transparent code-font text-[14px] leading-relaxed text-slate-300 placeholder-slate-700 resize-none"
+                class="flex-1 p-8 outline-none bg-transparent code-font text-[14px] leading-relaxed text-slate-900 placeholder-slate-300 resize-none"
                 placeholder="# Start writing..."># Comprehensive Markdown Example
 
 Welcome to Scribe. This document demonstrates various Markdown features and syntax highlighting capabilities across multiple languages.
@@ -338,9 +363,9 @@ sudo apt-get update && sudo apt-get upgrade -y
 ```</textarea>
         </section>
 
-        <section class="w-1/2 flex flex-col bg-[#0b0e14]">
-            <div class="h-8 flex items-center px-4 bg-[#161b22] border-b border-slate-800">
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Preview</span>
+        <section class="w-1/2 flex flex-col bg-white">
+            <div class="h-8 flex items-center px-4 bg-slate-50 border-b border-slate-200">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Preview</span>
             </div>
             <div id="preview-content" class="flex-1 p-8 overflow-y-auto bg-transparent">
                 <!-- Preview will be generated here -->
@@ -348,7 +373,7 @@ sudo apt-get update && sudo apt-get upgrade -y
         </section>
     </main>
 
-    <footer class="mt-8 text-center text-slate-500 text-sm pb-4">
+    <footer class="mt-8 text-center text-slate-400 text-sm pb-4">
         Made with <span class="text-red-500">&hearts;</span> by Bikram
     </footer>
 
@@ -357,8 +382,13 @@ sudo apt-get update && sudo apt-get upgrade -y
         const previewContent = document.getElementById('preview-content');
 
         // Init KaTeX into Marked
-        if (window.markedKatex) {
-            marked.use(window.markedKatex.default ? window.markedKatex.default({ throwOnError: false }) : window.markedKatex({ throwOnError: false }));
+        if (typeof window.markedKatex !== 'undefined') {
+            const extension = window.markedKatex.default || window.markedKatex;
+            marked.use(extension({
+                throwOnError: false,
+                output: 'html',
+                displayMode: false
+            }));
         }
 
         function updatePreview() {
@@ -387,6 +417,7 @@ sudo apt-get update && sudo apt-get upgrade -y
             const fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
     ${headContent}
 </head>
 <body class="bg-gray-50 p-8">
@@ -395,13 +426,18 @@ sudo apt-get update && sudo apt-get upgrade -y
     </div>
 </body>
 </html>`;
-            const blob = new Blob([fullHtml], { type: 'text/html' });
+            const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
+            a.style.display = 'none';
             a.href = url;
-            a.download = 'document.html';
+            a.download = 'scribe_document.html';
+            document.body.appendChild(a);
             a.click();
-            URL.revokeObjectURL(url);
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
         }
 
         function downloadPDF() {
