@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-P6F464KX');</script>
+<!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Studio</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Wavesurfer.js -->
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js"></script>
+
+    <!-- FFmpeg.wasm Single Thread -->
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+    <script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
+
+    <style>
+        body {
+            background-color: #0b0e14;
+            color: #f8fafc;
+        }
+
+        .drop-zone {
+            border: 2px dashed #475569;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.dragover {
+            border-color: #6366f1;
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+        
+        #waveform-container {
+            width: 100%;
+            height: 128px;
+        }
+        
+        /* Custom scrollbar for track list */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #161b22; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-6 font-sans">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+    <header class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">Audio<span class="text-indigo-500">Studio</span></h1>
+            <p class="text-slate-400 text-sm mt-1">Local, client-side audio conversion & trimming.</p>
+        </div>
+        <div class="flex gap-4">
+            <button id="addTrackBtnHeader" class="hidden px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium transition text-white">+ Add Track</button>
+            <button id="resetBtn" class="hidden px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-medium transition">Start Over</button>
+        </div>
+    </header>
+
+    <main class="flex-grow min-w-0 min-h-0 flex gap-6 flex-col">
+        
+        <div class="flex flex-col lg:flex-row gap-6 flex-grow min-h-0">
+            <!-- Track List Sidebar -->
+            <aside id="trackListPanel" class="w-full lg:w-80 bg-[#161b22] rounded-xl border border-slate-800 flex flex-col overflow-hidden hidden shadow-xl flex-shrink-0">
+                <div class="p-4 border-b border-slate-800 bg-[#0d1117] flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-300">Tracks</h3>
+                    <button id="addTrackBtn" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded transition">+ Add</button>
+                </div>
+                <div id="trackList" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
+                    <!-- Track items will go here -->
+                </div>
+            </aside>
+
+            <!-- Workspace Area -->
+            <div class="flex-grow min-w-0 min-h-0 bg-[#0b0e14] rounded-xl border border-slate-800 overflow-hidden relative flex flex-col shadow-xl p-4">
+                
+                <div id="dropZone" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0b0e14] cursor-pointer drop-zone m-4 rounded-lg">
+                    <svg class="w-16 h-16 text-slate-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                    </svg>
+                    <p class="text-lg font-medium text-slate-300">Drag & Drop audio files here</p>
+                    <p class="text-sm text-slate-500 mt-2">or click to browse</p>
+                    <input type="file" id="fileInput" class="hidden" accept="audio/*,video/*" multiple>
+                </div>
+
+                <div id="workspace" class="hidden w-full h-full flex flex-col items-center justify-center min-w-0 min-h-0 relative">
+                    <h2 id="currentTrackName" class="absolute top-0 left-0 text-slate-400 font-medium text-sm mb-2 truncate w-full px-1 font-semibold"></h2>
+                    <div class="w-full bg-[#161b22] p-3 rounded-lg border border-slate-700 mb-2 mt-4 relative shadow-inner">
+                        <div id="waveform" class="w-full"></div>
+                    </div>
+                    
+                    <div class="w-full flex flex-wrap gap-4 items-center justify-between mt-2">
+                        <!-- Play/Pause & Time -->
+                        <div class="flex items-center gap-3">
+                            <button id="playBtn" class="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center shadow-lg transition transform active:scale-95">
+                                <svg id="playIcon" class="w-4 h-4 ml-0.5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <svg id="pauseIcon" class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
+                            <button id="playRegionBtn" title="Play Selection Only" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-300 text-xs font-semibold transition flex items-center gap-1.5 transform active:scale-95">
+                                <svg class="w-3.5 h-3.5 text-indigo-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                                Play Selection
+                            </button>
+                            <div class="text-slate-400 font-mono text-xs" id="timeDisplay">00:00.0 / 00:00.0</div>
+                        </div>
+
+                        <!-- Zoom Slider -->
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path></svg>
+                            <input type="range" id="zoomSlider" min="10" max="180" value="20" class="w-24 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                            <span class="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Zoom</span>
+                        </div>
+
+                        <!-- Speed selector -->
+                        <div class="flex items-center gap-2">
+                            <label class="text-xs text-slate-500 font-medium">Speed</label>
+                            <select id="playbackSpeed" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-indigo-500">
+                                <option value="0.5">0.5x</option>
+                                <option value="0.75">0.75x</option>
+                                <option value="1.0" selected>1.0x</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="2.0">2.0x</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Options Panel at the bottom -->
+        <aside id="controlsPanel" class="w-full bg-[#161b22] rounded-xl border border-slate-800 p-4 flex flex-col lg:flex-row gap-6 opacity-50 pointer-events-none transition-opacity duration-300 shadow-xl flex-shrink-0">
+            
+            <!-- Section 1: Track Editor -->
+            <section class="flex-grow lg:w-1/3 min-w-0">
+                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    Track Editor
+                </h3>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-xs text-slate-500 block mb-1">Start Time (sec)</label>
+                        <input type="number" id="startTime" step="0.1" min="0" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 block mb-1">End Time (sec)</label>
+                        <input type="number" id="endTime" step="0.1" min="0" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs text-slate-500">Volume / Gain</label>
+                        <span id="volumeDisplay" class="text-xs font-mono text-indigo-400 font-semibold">100%</span>
+                    </div>
+                    <input type="range" id="trackVolume" min="0" max="2.0" step="0.05" value="1.0" class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs text-slate-500 block mb-1">Fade In (sec)</label>
+                        <input type="number" id="trackFadeIn" value="0.0" step="0.5" min="0" max="10" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 block mb-1">Fade Out (sec)</label>
+                        <input type="number" id="trackFadeOut" value="0.0" step="0.5" min="0" max="10" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-slate-800 lg:hidden">
+            <div class="hidden lg:block w-px bg-slate-800"></div>
+
+            <!-- Section 2: Mix Configuration -->
+            <section class="flex-grow lg:w-1/3 min-w-0">
+                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                    Mix Configuration
+                </h3>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-xs text-slate-500 block mb-1">Transition</label>
+                        <select id="transitionType" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            <option value="none">Seamless</option>
+                            <option value="gap">Gap (Silence)</option>
+                            <option value="crossfade">Crossfade</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 block mb-1">Duration (sec)</label>
+                        <input type="number" id="transitionDuration" value="2.0" step="0.1" min="0" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-500 block mb-2">Mix Timeline Sequence</label>
+                    <div id="mixTimeline" class="p-3 bg-slate-900 border border-slate-800 rounded-lg flex flex-col gap-2 max-h-24 overflow-y-auto custom-scrollbar">
+                        <p class="text-[10px] text-slate-500 text-center py-2">Add tracks to visualize layout.</p>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-slate-800 lg:hidden">
+            <div class="hidden lg:block w-px bg-slate-800"></div>
+
+            <!-- Section 3: Export Options -->
+            <section class="flex-grow lg:w-1/3 min-w-0">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                        Export Settings
+                    </h3>
+                    <button id="toggleLogsBtn" class="text-xs text-slate-500 hover:text-slate-350 transition flex items-center gap-1">
+                        <span>Show Logs</span>
+                        <svg id="logsChevron" class="w-3 h-3 transition transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="text-xs text-slate-500 block mb-1">Output Format</label>
+                    <select id="exportFormat" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <option value="mp3">MP3 Audio (.mp3)</option>
+                        <option value="wav">WAV Lossless (.wav)</option>
+                        <option value="ogg">OGG Vorbis (.ogg)</option>
+                        <option value="aac">AAC Audio (.aac)</option>
+                    </select>
+                </div>
+
+                <button id="exportBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-indigo-500/30 transition transform active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden">
+                    <span id="exportBtnText" class="z-10 relative">Process & Download</span>
+                    <div id="exportProgress" class="absolute bottom-0 left-0 h-full bg-indigo-400/30 w-0 transition-all duration-300 z-0"></div>
+                </button>
+                
+                <div id="logContainer" class="mt-4 hidden transition-all duration-300">
+                    <div class="flex justify-between items-center mb-1 bg-slate-900 border border-slate-800 px-2 py-1 rounded-t">
+                        <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">FFmpeg console</span>
+                        <button id="clearLogsBtn" class="text-[9px] text-slate-500 hover:text-red-400 transition font-medium">Clear</button>
+                    </div>
+                    <div id="logOutput" class="p-2 bg-slate-950 border border-t-0 border-slate-800 rounded-b text-[10px] text-emerald-400 font-mono h-24 overflow-y-auto custom-scrollbar shadow-inner"></div>
+                </div>
+            </section>
+        </aside>
+
+    </main>
+
+    <footer class="mt-8 text-center text-slate-500 text-sm pb-4">
+        Made with <span class="text-red-500">&hearts;</span> by Bikram
+    </footer>
+
+    <script>
+        const { FFmpeg } = window.FFmpegWASM;
+        const { fetchFile } = window.FFmpegUtil;
+
+        let ffmpeg = null;
+        let wavesurfer = null;
+        let wsRegions = null;
+        let isFfmpegLoaded = false;
+        
+        let tracks = [];
+        let selectedTrackId = null;
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const workspace = document.getElementById('workspace');
+        const controlsPanel = document.getElementById('controlsPanel');
+        const trackListPanel = document.getElementById('trackListPanel');
+        const trackListEl = document.getElementById('trackList');
+        const resetBtn = document.getElementById('resetBtn');
+        const addTrackBtn = document.getElementById('addTrackBtn');
+        const addTrackBtnHeader = document.getElementById('addTrackBtnHeader');
+        const startTimeInput = document.getElementById('startTime');
+        const endTimeInput = document.getElementById('endTime');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const logOutput = document.getElementById('logOutput');
+        const exportProgress = document.getElementById('exportProgress');
+        const currentTrackName = document.getElementById('currentTrackName');
+        const transitionTypeEl = document.getElementById('transitionType');
+        const transitionDurationEl = document.getElementById('transitionDuration');
+        const trackVolumeInput = document.getElementById('trackVolume');
+        const volumeDisplay = document.getElementById('volumeDisplay');
+        const fadeInInput = document.getElementById('trackFadeIn');
+        const fadeOutInput = document.getElementById('trackFadeOut');
+        const zoomSlider = document.getElementById('zoomSlider');
+        const playbackSpeed = document.getElementById('playbackSpeed');
+        const playRegionBtn = document.getElementById('playRegionBtn');
+        
+        // Initialize FFmpeg
+        async function initFFmpeg() {
+            if (isFfmpegLoaded) return;
+            ffmpeg = new FFmpeg();
+            
+            ffmpeg.on('log', ({ message }) => {
+                const div = document.createElement('div');
+                div.textContent = message;
+                logOutput.appendChild(div);
+                logOutput.scrollTop = logOutput.scrollHeight;
+            });
+
+            ffmpeg.on('progress', ({ progress, time }) => {
+                exportProgress.style.width = `${Math.max(0, Math.min(100, progress * 100))}%`;
+            });
+
+            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+            const ffmpegURL = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd';
+            await ffmpeg.load({
+                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                classWorkerURL: await toBlobURL(`${ffmpegURL}/814.ffmpeg.js`, 'text/javascript'),
+            });
+            isFfmpegLoaded = true;
+        }
+
+        async function toBlobURL(url, mimeType) {
+            const resp = await fetch(url);
+            const blob = await resp.blob();
+            return URL.createObjectURL(new Blob([blob], { type: mimeType }));
+        }
+
+        function generateId() {
+            return Math.random().toString(36).substr(2, 9);
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Event Listeners for file adding
+        dropZone.addEventListener('click', () => fileInput.click());
+        addTrackBtn.addEventListener('click', () => fileInput.click());
+        addTrackBtnHeader.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                handleFiles(Array.from(e.dataTransfer.files));
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFiles(Array.from(e.target.files));
+            }
+        });
+        
+        function handleFiles(files) {
+            const audioFiles = files.filter(f => f.type.startsWith('audio/') || f.type.startsWith('video/'));
+            if(audioFiles.length === 0) return;
+
+            audioFiles.forEach(file => {
+                tracks.push({
+                    id: generateId(),
+                    file: file,
+                    name: file.name,
+                    trimStart: 0,
+                    trimEnd: 0, 
+                    duration: 0,
+                    volume: 1.0,
+                    fadeIn: 0.0,
+                    fadeOut: 0.0,
+                    url: URL.createObjectURL(file)
+                });
+            });
+
+            // UI Reveal
+            dropZone.classList.add('hidden');
+            workspace.classList.remove('hidden');
+            trackListPanel.classList.remove('hidden');
+            controlsPanel.classList.remove('opacity-50', 'pointer-events-none');
+            resetBtn.classList.remove('hidden');
+            addTrackBtnHeader.classList.remove('hidden');
+
+            renderTrackList();
+            
+            // If no track selected, select the first new one
+            if (!selectedTrackId) {
+                selectTrack(tracks[tracks.length - audioFiles.length].id);
+            }
+
+            // Start loading FFmpeg
+            initFFmpeg().catch(err => {
+                console.error("FFmpeg load failed", err);
+                alert("Failed to load FFmpeg engine.");
+            });
+        }
+        
+        function renderTrackList() {
+            trackListEl.innerHTML = '';
+            tracks.forEach((track, index) => {
+                const el = document.createElement('div');
+                const isSelected = track.id === selectedTrackId;
+                el.className = `flex justify-between items-center p-2 rounded-lg cursor-pointer transition select-none ${isSelected ? 'bg-indigo-900/50 border border-indigo-500' : 'bg-slate-800 hover:bg-slate-700 border border-transparent'}`;
+                
+                el.innerHTML = `
+                    <div class="flex items-center gap-2 flex-1 min-w-0">
+                        <div class="drag-handle text-slate-500 hover:text-slate-350 cursor-grab active:cursor-grabbing p-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+                        </div>
+                        <div class="truncate flex-1">
+                            <div class="text-xs font-semibold text-slate-200 truncate">${index + 1}. ${track.name}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">
+                                ${formatSize(track.file.size)} • ${track.duration ? formatTime(track.duration) : 'Loading...'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-0.5 ml-2">
+                        <button title="Move Up" class="p-1 text-slate-500 hover:text-slate-300 rounded transition ${index === 0 ? 'opacity-30 pointer-events-none' : ''}" onclick="moveTrack('${track.id}', -1, event)">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                        </button>
+                        <button title="Move Down" class="p-1 text-slate-500 hover:text-slate-300 rounded transition ${index === tracks.length - 1 ? 'opacity-30 pointer-events-none' : ''}" onclick="moveTrack('${track.id}', 1, event)">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <button class="text-slate-500 hover:text-red-400 p-1 transition" onclick="removeTrack('${track.id}', event)">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                `;
+                
+                el.onclick = () => selectTrack(track.id);
+                
+                // Drag & Drop event listeners
+                el.setAttribute('draggable', 'true');
+                el.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', index);
+                    el.classList.add('opacity-40');
+                });
+                el.addEventListener('dragend', () => {
+                    el.classList.remove('opacity-40');
+                });
+                el.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                el.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                    const toIndex = index;
+                    if (fromIndex !== toIndex && !isNaN(fromIndex)) {
+                        const item = tracks.splice(fromIndex, 1)[0];
+                        tracks.splice(toIndex, 0, item);
+                        renderTrackList();
+                        if (typeof renderMixTimeline === 'function') {
+                            renderMixTimeline();
+                        }
+                    }
+                });
+                
+                trackListEl.appendChild(el);
+            });
+            
+            if (tracks.length === 0) {
+                resetWorkspace();
+            }
+        }
+        
+        window.moveTrack = function(id, direction, e) {
+            e.stopPropagation();
+            const index = tracks.findIndex(t => t.id === id);
+            if (index === -1) return;
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= tracks.length) return;
+            
+            const temp = tracks[index];
+            tracks[index] = tracks[newIndex];
+            tracks[newIndex] = temp;
+            
+            renderTrackList();
+            if (typeof renderMixTimeline === 'function') {
+                renderMixTimeline();
+            }
+        }
+        
+        window.removeTrack = function(id, e) {
+            e.stopPropagation();
+            tracks = tracks.filter(t => t.id !== id);
+            if (selectedTrackId === id) {
+                if (tracks.length > 0) selectTrack(tracks[0].id);
+                else selectedTrackId = null;
+            }
+            renderTrackList();
+            if (typeof renderMixTimeline === 'function') {
+                renderMixTimeline();
+            }
+        }
+
+        function selectTrack(id) {
+            selectedTrackId = id;
+            renderTrackList();
+            const track = tracks.find(t => t.id === id);
+            if(track) {
+                currentTrackName.innerText = `Editing: ${track.name}`;
+                loadAudioToWavesurfer(track);
+                
+                // Sync new controls
+                if (trackVolumeInput) {
+                    trackVolumeInput.value = track.volume;
+                    if (volumeDisplay) {
+                        volumeDisplay.innerText = Math.round(track.volume * 100) + '%';
+                    }
+                }
+                if (fadeInInput) fadeInInput.value = track.fadeIn || 0;
+                if (fadeOutInput) fadeOutInput.value = track.fadeOut || 0;
+            }
+        }
+
+        // Wavesurfer setup
+        function initWavesurfer() {
+            if (wavesurfer) {
+                wavesurfer.destroy();
+            }
+
+            const ctx = document.createElement('canvas').getContext('2d');
+            const waveGrad = ctx.createLinearGradient(0, 0, 0, 96);
+            waveGrad.addColorStop(0, '#818cf8'); // Indigo 400
+            waveGrad.addColorStop(0.5, '#6366f1'); // Indigo 500
+            waveGrad.addColorStop(1, '#312e81'); // Indigo 900
+            
+            const progressGrad = ctx.createLinearGradient(0, 0, 0, 96);
+            progressGrad.addColorStop(0, '#c7d2fe'); // Indigo 200
+            progressGrad.addColorStop(0.5, '#a5b4fc'); // Indigo 300
+            progressGrad.addColorStop(1, '#4f46e5'); // Indigo 600
+
+            wavesurfer = WaveSurfer.create({
+                container: '#waveform',
+                waveColor: waveGrad,
+                progressColor: progressGrad,
+                cursorColor: '#f8fafc',
+                barWidth: 2,
+                barGap: 1,
+                barRadius: 2,
+                height: 96,
+                normalize: true,
+            });
+
+            wsRegions = wavesurfer.registerPlugin(WaveSurfer.Regions.create());
+
+            wavesurfer.on('decode', (duration) => {
+                const track = tracks.find(t => t.id === selectedTrackId);
+                if (track) {
+                    track.duration = duration;
+                    if (track.trimEnd === 0 || track.trimEnd > duration) {
+                        track.trimEnd = duration;
+                    }
+                    
+                    startTimeInput.value = track.trimStart.toFixed(2);
+                    endTimeInput.value = track.trimEnd.toFixed(2);
+                    
+                    wsRegions.clearRegions();
+                    wsRegions.addRegion({
+                        start: track.trimStart,
+                        end: track.trimEnd,
+                        color: 'rgba(99, 102, 241, 0.18)',
+                        drag: true,
+                        resize: true,
+                    });
+
+                    // Apply zoom and speed settings
+                    if (zoomSlider) {
+                        wavesurfer.zoom(Number(zoomSlider.value));
+                    }
+                    if (playbackSpeed) {
+                        wavesurfer.setPlaybackRate(parseFloat(playbackSpeed.value));
+                    }
+                    
+                    if (typeof renderMixTimeline === 'function') {
+                        renderMixTimeline();
+                    }
+                    // Re-render track list to update duration text if it was loading
+                    renderTrackList();
+                }
+            });
+            
+            wavesurfer.on('timeupdate', (currentTime) => {
+                const total = wavesurfer.getDuration() || 0;
+                timeDisplay.innerText = `${formatTime(currentTime)} / ${formatTime(total)}`;
+            });
+
+            wavesurfer.on('play', () => {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            });
+
+            wavesurfer.on('pause', () => {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            });
+
+            wsRegions.on('region-updated', (region) => {
+                const track = tracks.find(t => t.id === selectedTrackId);
+                if(track) {
+                    track.trimStart = region.start;
+                    track.trimEnd = region.end;
+                    startTimeInput.value = region.start.toFixed(2);
+                    endTimeInput.value = region.end.toFixed(2);
+                    if (typeof renderMixTimeline === 'function') {
+                        renderMixTimeline();
+                    }
+                }
+            });
+        }
+
+        function loadAudioToWavesurfer(track) {
+            if (!wavesurfer) initWavesurfer();
+            wavesurfer.load(track.url);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            const ms = Math.floor((seconds % 1) * 10);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms}`;
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (!wavesurfer) return;
+            if (wavesurfer.isPlaying()) {
+                wavesurfer.pause();
+            } else {
+                const regions = wsRegions.getRegions();
+                if (regions.length > 0) {
+                    const currentTime = wavesurfer.getCurrentTime();
+                    const r = regions[0];
+                    if (currentTime < r.start || currentTime >= r.end) {
+                        r.play();
+                    } else {
+                        wavesurfer.play();
+                    }
+                } else {
+                    wavesurfer.play();
+                }
+            }
+        });
+
+        playRegionBtn.addEventListener('click', () => {
+            if (!wavesurfer) return;
+            const regions = wsRegions.getRegions();
+            if (regions.length > 0) {
+                regions[0].play();
+            } else {
+                wavesurfer.play();
+            }
+        });
+
+        zoomSlider.addEventListener('input', () => {
+            if (wavesurfer) {
+                wavesurfer.zoom(Number(zoomSlider.value));
+            }
+        });
+
+        playbackSpeed.addEventListener('change', () => {
+            if (wavesurfer) {
+                wavesurfer.setPlaybackRate(parseFloat(playbackSpeed.value));
+            }
+        });
+
+        [startTimeInput, endTimeInput].forEach(el => {
+            el.addEventListener('change', () => {
+                const track = tracks.find(t => t.id === selectedTrackId);
+                if(!track) return;
+                
+                track.trimStart = parseFloat(startTimeInput.value) || 0;
+                track.trimEnd = parseFloat(endTimeInput.value) || 0;
+                
+                const regions = wsRegions.getRegions();
+                if (regions.length > 0) {
+                    regions[0].setOptions({
+                        start: track.trimStart,
+                        end: track.trimEnd
+                    });
+                }
+                if (typeof renderMixTimeline === 'function') {
+                    renderMixTimeline();
+                }
+            });
+        });
+
+        trackVolumeInput.addEventListener('input', () => {
+            const track = tracks.find(t => t.id === selectedTrackId);
+            if(!track) return;
+            track.volume = parseFloat(trackVolumeInput.value);
+            volumeDisplay.innerText = Math.round(track.volume * 100) + '%';
+        });
+
+        [fadeInInput, fadeOutInput].forEach(el => {
+            el.addEventListener('change', () => {
+                const track = tracks.find(t => t.id === selectedTrackId);
+                if(!track) return;
+                track.fadeIn = parseFloat(fadeInInput.value) || 0;
+                track.fadeOut = parseFloat(fadeOutInput.value) || 0;
+                if (typeof renderMixTimeline === 'function') {
+                    renderMixTimeline();
+                }
+            });
+        });
+
+        resetBtn.addEventListener('click', () => {
+            resetWorkspace();
+        });
+        
+        function resetWorkspace() {
+            if (wavesurfer) wavesurfer.destroy();
+            wavesurfer = null;
+            tracks = [];
+            selectedTrackId = null;
+            fileInput.value = '';
+            
+            dropZone.classList.remove('hidden');
+            workspace.classList.add('hidden');
+            trackListPanel.classList.add('hidden');
+            controlsPanel.classList.add('opacity-50', 'pointer-events-none');
+            resetBtn.classList.add('hidden');
+            addTrackBtnHeader.classList.add('hidden');
+            const mixTimelineEl = document.getElementById('mixTimeline');
+            if (mixTimelineEl) {
+                mixTimelineEl.innerHTML = '<p class="text-[10px] text-slate-500 text-center py-2">Add tracks to visualize layout.</p>';
+            }
+            logOutput.classList.add('hidden');
+            exportProgress.style.width = '0%';
+        }
+
+        function renderMixTimeline() {
+            const mixTimelineEl = document.getElementById('mixTimeline');
+            if (!mixTimelineEl) return;
+            
+            if (tracks.length === 0) {
+                mixTimelineEl.innerHTML = '<p class="text-[10px] text-slate-500 text-center py-2">Add tracks to visualize layout.</p>';
+                return;
+            }
+            
+            mixTimelineEl.innerHTML = '';
+            
+            const tType = transitionTypeEl.value;
+            const tDur = parseFloat(transitionDurationEl.value) || 0;
+            
+            tracks.forEach((track, index) => {
+                const trackItem = document.createElement('div');
+                const duration = track.duration ? (track.trimEnd - track.trimStart) : 0;
+                
+                trackItem.className = `p-2 rounded border text-xs flex justify-between items-center transition-colors cursor-pointer select-none ${
+                    track.id === selectedTrackId 
+                        ? 'bg-indigo-950/70 border-indigo-500 text-indigo-200 shadow-sm shadow-indigo-500/20' 
+                        : 'bg-slate-800/80 border-slate-700 text-slate-350 hover:bg-slate-750'
+                }`;
+                
+                trackItem.innerHTML = `
+                    <div class="truncate flex-1 font-medium">
+                        <span class="opacity-60 text-[10px] font-mono mr-1">#${index + 1}</span> ${track.name}
+                    </div>
+                    <div class="text-[10px] opacity-75 font-mono ml-2 flex gap-1 items-center">
+                        <span class="bg-slate-900 border border-slate-700 rounded px-1 text-[9px] text-slate-300 font-sans">${duration > 0 ? duration.toFixed(1) + 's' : '0s'}</span>
+                        ${track.volume !== 1.0 ? `<span class="bg-indigo-900/60 border border-indigo-700 rounded px-1 text-[9px] text-indigo-300 font-sans">Vol: ${Math.round(track.volume * 100)}%</span>` : ''}
+                        ${track.fadeIn > 0 ? `<span class="bg-emerald-950 border border-emerald-800 text-emerald-300 rounded px-1 text-[9px] font-sans">↗ ${track.fadeIn}s</span>` : ''}
+                        ${track.fadeOut > 0 ? `<span class="bg-rose-950 border border-rose-800 text-rose-300 rounded px-1 text-[9px] font-sans">↘ ${track.fadeOut}s</span>` : ''}
+                    </div>
+                `;
+                
+                trackItem.onclick = () => selectTrack(track.id);
+                mixTimelineEl.appendChild(trackItem);
+                
+                if (index < tracks.length - 1) {
+                    const transItem = document.createElement('div');
+                    transItem.className = 'text-[9px] font-mono text-center py-1 bg-slate-950/60 rounded border border-dashed border-slate-850 text-slate-500 flex justify-center items-center gap-1.5 select-none';
+                    
+                    if (tType === 'none') {
+                        transItem.innerHTML = `
+                            <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                            <span>Seamless Connection</span>
+                        `;
+                    } else if (tType === 'gap') {
+                        transItem.innerHTML = `
+                            <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Silence Gap: <b class="text-slate-400 font-sans">${tDur.toFixed(1)}s</b></span>
+                        `;
+                    } else if (tType === 'crossfade') {
+                        transItem.innerHTML = `
+                            <svg class="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                            <span>Crossfade: <b class="text-slate-400 font-sans">${tDur.toFixed(1)}s</b></span>
+                        `;
+                    }
+                    
+                    mixTimelineEl.appendChild(transItem);
+                }
+            });
+        }
+
+        [transitionTypeEl, transitionDurationEl].forEach(el => {
+            el.addEventListener('change', () => {
+                renderMixTimeline();
+            });
+        });
+
+        // Logs Toggle and Clear Bindings
+        const toggleLogsBtn = document.getElementById('toggleLogsBtn');
+        const logContainer = document.getElementById('logContainer');
+        const logsChevron = document.getElementById('logsChevron');
+        const clearLogsBtn = document.getElementById('clearLogsBtn');
+
+        toggleLogsBtn.addEventListener('click', () => {
+            const isHidden = logContainer.classList.contains('hidden');
+            if (isHidden) {
+                logContainer.classList.remove('hidden');
+                logsChevron.classList.add('rotate-180');
+            } else {
+                logContainer.classList.add('hidden');
+                logsChevron.classList.remove('rotate-180');
+            }
+        });
+
+        clearLogsBtn.addEventListener('click', () => {
+            logOutput.innerHTML = '';
+        });
+        
+        document.getElementById('exportBtn').addEventListener('click', async () => {
+            if (tracks.length === 0 || !isFfmpegLoaded) {
+                if(!isFfmpegLoaded) alert("Audio engine is still loading, please wait a moment...");
+                return;
+            }
+
+            const btn = document.getElementById('exportBtn');
+            const btnText = document.getElementById('exportBtnText');
+            
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            btnText.innerText = "Processing...";
+            
+            const logContainer = document.getElementById('logContainer');
+            const logsChevron = document.getElementById('logsChevron');
+            if (logContainer) logContainer.classList.remove('hidden');
+            if (logsChevron) logsChevron.classList.add('rotate-180');
+            
+            logOutput.innerHTML = '';
+            exportProgress.style.width = '0%';
+
+            try {
+                const outFormat = document.getElementById('exportFormat').value;
+                const outName = `output.${outFormat}`;
+                const tType = transitionTypeEl.value;
+                const tDur = parseFloat(transitionDurationEl.value) || 2.0;
+                
+                // Write all files to FFmpeg FS
+                for (let i = 0; i < tracks.length; i++) {
+                    const track = tracks[i];
+                    const ext = track.file.name.split('.').pop();
+                    const inName = `input_${i}.${ext}`;
+                    await ffmpeg.writeFile(inName, await fetchFile(track.file));
+                }
+
+                // Build FFmpeg command and filter_complex
+                let ffmpegArgs = [];
+                let filterComplex = "";
+
+                // Add inputs and base trimming, volume & fading
+                for (let i = 0; i < tracks.length; i++) {
+                    const track = tracks[i];
+                    const ext = track.file.name.split('.').pop();
+                    const inName = `input_${i}.${ext}`;
+                    ffmpegArgs.push('-i', inName);
+                    
+                    // Base resampling, channel format and trim
+                    let trackFilters = `[${i}:a]aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo,atrim=${track.trimStart}:${track.trimEnd},asetpts=PTS-STARTPTS`;
+                    
+                    // Volume adjustment
+                    if (track.volume !== undefined && track.volume !== 1.0) {
+                        trackFilters += `,volume=${track.volume.toFixed(2)}`;
+                    }
+                    
+                    // Fade In
+                    if (track.fadeIn && track.fadeIn > 0) {
+                        trackFilters += `,afade=t=in:st=0:d=${track.fadeIn.toFixed(2)}`;
+                    }
+                    
+                    // Fade Out
+                    if (track.fadeOut && track.fadeOut > 0) {
+                        const trimmedDuration = track.trimEnd - track.trimStart;
+                        const fadeOutStart = Math.max(0, trimmedDuration - track.fadeOut);
+                        trackFilters += `,afade=t=out:st=${fadeOutStart.toFixed(2)}:d=${track.fadeOut.toFixed(2)}`;
+                    }
+                    
+                    filterComplex += `${trackFilters}[a${i}];`;
+                }
+
+                // Concatenation Logic based on Transition Type
+                if (tracks.length === 1) {
+                    // Only one track, just use its output directly
+                    filterComplex += `[a0]anull[outa]`;
+                } else if (tType === 'none') {
+                    // Seamless concat
+                    let concatInputs = "";
+                    for (let i = 0; i < tracks.length; i++) {
+                        concatInputs += `[a${i}]`;
+                    }
+                    filterComplex += `${concatInputs}concat=n=${tracks.length}:v=0:a=1[outa]`;
+                } else if (tType === 'gap') {
+                    // Gap (Silence) between tracks
+                    let concatInputs = "";
+                    let nSegments = tracks.length * 2 - 1;
+                    for (let i = 0; i < tracks.length; i++) {
+                        concatInputs += `[a${i}]`;
+                        if (i < tracks.length - 1) {
+                            filterComplex += `anullsrc=d=${tDur}:r=44100:cl=stereo[silence${i}];`;
+                            concatInputs += `[silence${i}]`;
+                        }
+                    }
+                    filterComplex += `${concatInputs}concat=n=${nSegments}:v=0:a=1[outa]`;
+                } else if (tType === 'crossfade') {
+                    // Crossfade
+                    if (tracks.length === 2) {
+                        filterComplex += `[a0][a1]acrossfade=d=${tDur}:c1=tri:c2=tri[outa]`;
+                    } else {
+                        let prevOut = '[a0]';
+                        for (let i = 1; i < tracks.length; i++) {
+                            const currentIn = `[a${i}]`;
+                            const currentOut = i === tracks.length - 1 ? '[outa]' : `[cf${i}]`;
+                            filterComplex += `${prevOut}${currentIn}acrossfade=d=${tDur}:c1=tri:c2=tri${currentOut};`;
+                            prevOut = currentOut;
+                        }
+                    }
+                }
+                
+                // Clean up any trailing semicolons just in case
+                filterComplex = filterComplex.replace(/;$/, '');
+
+                ffmpegArgs.push('-filter_complex', filterComplex);
+                ffmpegArgs.push('-map', '[outa]');
+                
+                // Encoder options
+                const encoder = (outFormat === 'mp3' ? 'libmp3lame' : (outFormat === 'ogg' ? 'libvorbis' : (outFormat === 'aac' ? 'aac' : 'pcm_s16le')));
+                ffmpegArgs.push('-c:a', encoder);
+                
+                if(outFormat === 'mp3') ffmpegArgs.push('-q:a', '2'); // VBR quality
+
+                ffmpegArgs.push(outName);
+
+                // Run ffmpeg command
+                await ffmpeg.exec(ffmpegArgs);
+
+                const data = await ffmpeg.readFile(outName);
+                
+                // Create download link
+                const blob = new Blob([data.buffer], { type: `audio/${outFormat}` });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `mixed_audio.${outFormat}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                btnText.innerText = "Done! Downloading...";
+                setTimeout(() => {
+                    btnText.innerText = "Process & Download";
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    exportProgress.style.width = '0%';
+                }, 3000);
+
+            } catch (err) {
+                console.error(err);
+                alert("Error processing audio: " + err.message);
+                btnText.innerText = "Error. Try Again";
+                btn.disabled = false;
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        });
+    </script>
+</body>
+</html>
