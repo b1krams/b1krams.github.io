@@ -87,6 +87,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             display: flex;
             align-items: center;
             gap: 0.8rem;
+            position: relative;
         }
 
         .header-actions {
@@ -94,6 +95,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             align-items: center;
             gap: 0.5rem;
             flex-shrink: 0;
+        }
+
+        .nav-mobile-toggle {
+            display: none;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-mobile-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
         nav {
@@ -826,8 +847,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         /* ── RESPONSIVE ── */
         @media (max-width: 600px) {
-            .header-inner { height: auto; flex-direction: column; padding: 1rem 0; gap: 0.75rem; }
-            nav { flex-wrap: wrap; justify-content: center; }
+            .header-inner { height: auto; padding: 1rem; }
+            .nav-mobile-toggle { display: inline-flex; }
+            #nav { 
+                display: none; 
+                position: absolute; 
+                top: 100%; 
+                right: 0; 
+                margin-top: 0.5rem;
+                flex-direction: column; 
+                background: var(--surface); 
+                border: 1px solid var(--border); 
+                border-radius: 8px; 
+                padding: 0.5rem; 
+                box-shadow: 0 8px 24px rgba(0,0,0,0.6); 
+                z-index: 100;
+                min-width: 160px;
+                align-items: stretch;
+            }
+            #nav.open { display: flex; }
+            #nav button { text-align: left; padding: 0.75rem 0.85rem; }
             main { padding: 0 1rem; }
         }
     </style>
@@ -898,6 +937,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <span class="brand-name"><span>News</span> NOW</span>
             </div>
             <div class="header-right">
+                <button class="nav-mobile-toggle" onclick="document.getElementById('nav').classList.toggle('open')">
+                    Categories <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
                 <nav id="nav">
                     <button onclick="switchCategory('national')" id="btn-national" class="active">National</button>
                     <button onclick="switchCategory('business')" id="btn-business">Business</button>
@@ -1165,6 +1207,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.querySelectorAll('#nav button:not(.btn-refresh)').forEach(b => b.classList.remove('active'));
         const btn = document.getElementById('btn-' + cat);
         if (btn) btn.classList.add('active');
+        document.getElementById('nav').classList.remove('open');
     }
 
     async function switchCategory(cat) {
@@ -1186,6 +1229,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
 
     async function fetchAll() {
+        document.getElementById('nav').classList.remove('open');
         document.querySelectorAll('#nav button:not(.btn-refresh)').forEach(b => b.classList.remove('active'));
         loader.style.display = 'flex';
         container.innerHTML = '';
