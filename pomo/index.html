@@ -13,10 +13,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <title>ZenTime | Pomodoro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.3)); }
         .progress-ring__circle { transition: stroke-dashoffset 0.5s ease-in-out; stroke-linecap: round; }
+        [v-cloak] { display: none !important; }
     </style>
 </head>
 
@@ -26,202 +28,206 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
-    <!-- Header -->
-    <header class="w-full pt-8 pb-4 text-center">
-        <h1 class="font-semibold tracking-[4px] opacity-80 uppercase text-xs text-indigo-500 m-0">ZenTime</h1>
-    </header>
+    <div id="app" v-cloak class="w-full h-full flex flex-col justify-between items-center">
+        <!-- Header -->
+        <header class="w-full pt-8 pb-4 text-center">
+            <h1 class="font-semibold tracking-[4px] opacity-80 uppercase text-xs text-indigo-500 m-0">ZenTime</h1>
+        </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col items-center justify-center w-full max-w-sm px-6">
-        
-        <!-- Mode Selector (Segmented Control) -->
-        <div class="flex justify-center gap-2 mb-8 bg-[#0b0e14]/50 p-1.5 rounded-2xl border border-slate-800 w-fit mx-auto">
-            <button id="pomo-btn" class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 mode-btn active-mode bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" data-time="25">Pomodoro</button>
-            <button id="short-btn" class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 mode-btn text-slate-400 hover:bg-slate-800" data-time="5">Short Break</button>
-            <button id="long-btn" class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 mode-btn text-slate-400 hover:bg-slate-800" data-time="15">Long Break</button>
-        </div>
-
-        <!-- Timer Circle -->
-        <div class="relative w-[240px] h-[240px] flex items-center justify-center mb-12">
-            <svg class="progress-ring origin-center absolute w-full h-full" width="240" height="240" viewBox="0 0 240 240">
-                <!-- Background track -->
-                <circle class="stroke-slate-800" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" />
-                <!-- Progress track -->
-                <circle class="progress-ring__circle stroke-indigo-500" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" />
-            </svg>
-            <div class="z-10 flex flex-col items-center">
-                <div class="text-[4rem] font-light tracking-tight" id="timer">25:00</div>
-                <div class="text-xs font-medium text-slate-400 uppercase tracking-wider mt-1" id="timerLabel">Focus</div>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col items-center justify-center w-full max-w-sm px-6">
+            
+            <!-- Mode Selector (Segmented Control) -->
+            <div class="flex justify-center gap-2 mb-8 bg-[#0b0e14]/50 p-1.5 rounded-2xl border border-slate-800 w-fit mx-auto">
+                <button 
+                    v-for="mode in modes" 
+                    :key="mode.id"
+                    @click="setMode(mode.id)"
+                    :class="['px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300', activeMode === mode.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800']"
+                >
+                    {{ mode.label }}
+                </button>
             </div>
-        </div>
 
-        <!-- Controls -->
-        <div class="flex justify-center gap-4 w-full">
-            <button id="startBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-indigo-900/40 text-lg flex items-center justify-center gap-2">
-                <span>Start</span>
-            </button>
-            <button id="resetBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 px-8 rounded-2xl transition-all border border-slate-700 text-lg" aria-label="Reset">
-                Reset
-            </button>
-        </div>
-    </main>
+            <!-- Timer Circle -->
+            <div class="relative w-[240px] h-[240px] flex items-center justify-center mb-12">
+                <svg class="progress-ring origin-center absolute w-full h-full" width="240" height="240" viewBox="0 0 240 240">
+                    <!-- Background track -->
+                    <circle class="stroke-slate-800" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" />
+                    <!-- Progress track -->
+                    <circle class="progress-ring__circle stroke-indigo-500" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" 
+                            :stroke-dasharray="circumference + ' ' + circumference"
+                            :stroke-dashoffset="progressOffset" />
+                </svg>
+                <div class="z-10 flex flex-col items-center">
+                    <div class="text-[4rem] font-light tracking-tight">{{ formattedTime }}</div>
+                    <div class="text-xs font-medium text-slate-400 uppercase tracking-wider mt-1">{{ currentModeLabel }}</div>
+                </div>
+            </div>
 
-    <!-- Footer -->
-    <footer class="w-full pb-8 text-center pt-2 flex flex-col items-center gap-2">
-        <button class="text-[0.65rem] opacity-40 hover:opacity-100 transition-opacity uppercase tracking-widest bg-transparent border-none text-slate-50 cursor-pointer p-2" id="notifStatus" onclick="requestNotification()">Enable Notifications</button>
-        <p class="text-[0.65rem] opacity-50 tracking-wider m-0">Made with ❤️ by Bikram</p>
-    </footer>
+            <!-- Controls -->
+            <div class="flex justify-center gap-4 w-full">
+                <button 
+                    @click="toggleTimer"
+                    :class="['flex-1 font-bold py-4 px-8 rounded-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl text-lg flex items-center justify-center gap-2', isPlaying ? 'bg-rose-500 hover:bg-rose-400 text-white shadow-rose-500/25' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-900/40']"
+                >
+                    <svg v-if="isPlaying" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    <span>{{ isPlaying ? 'Pause' : (timeLeft === totalTime ? 'Start' : 'Resume') }}</span>
+                </button>
+                <button @click="resetTimer" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 px-8 rounded-2xl transition-all border border-slate-700 text-lg" aria-label="Reset">
+                    Reset
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="w-full pb-8 text-center pt-2 flex flex-col items-center gap-2">
+            <button 
+                @click="requestNotification"
+                :class="['text-[0.65rem] transition-opacity uppercase tracking-widest bg-transparent border-none cursor-pointer p-2', notificationEnabled ? 'opacity-100 text-sky-400' : 'opacity-40 hover:opacity-100 text-slate-50']"
+            >
+                {{ notificationStatus }}
+            </button>
+            <p class="text-[0.65rem] opacity-50 tracking-wider m-0">Made with ❤️ by Bikram</p>
+        </footer>
+    </div>
 
     <script>
-        let timeLeft = 25 * 60;
-        let timerId = null;
-        let totalTime = 25 * 60;
-        const circle = document.querySelector('.progress-ring__circle');
-        const radius = circle.r.baseVal.value;
-        const circumference = radius * 2 * Math.PI;
+        const { createApp, ref, computed, onMounted } = Vue;
 
-        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        createApp({
+            setup() {
+                const modes = [
+                    { id: 'pomo', label: 'Pomodoro', time: 25 },
+                    { id: 'short', label: 'Short Break', time: 5 },
+                    { id: 'long', label: 'Long Break', time: 15 }
+                ];
 
-        const timerLabel = document.getElementById('timerLabel');
+                const activeMode = ref('pomo');
+                const totalTime = ref(25 * 60);
+                const timeLeft = ref(25 * 60);
+                const isPlaying = ref(false);
+                const notificationStatus = ref('Enable Notifications');
+                const notificationEnabled = ref(false);
 
-        const modeBtns = document.querySelectorAll('.mode-btn');
-        modeBtns.forEach((btn, index) => {
-            btn.addEventListener('click', () => {
-                modeBtns.forEach(b => {
-                    b.className = "px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 mode-btn text-slate-400 hover:bg-slate-800";
+                let timerId = null;
+                const radius = 110;
+                const circumference = radius * 2 * Math.PI;
+
+                const currentModeLabel = computed(() => {
+                    if (activeMode.value === 'pomo') return 'Focus';
+                    if (activeMode.value === 'short') return 'Short Break';
+                    return 'Long Break';
                 });
-                btn.className = "px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 mode-btn active-mode bg-indigo-600 text-white shadow-lg shadow-indigo-500/20";
-                
-                const timeStr = btn.getAttribute('data-time');
-                totalTime = parseInt(timeStr) * 60;
-                timeLeft = totalTime;
-                
-                // Update Label
-                if (index === 0) timerLabel.innerText = "Focus";
-                else if (index === 1) timerLabel.innerText = "Short Break";
-                else if (index === 2) timerLabel.innerText = "Long Break";
-                
-                if (timerId) {
-                    clearInterval(timerId);
-                    timerId = null;
-                    updatePlayBtn(false);
-                }
-                updateDisplay();
-            });
-        });
 
-        function setProgress(percent) {
-            const offset = circumference - (percent / 100 * circumference);
-            circle.style.strokeDashoffset = offset;
-        }
-
-        function updateDisplay() {
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
-            document.getElementById('timer').textContent =
-                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-            const percent = totalTime === 0 ? 0 : ((totalTime - timeLeft) / totalTime) * 100;
-            setProgress(100 - percent);
-        }
-
-        function requestNotification() {
-            if (!("Notification" in window)) return;
-            Notification.requestPermission().then(permission => {
-                const btn = document.getElementById('notifStatus');
-                if (permission === 'granted') {
-                    btn.textContent = 'Notifications Enabled';
-                    btn.style.opacity = '1';
-                    btn.style.color = '#38bdf8';
-                } else {
-                    btn.textContent = 'Notifications Denied';
-                }
-            });
-        }
-
-        function notify() {
-            if (Notification.permission === "granted") {
-                new Notification("ZenTime", {
-                    body: "Session complete. Time to switch gears!",
-                    icon: "https://cdn-icons-png.flaticon.com/512/2523/2523315.png"
+                const formattedTime = computed(() => {
+                    const mins = Math.floor(timeLeft.value / 60);
+                    const secs = timeLeft.value % 60;
+                    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
                 });
-            } else {
-                alert("Session complete!");
-            }
-        }
-        
-        const startBtn = document.getElementById('startBtn');
-        function updatePlayBtn(isPlaying) {
-            if (isPlaying) {
-                startBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                    <span>Pause</span>
-                `;
-                startBtn.classList.replace('bg-sky-500', 'bg-rose-500');
-                startBtn.classList.replace('shadow-sky-500/25', 'shadow-rose-500/25');
-            } else {
-                startBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                    <span>Resume</span>
-                `;
-                if(timeLeft === totalTime) {
-                    startBtn.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                        <span>Start</span>
-                    `;
-                }
-                startBtn.classList.replace('bg-rose-500', 'bg-sky-500');
-                startBtn.classList.replace('shadow-rose-500/25', 'shadow-sky-500/25');
-            }
-        }
 
-        startBtn.addEventListener('click', () => {
-            if(Notification.permission === 'default') requestNotification();
-            
-            if (timerId) {
-                // Pause it
-                clearInterval(timerId);
-                timerId = null;
-                updatePlayBtn(false);
-            } else {
-                // Start it
-                updatePlayBtn(true);
-                timerId = setInterval(() => {
-                    timeLeft--;
-                    updateDisplay();
-                    if (timeLeft <= 0) {
+                const progressOffset = computed(() => {
+                    const percent = totalTime.value === 0 ? 0 : ((totalTime.value - timeLeft.value) / totalTime.value) * 100;
+                    return circumference - (100 - percent) / 100 * circumference;
+                });
+
+                const setMode = (modeId) => {
+                    activeMode.value = modeId;
+                    const mode = modes.find(m => m.id === modeId);
+                    totalTime.value = mode.time * 60;
+                    timeLeft.value = totalTime.value;
+                    if (timerId) {
                         clearInterval(timerId);
                         timerId = null;
-                        updatePlayBtn(false);
-                        notify();
-                        
-                        // Auto reset after 2 sec
-                        setTimeout(() => {
-                            timeLeft = totalTime;
-                            updateDisplay();
-                            updatePlayBtn(false);
-                        }, 2000);
                     }
-                }, 1000);
+                    isPlaying.value = false;
+                };
+
+                const requestNotification = () => {
+                    if (!("Notification" in window)) return;
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            notificationEnabled.value = true;
+                            notificationStatus.value = 'Notifications Enabled';
+                        } else {
+                            notificationEnabled.value = false;
+                            notificationStatus.value = 'Notifications Denied';
+                        }
+                    });
+                };
+
+                const notify = () => {
+                    if (Notification.permission === "granted") {
+                        new Notification("ZenTime", {
+                            body: "Session complete. Time to switch gears!",
+                            icon: "https://cdn-icons-png.flaticon.com/512/2523/2523315.png"
+                        });
+                    } else {
+                        alert("Session complete!");
+                    }
+                };
+
+                const toggleTimer = () => {
+                    if (Notification.permission === 'default') requestNotification();
+
+                    if (isPlaying.value) {
+                        clearInterval(timerId);
+                        timerId = null;
+                        isPlaying.value = false;
+                    } else {
+                        isPlaying.value = true;
+                        timerId = setInterval(() => {
+                            timeLeft.value--;
+                            if (timeLeft.value <= 0) {
+                                clearInterval(timerId);
+                                timerId = null;
+                                isPlaying.value = false;
+                                notify();
+
+                                setTimeout(() => {
+                                    timeLeft.value = totalTime.value;
+                                }, 2000);
+                            }
+                        }, 1000);
+                    }
+                };
+
+                const resetTimer = () => {
+                    if (timerId) {
+                        clearInterval(timerId);
+                        timerId = null;
+                    }
+                    timeLeft.value = totalTime.value;
+                    isPlaying.value = false;
+                };
+
+                onMounted(() => {
+                    if (Notification.permission === 'granted') {
+                        notificationEnabled.value = true;
+                        notificationStatus.value = 'Notifications Enabled';
+                    }
+                });
+
+                return {
+                    modes,
+                    activeMode,
+                    timeLeft,
+                    totalTime,
+                    isPlaying,
+                    currentModeLabel,
+                    formattedTime,
+                    progressOffset,
+                    circumference,
+                    notificationStatus,
+                    notificationEnabled,
+                    setMode,
+                    toggleTimer,
+                    resetTimer,
+                    requestNotification
+                };
             }
-        });
-
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            clearInterval(timerId);
-            timerId = null;
-            timeLeft = totalTime;
-            updateDisplay();
-            updatePlayBtn(false);
-        });
-
-        updateDisplay();
-        
-        // Initial setup
-        if(Notification.permission === 'granted') {
-             const btn = document.getElementById('notifStatus');
-             btn.textContent = 'Notifications Enabled';
-             btn.style.opacity = '0.5';
-        }
+        }).mount('#app');
     </script>
 </body>
 </html>

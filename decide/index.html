@@ -13,7 +13,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decidely | Modern Decision Matrix</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -22,7 +22,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             color: #f8fafc;
         }
 
-        [x-cloak] {
+        [v-cloak] {
             display: none !important;
         }
 
@@ -43,7 +43,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </style>
 </head>
 
-<body class="p-4 md:p-12" x-data="decisionApp()" x-cloak>
+<body class="p-4 md:p-12" id="app" v-cloak>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -64,7 +64,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     Import
                 </button>
-                <input type="file" x-ref="importFile" @change="importData" class="hidden" accept=".json">
+                <input type="file" ref="importFile" @change="importData" class="hidden" accept=".json">
             </div>
         </header>
 
@@ -73,19 +73,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="lg:col-span-1 space-y-6">
                 <div class="bg-[#161b22] p-6 rounded-2xl shadow-sm border border-slate-800">
                     <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4">1. Define Criteria</h2>
-                    <template x-for="(crit, index) in criteria" :key="index">
+                    <template v-for="(crit, index) in criteria" :key="index">
                         <div class="mb-5 group bg-[#0d1117] p-3 rounded-xl border border-slate-800">
                             <div class="flex justify-between mb-2">
-                                <input type="text" x-model="crit.name"
+                                <input type="text" v-model="crit.name"
                                     class="font-semibold text-slate-200 bg-transparent border-b border-transparent focus:border-indigo-500 focus:ring-0 p-1 w-full outline-none transition">
                                 <button @click="removeCriteria(index)"
                                     class="text-slate-600 hover:text-red-500 transition ml-2 p-1">✕</button>
                             </div>
-                            <input type="range" x-model.number="crit.weight" min="1" max="10"
+                            <input type="range" v-model.number="crit.weight" min="1" max="10"
                                 class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
                             <div class="flex justify-between text-xs font-medium text-slate-500 mt-2 px-1">
                                 <span>Weight</span>
-                                <span class="bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full" x-text="crit.weight"></span>
+                                <span class="bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full">{{ crit.weight }}</span>
                             </div>
                         </div>
                     </template>
@@ -103,10 +103,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <thead>
                                 <tr class="bg-slate-900/50 border-b border-slate-800">
                                     <th class="p-3 sm:p-4 md:p-6 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-800">Criteria</th>
-                                    <template x-for="(option, optIdx) in options" :key="optIdx">
+                                    <template v-for="(option, optIdx) in options" :key="optIdx">
                                         <th class="p-3 sm:p-4 md:p-6 min-w-[120px] md:min-w-[160px] border-r border-slate-800 group relative hover:bg-slate-800/50 transition">
                                             <div class="flex items-center justify-center">
-                                                <input type="text" x-model="option.name"
+                                                <input type="text" v-model="option.name"
                                                     class="font-bold text-lg text-slate-200 bg-transparent border-b-2 border-transparent focus:border-indigo-500 focus:ring-0 p-1 text-center w-full outline-none transition">
                                                 <button @click="removeOption(optIdx)"
                                                     class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-500 transition bg-slate-800 rounded-full p-0.5 shadow-sm">
@@ -126,17 +126,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 </tr>
                             </thead>
                             <tbody>
-                                <template x-for="(crit, cIdx) in criteria" :key="cIdx">
+                                <template v-for="(crit, cIdx) in criteria" :key="cIdx">
                                     <tr class="border-b border-slate-800 even:bg-slate-900/30 hover:bg-indigo-500/5 transition">
                                         <td class="p-3 sm:p-4 md:p-6 border-r border-slate-800">
                                             <div class="flex items-center justify-between">
-                                                <span class="text-slate-300 font-semibold" x-text="crit.name"></span>
-                                                <span class="text-xs bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full font-bold ml-2 whitespace-nowrap shrink-0" x-text="'× ' + crit.weight"></span>
+                                                <span class="text-slate-300 font-semibold">{{ crit.name }}</span>
+                                                <span class="text-xs bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full font-bold ml-2 whitespace-nowrap shrink-0">{{ '× ' + crit.weight }}</span>
                                             </div>
                                         </td>
-                                        <template x-for="(option, oIdx) in options" :key="oIdx">
+                                        <template v-for="(option, oIdx) in options" :key="oIdx">
                                             <td class="p-3 sm:p-4 md:p-6 text-center border-r border-slate-800">
-                                                <input type="number" x-model.number="scores[oIdx][cIdx]" min="0" max="10"
+                                                <input type="number" v-model.number="scores[oIdx][cIdx]" min="0" max="10"
                                                     class="w-20 text-center text-lg font-medium bg-[#0d1117] border border-slate-700 rounded-lg py-2 px-3 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition shadow-sm text-white">
                                             </td>
                                         </template>
@@ -147,13 +147,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <tfoot>
                                 <tr class="bg-indigo-600 border-t-4 border-indigo-400">
                                     <td class="p-3 sm:p-4 md:p-6 font-bold text-white text-base md:text-lg border-r border-indigo-500">Total Score</td>
-                                    <template x-for="(option, oIdx) in options" :key="oIdx">
+                                    <template v-for="(option, oIdx) in options" :key="oIdx">
                                         <td class="p-3 sm:p-4 md:p-6 text-center border-r border-indigo-500 relative overflow-hidden">
-                                            <div x-show="isWinner(oIdx)" class="absolute inset-0 bg-emerald-500 opacity-20"></div>
+                                            <div v-show="isWinner(oIdx)" class="absolute inset-0 bg-emerald-500 opacity-20"></div>
                                             <div class="text-3xl font-black relative z-10"
-                                                :class="isWinner(oIdx) ? 'text-emerald-400' : 'text-white'"
-                                                x-text="calculateTotal(oIdx)"></div>
-                                            <div x-show="isWinner(oIdx)" class="text-xs font-bold text-emerald-400 uppercase tracking-widest mt-2 relative z-10">
+                                                :class="isWinner(oIdx) ? 'text-emerald-400' : 'text-white'">{{ calculateTotal(oIdx) }}</div>
+                                            <div v-show="isWinner(oIdx)" class="text-xs font-bold text-emerald-400 uppercase tracking-widest mt-2 relative z-10">
                                                 🏆 Winner
                                             </div>
                                         </td>
@@ -178,50 +177,55 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <script>
-        function decisionApp() {
-            return {
-                criteria: [
+        const { createApp, ref, watch, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const criteria = ref([
                     { name: 'Cost', weight: 8 },
                     { name: 'Quality', weight: 9 },
                     { name: 'Speed', weight: 5 }
-                ],
-                options: [
+                ]);
+                const options = ref([
                     { name: 'Option A' },
                     { name: 'Option B' }
-                ],
-                scores: [[0, 0, 0], [0, 0, 0]], // rows = options, cols = criteria
-                
-                init() {
+                ]);
+                const scores = ref([[0, 0, 0], [0, 0, 0]]);
+                const importFile = ref(null);
+
+                onMounted(() => {
                     const savedData = localStorage.getItem('decidelyData');
                     if (savedData) {
                         try {
                             const parsed = JSON.parse(savedData);
                             if (parsed.criteria && parsed.options && parsed.scores) {
-                                Object.assign(this, parsed);
+                                criteria.value = parsed.criteria;
+                                options.value = parsed.options;
+                                scores.value = parsed.scores;
                             }
                         } catch (e) {
                             console.error("Failed to load local data", e);
                         }
                     }
+                });
 
-                    this.$watch('criteria', () => this.saveData(), { deep: true });
-                    this.$watch('options', () => this.saveData(), { deep: true });
-                    this.$watch('scores', () => this.saveData(), { deep: true });
-                },
-
-                saveData() {
+                const saveData = () => {
                     localStorage.setItem('decidelyData', JSON.stringify({
-                        criteria: this.criteria,
-                        options: this.options,
-                        scores: this.scores
+                        criteria: criteria.value,
+                        options: options.value,
+                        scores: scores.value
                     }));
-                },
+                };
 
-                exportData() {
+                watch(criteria, saveData, { deep: true });
+                watch(options, saveData, { deep: true });
+                watch(scores, saveData, { deep: true });
+
+                const exportData = () => {
                     const data = {
-                        criteria: this.criteria,
-                        options: this.options,
-                        scores: this.scores
+                        criteria: criteria.value,
+                        options: options.value,
+                        scores: scores.value
                     };
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
@@ -232,9 +236,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                },
+                };
 
-                importData(event) {
+                const importData = (event) => {
                     const file = event.target.files[0];
                     if (!file) return;
 
@@ -243,9 +247,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         try {
                             const parsed = JSON.parse(e.target.result);
                             if (parsed.criteria && parsed.options && parsed.scores) {
-                                this.criteria = parsed.criteria;
-                                this.options = parsed.options;
-                                this.scores = parsed.scores;
+                                criteria.value = parsed.criteria;
+                                options.value = parsed.options;
+                                scores.value = parsed.scores;
                                 event.target.value = '';
                                 alert("Data imported successfully!");
                             } else {
@@ -257,43 +261,58 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         }
                     };
                     reader.readAsText(file);
-                },
+                };
 
-                addCriteria() {
-                    this.criteria.push({ name: 'New Criterion', weight: 5 });
-                    this.scores.forEach(optScores => optScores.push(0));
-                },
+                const addCriteria = () => {
+                    criteria.value.push({ name: 'New Criterion', weight: 5 });
+                    scores.value.forEach(optScores => optScores.push(0));
+                };
 
-                removeCriteria(index) {
-                    if (this.criteria.length <= 1) return;
-                    this.criteria.splice(index, 1);
-                    this.scores.forEach(optScores => optScores.splice(index, 1));
-                },
+                const removeCriteria = (index) => {
+                    if (criteria.value.length <= 1) return;
+                    criteria.value.splice(index, 1);
+                    scores.value.forEach(optScores => optScores.splice(index, 1));
+                };
 
-                addOption() {
-                    this.options.push({ name: 'New Option' });
-                    this.scores.push(new Array(this.criteria.length).fill(0));
-                },
+                const addOption = () => {
+                    options.value.push({ name: 'New Option' });
+                    scores.value.push(new Array(criteria.value.length).fill(0));
+                };
 
-                removeOption(index) {
-                    if (this.options.length <= 1) return;
-                    this.options.splice(index, 1);
-                    this.scores.splice(index, 1);
-                },
+                const removeOption = (index) => {
+                    if (options.value.length <= 1) return;
+                    options.value.splice(index, 1);
+                    scores.value.splice(index, 1);
+                };
 
-                calculateTotal(optIdx) {
-                    return this.scores[optIdx].reduce((sum, score, critIdx) => {
-                        return sum + (score * this.criteria[critIdx].weight);
+                const calculateTotal = (optIdx) => {
+                    return scores.value[optIdx].reduce((sum, score, critIdx) => {
+                        return sum + (score * criteria.value[critIdx].weight);
                     }, 0);
-                },
+                };
 
-                isWinner(optIdx) {
-                    const totals = this.options.map((_, i) => this.calculateTotal(i));
+                const isWinner = (optIdx) => {
+                    const totals = options.value.map((_, i) => calculateTotal(i));
                     const max = Math.max(...totals);
                     return max > 0 && totals[optIdx] === max;
-                }
+                };
+
+                return {
+                    criteria,
+                    options,
+                    scores,
+                    importFile,
+                    exportData,
+                    importData,
+                    addCriteria,
+                    removeCriteria,
+                    addOption,
+                    removeOption,
+                    calculateTotal,
+                    isWinner
+                };
             }
-        }
+        }).mount('#app');
     </script>
 </body>
 
