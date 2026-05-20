@@ -1,894 +1,948 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html class="dark" lang="en">
 <head>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-P6F464KX');</script>
-<!-- End Google Tag Manager -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Image Processor</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
-    <style>
-        /* Custom UI Tweaks */
-        body {
-            background-color: #0b0e14;
-            color: #f8fafc;
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>ImageFlow - Local Image Processing</title>
+  <meta name="description" content="ImageFlow — a privacy-first, client-side image processor with tonal adjustments, tone curves, crop, scale, and export. All processing happens locally in your browser." />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-surface-variant": "#c7c4d7",
+            "surface-container-high": "#262a31",
+            "on-error": "#690005",
+            "surface-container-lowest": "#0a0e14",
+            "surface-variant": "#31353c",
+            "secondary-container": "#6f00be",
+            "on-primary-fixed": "#07006c",
+            "background": "#10141a",
+            "on-primary": "#1000a9",
+            "on-surface": "#dfe2eb",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed": "#2c0051",
+            "surface-tint": "#c0c1ff",
+            "on-secondary": "#490080",
+            "secondary": "#ddb7ff",
+            "on-tertiary-container": "#452000",
+            "primary": "#c0c1ff",
+            "on-background": "#dfe2eb",
+            "tertiary-fixed": "#ffdcc5",
+            "tertiary-container": "#d97721",
+            "surface-container-low": "#181c22",
+            "on-tertiary-fixed": "#301400",
+            "on-tertiary": "#4f2500",
+            "primary-container": "#8083ff",
+            "surface-bright": "#353940",
+            "on-primary-fixed-variant": "#2f2ebe",
+            "surface-dim": "#10141a",
+            "on-primary-container": "#0d0096",
+            "inverse-on-surface": "#2d3137",
+            "tertiary": "#ffb783",
+            "secondary-fixed": "#f0dbff",
+            "error": "#ffb4ab",
+            "surface-container": "#1c2026",
+            "primary-fixed-dim": "#c0c1ff",
+            "outline-variant": "#464554",
+            "outline": "#908fa0",
+            "on-secondary-fixed-variant": "#6900b3",
+            "primary-fixed": "#e1e0ff",
+            "secondary-fixed-dim": "#ddb7ff",
+            "inverse-primary": "#494bd6",
+            "surface": "#10141a",
+            "tertiary-fixed-dim": "#ffb783",
+            "on-tertiary-fixed-variant": "#703700",
+            "surface-container-highest": "#31353c",
+            "error-container": "#93000a",
+            "inverse-surface": "#dfe2eb",
+            "on-secondary-container": "#d6a9ff"
+          },
+          borderRadius: {
+            DEFAULT: "0.125rem",
+            lg: "0.25rem",
+            xl: "0.5rem",
+            full: "0.75rem"
+          },
+          spacing: {
+            gutter: "16px",
+            "sidebar-width": "340px",
+            unit: "4px",
+            "panel-padding": "20px",
+            "toolbar-width": "56px"
+          },
+          fontFamily: {
+            sans: ["Inter", "system-ui", "sans-serif"],
+            "mono-label": ["Inter"],
+            "headline-md": ["Inter"],
+            "headline-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "label-caps": ["Inter"]
+          },
+          fontSize: {
+            "mono-label": ["12px", { lineHeight: "1.2", letterSpacing: "0.02em", fontWeight: "500" }],
+            "headline-md": ["24px", { lineHeight: "1.3", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "headline-sm": ["18px", { lineHeight: "1.4", fontWeight: "600" }],
+            "body-lg": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+            "headline-lg": ["32px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "body-md": ["14px", { lineHeight: "1.5", fontWeight: "400" }],
+            "label-caps": ["11px", { lineHeight: "1.2", letterSpacing: "0.08em", fontWeight: "700" }]
+          }
         }
+      }
+    };
+  </script>
+  <style>
+    /* ─── Glassmorphism Panels ─── */
+    .glass-panel {
+      background-color: rgba(26, 31, 46, 0.8);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
 
-        .drop-zone {
-            border: 2px dashed #475569;
-            transition: all 0.3s ease;
-        }
+    /* ─── Checkerboard Transparency Grid ─── */
+    .checkerboard {
+      background-image:
+        linear-gradient(45deg, rgba(255,255,255,0.04) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255,255,255,0.04) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.04) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.04) 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
 
-        .drop-zone.dragover {
-            border-color: #6366f1;
-            background-color: rgba(99, 102, 241, 0.1);
-        }
+    /* ─── Animated Gradient Drop Border ─── */
+    .gradient-border-anim {
+      background: linear-gradient(90deg, #6366f1, #a855f7, #6366f1, #818cf8);
+      background-size: 300% 100%;
+      animation: gradientMove 4s ease infinite;
+    }
+    @keyframes gradientMove {
+      0%   { background-position: 100% 0; }
+      50%  { background-position: 0% 0; }
+      100% { background-position: 100% 0; }
+    }
 
-        input[type=range] {
-            accent-color: #6366f1;
-        }
+    /* ─── Pulse glow on drop zone hover ─── */
+    .drop-glow {
+      transition: box-shadow 0.5s ease;
+    }
+    .drop-glow:hover {
+      box-shadow: 0 0 60px rgba(99, 102, 241, 0.25);
+    }
+    .drop-glow.dragover {
+      box-shadow: 0 0 80px rgba(99, 102, 241, 0.4);
+    }
 
-        .preview-container {
-            height: 60vh;
-            background-image: repeating-linear-gradient(45deg, #161b22 25%, transparent 25%, transparent 75%, #161b22 75%, #161b22), repeating-linear-gradient(45deg, #161b22 25%, #0b0e14 25%, #0b0e14 75%, #161b22 75%, #161b22);
-            background-position: 0 0, 10px 10px;
-            background-size: 20px 20px;
-        }
-    </style>
+    /* ─── Sleek Range Sliders ─── */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 14px;
+      width: 14px;
+      border-radius: 50%;
+      background: #c0c1ff;
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.8), 0 0 4px rgba(192, 193, 255, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 18px rgba(99, 102, 241, 1), 0 0 6px rgba(192, 193, 255, 0.6);
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 2px;
+      cursor: pointer;
+      background: #31353c;
+      border-radius: 1px;
+    }
+    input[type=range]::-moz-range-thumb {
+      height: 14px;
+      width: 14px;
+      border-radius: 50%;
+      background: #c0c1ff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.8);
+    }
+    input[type=range]::-moz-range-track {
+      width: 100%;
+      height: 2px;
+      background: #31353c;
+      border-radius: 1px;
+    }
+
+    /* ─── Curve Grid ─── */
+    .curve-grid {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 25% 25%;
+    }
+
+    /* ─── Custom Scrollbar ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #31353c; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #464554; }
+
+    /* ─── Cropper overrides ─── */
+    .cropper-view-box { outline: 1px solid rgba(192, 193, 255, 0.6); outline-color: rgba(192, 193, 255, 0.6); }
+    .cropper-line { background-color: rgba(192, 193, 255, 0.3); }
+    .cropper-point { background-color: #c0c1ff; width: 8px !important; height: 8px !important; opacity: 0.9; }
+    .cropper-modal { background-color: rgba(10, 14, 20, 0.7); }
+
+    /* ─── Accordion transition ─── */
+    .accordion-body { overflow: hidden; transition: max-height 0.3s ease, opacity 0.25s ease; }
+    .accordion-body.collapsed { max-height: 0 !important; opacity: 0; padding-top: 0 !important; padding-bottom: 0 !important; }
+
+    /* ─── Glow CTA ─── */
+    .cta-glow {
+      box-shadow: 0 0 24px rgba(99, 102, 241, 0.35);
+      transition: all 0.2s ease;
+    }
+    .cta-glow:hover {
+      box-shadow: 0 0 36px rgba(99, 102, 241, 0.55);
+      filter: brightness(1.1);
+    }
+    .cta-glow:active {
+      transform: scale(0.97);
+    }
+
+    /* ─── Format toggle buttons ─── */
+    .fmt-btn {
+      transition: all 0.15s ease;
+    }
+    .fmt-btn.active {
+      background: rgba(99, 102, 241, 0.2);
+      color: #c0c1ff;
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    /* ─── Hide workspace initially ─── */
+    .workspace-hidden { display: none !important; }
+  </style>
 </head>
 
-<body class="min-h-screen flex flex-col p-6 font-sans">
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
+<body class="bg-background text-on-background min-h-screen flex flex-col overflow-hidden selection:bg-primary-container selection:text-on-primary-container font-sans" id="app">
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0];var j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 
-    <!-- SVG Filter for Hardware-Accelerated Curves -->
-    <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
-        <filter id="curveFilter">
-            <feComponentTransfer id="curveTransfer">
-                <feFuncR type="table" tableValues="0 1"></feFuncR>
-                <feFuncG type="table" tableValues="0 1"></feFuncG>
-                <feFuncB type="table" tableValues="0 1"></feFuncB>
-            </feComponentTransfer>
-        </filter>
-    </svg>
+  <!-- SVG filter for curves (hidden) -->
+  <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+    <filter id="curveFilter">
+      <feComponentTransfer id="curveTransfer">
+        <feFuncR type="table" tableValues="0 1" />
+        <feFuncG type="table" tableValues="0 1" />
+        <feFuncB type="table" tableValues="0 1" />
+      </feComponentTransfer>
+    </filter>
+  </svg>
 
-    <header class="mb-6 flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-bold text-white tracking-tight">Image<span class="text-indigo-500">Flow</span></h1>
-            <p class="text-slate-400 text-sm mt-1">Local, client-side static image processing.</p>
+  <!-- ═══════════════ Top NavBar ═══════════════ -->
+  <nav class="bg-surface-container/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-white/10 shadow-sm flex justify-between items-center px-gutter h-[56px]">
+    <div class="flex items-center gap-4">
+      <span class="text-headline-md font-bold text-on-surface tracking-tight">Image<span class="text-[#6366f1]">Flow</span></span>
+      <span class="text-body-md text-on-surface-variant hidden md:block pl-4 border-l border-white/10">Local, client-side static image processing.</span>
+    </div>
+    <button v-show="imageLoaded" @click="resetAll" id="resetBtn" class="text-body-md text-on-surface-variant hover:text-primary transition-colors hover:scale-95 duration-150 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-primary/50 hover:bg-primary/5">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0; font-size: 18px;">restart_alt</span>
+      Start Over
+    </button>
+  </nav>
+
+  <!-- ═══════════════ Main Layout ═══════════════ -->
+  <main class="flex-1 flex mt-[56px] h-[calc(100vh-56px-32px)]">
+
+    <!-- ─── Center Workspace ─── -->
+    <div class="flex-1 relative bg-surface-dim overflow-hidden flex items-center justify-center checkerboard border-r border-white/10">
+
+      <!-- Drop Zone (visible when no image) -->
+      <div v-show="!imageLoaded" ref="dropZone"
+           class="relative w-full max-w-2xl aspect-video rounded-xl p-[2px] gradient-border-anim drop-glow cursor-pointer m-8"
+           @click="triggerFileInput" @dragover.prevent="dragOver" @dragleave="dragLeave" @drop.prevent="dropFiles">
+        <div class="absolute inset-0 bg-surface-container-low rounded-xl m-[2px] flex flex-col items-center justify-center text-center p-8 backdrop-blur-md">
+          <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mb-6 hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)]">
+            <span class="material-symbols-outlined text-4xl text-primary" style="font-variation-settings: 'FILL' 0;">add_photo_alternate</span>
+          </div>
+          <h2 class="text-headline-sm text-on-surface mb-2">Drop image here</h2>
+          <p class="text-body-md text-on-surface-variant max-w-sm">
+            Supports JPEG, PNG, and WebP. All processing happens locally in your browser.
+          </p>
+          <button class="mt-8 px-6 py-2.5 rounded-full bg-primary/10 text-primary text-body-md border border-primary/20 hover:bg-primary/20 transition-colors">
+            Browse Files
+          </button>
         </div>
-        <button id="resetBtn"
-            class="hidden px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-medium transition">Start
-            Over</button>
-    </header>
+        <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="filesSelected" />
+      </div>
 
-    <main class="flex-grow min-w-0 min-h-0 flex gap-6 flex-col lg:flex-row">
+      <!-- Image workspace (visible when image loaded) -->
+      <div ref="workspace" :class="{'workspace-hidden': !imageLoaded}" class="w-full h-full flex items-center justify-center p-4">
+        <img ref="imagePreview" class="max-w-full max-h-full block" :src="imageSrc" alt="Preview" />
+      </div>
+    </div>
 
-        <div
-            class="flex-grow min-w-0 min-h-0 bg-[#0b0e14] rounded-xl border border-slate-800 overflow-hidden relative flex flex-col shadow-xl">
+    <!-- ─── Right Inspector Panel ─── -->
+    <aside class="w-sidebar-width bg-surface-container-low/80 backdrop-blur-2xl border-l border-white/10 shadow-2xl flex flex-col h-full overflow-y-auto shrink-0 pb-20 transition-opacity duration-300"
+           :class="{'opacity-40 pointer-events-none': !imageLoaded}">
 
-            <div id="dropZone"
-                class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0b0e14] cursor-pointer drop-zone m-4 rounded-lg">
-                <svg class="w-16 h-16 text-slate-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                </svg>
-                <p class="text-lg font-medium text-slate-300">Drag & Drop your image here</p>
-                <p class="text-sm text-slate-500 mt-2">or click to browse</p>
-                <input type="file" id="fileInput" class="hidden" accept="image/*">
+      <!-- Panel Header -->
+      <div class="p-panel-padding border-b border-white/5 sticky top-0 bg-surface-container-low/95 z-10 backdrop-blur-md">
+        <h2 class="text-headline-sm text-primary mb-0.5">Inspector</h2>
+        <p class="text-body-md text-on-surface-variant">Editing Tools</p>
+      </div>
+
+      <!-- Accordions Container -->
+      <div class="flex flex-col">
+
+        <!-- ═══ Accordion 1: Tonal Adjustments ═══ -->
+        <div class="border-b border-white/5 group">
+          <button class="w-full px-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-colors" @click="togglePanel('tonal')">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">tune</span>
+              <span class="text-label-caps text-on-surface uppercase tracking-wider">Tonal Adjustments</span>
             </div>
-
-            <div id="workspace" class="hidden w-full h-full preview-container flex items-center justify-center p-4 min-w-0 min-h-0">
-                <img id="imagePreview" class="max-w-full max-h-full block" src="" alt="Preview">
+            <span class="material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200" :class="{'rotate-180': panels.tonal}" style="font-size: 18px;">expand_more</span>
+          </button>
+          <div class="px-panel-padding pb-4 space-y-5 accordion-body" :class="{'collapsed': !panels.tonal}">
+            <!-- Brightness -->
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <label class="text-mono-label text-on-surface-variant">Brightness</label>
+                <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ brightness }}%</span>
+              </div>
+              <input type="range" v-model.number="brightness" min="0" max="200" />
             </div>
+            <!-- Contrast -->
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <label class="text-mono-label text-on-surface-variant">Contrast</label>
+                <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ contrast }}%</span>
+              </div>
+              <input type="range" v-model.number="contrast" min="0" max="200" />
+            </div>
+            <!-- Saturation -->
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <label class="text-mono-label text-on-surface-variant">Saturation</label>
+                <span class="text-mono-label text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded border border-white/5">{{ saturation }}%</span>
+              </div>
+              <input type="range" v-model.number="saturation" min="0" max="200" />
+            </div>
+          </div>
         </div>
 
-        <aside id="controlsPanel"
-            class="w-full lg:w-96 bg-[#161b22] rounded-xl border border-slate-800 p-6 flex flex-col gap-8 opacity-50 pointer-events-none transition-opacity duration-300 shadow-xl">
+        <!-- ═══ Accordion 2: Histogram & Curves ═══ -->
+        <div class="border-b border-white/5 group">
+          <button class="w-full px-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-colors" @click="togglePanel('histogram')">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">show_chart</span>
+              <span class="text-label-caps text-on-surface uppercase tracking-wider">Histogram &amp; Curves</span>
+            </div>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200" :class="{'rotate-180': panels.histogram}" style="font-size: 18px;">expand_more</span>
+          </button>
+          <div class="px-panel-padding pb-4 space-y-4 accordion-body" :class="{'collapsed': !panels.histogram}">
+            <!-- Dominant Colors -->
+            <div>
+              <span class="text-[10px] text-on-surface-variant uppercase font-semibold tracking-wider block mb-2">Dominant Colors</span>
+              <div id="dominantColors" class="flex gap-2 h-7 w-full rounded-lg overflow-hidden shadow-inner bg-surface-container-lowest border border-white/5"></div>
+            </div>
+            <!-- Curve Canvas -->
+            <div class="w-full aspect-square bg-[#0d1117] rounded-lg border border-white/10 curve-grid relative overflow-hidden">
+              <canvas ref="curveCanvas" class="w-full h-full cursor-crosshair touch-none absolute inset-0"></canvas>
+            </div>
+            <p class="text-[10px] text-on-surface-variant text-center opacity-70">Click to add · Drag to move · Double-click to remove</p>
+          </div>
+        </div>
 
-            <section>
-                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
-                        </path>
-                    </svg>
-                    Tonal Adjustments
-                </h3>
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between text-xs mb-1"><span>Brightness</span> <span
-                                id="brightVal">100%</span></div>
-                        <input type="range" id="brightness" min="0" max="200" value="100" class="w-full">
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs mb-1"><span>Contrast</span> <span
-                                id="contVal">100%</span></div>
-                        <input type="range" id="contrast" min="0" max="200" value="100" class="w-full">
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs mb-1"><span>Saturation</span> <span
-                                id="satVal">100%</span></div>
-                        <input type="range" id="saturation" min="0" max="200" value="100" class="w-full">
-                    </div>
-                </div>
-            </section>
+        <!-- ═══ Accordion 3: Scale & Crop ═══ -->
+        <div class="border-b border-white/5 group">
+          <button class="w-full px-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-colors" @click="togglePanel('scale')">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">crop</span>
+              <span class="text-label-caps text-on-surface uppercase tracking-wider">Scale &amp; Crop</span>
+            </div>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200" :class="{'rotate-180': panels.scale}" style="font-size: 18px;">expand_more</span>
+          </button>
+          <div class="px-panel-padding pb-4 space-y-4 accordion-body" :class="{'collapsed': !panels.scale}">
+            <!-- Output Scale -->
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <label class="text-mono-label text-on-surface-variant">Output Scale</label>
+                <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ outputScale }}%</span>
+              </div>
+              <input type="range" v-model.number="outputScale" min="1" max="400" />
+            </div>
+            <!-- Width / Height -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-mono-label text-on-surface-variant block mb-1.5">Width (px)</label>
+                <input type="number" v-model.number="outWidth" class="w-full bg-[#0d1117] border border-white/10 rounded-md px-3 py-2 text-on-surface text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none" />
+              </div>
+              <div>
+                <label class="text-mono-label text-on-surface-variant block mb-1.5">Height (px)</label>
+                <input type="number" v-model.number="outHeight" class="w-full bg-[#0d1117] border border-white/10 rounded-md px-3 py-2 text-on-surface text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none" />
+              </div>
+            </div>
+            <!-- Crop Buttons -->
+            <div class="flex gap-2">
+              <button @click="setFreeCrop" id="setFreeCrop" class="flex-1 py-2 rounded-md bg-surface-container text-on-surface-variant border border-white/5 hover:bg-white/5 hover:border-primary/30 hover:text-primary text-body-md transition-all flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined" style="font-size: 16px;">crop_free</span>
+                Free
+              </button>
+              <button @click="setSquareCrop" id="setSquareCrop" class="flex-1 py-2 rounded-md bg-surface-container text-on-surface-variant border border-white/5 hover:bg-white/5 hover:border-primary/30 hover:text-primary text-body-md transition-all flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined" style="font-size: 16px;">crop_square</span>
+                1:1
+              </button>
+            </div>
+          </div>
+        </div>
 
-            <hr class="border-slate-800">
+        <!-- ═══ Accordion 4: Export Options ═══ -->
+        <div class="border-b border-white/5 group">
+          <button class="w-full px-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-colors" @click="togglePanel('export')">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">ios_share</span>
+              <span class="text-label-caps text-on-surface uppercase tracking-wider">Export Options</span>
+            </div>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200" :class="{'rotate-180': panels.export}" style="font-size: 18px;">expand_more</span>
+          </button>
+          <div class="px-panel-padding pb-6 space-y-4 accordion-body" :class="{'collapsed': !panels.export}">
+            <!-- Format Selector (Toggle Buttons) -->
+            <div class="space-y-1.5">
+              <label class="text-mono-label text-on-surface-variant">Format</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button @click="exportFormat = 'image/jpeg'" class="fmt-btn py-1.5 rounded-md border text-body-md text-sm"
+                        :class="exportFormat === 'image/jpeg' ? 'active' : 'bg-surface-container text-on-surface-variant border-white/5 hover:bg-white/5'">JPEG</button>
+                <button @click="exportFormat = 'image/png'" class="fmt-btn py-1.5 rounded-md border text-body-md text-sm"
+                        :class="exportFormat === 'image/png' ? 'active' : 'bg-surface-container text-on-surface-variant border-white/5 hover:bg-white/5'">PNG</button>
+                <button @click="exportFormat = 'image/webp'" class="fmt-btn py-1.5 rounded-md border text-body-md text-sm"
+                        :class="exportFormat === 'image/webp' ? 'active' : 'bg-surface-container text-on-surface-variant border-white/5 hover:bg-white/5'">WebP</button>
+              </div>
+            </div>
+            <!-- Target File Size -->
+            <div v-show="exportFormat !== 'image/png'" class="space-y-1.5">
+              <label class="text-mono-label text-on-surface-variant">Target Size (KB)</label>
+              <input type="number" v-model.number="targetKB" placeholder="e.g. 500"
+                     class="w-full bg-[#0d1117] border border-white/10 rounded-md px-3 py-2 text-on-surface text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none placeholder-on-surface-variant/30" />
+              <p class="text-[10px] text-on-surface-variant mt-1 opacity-70">Leave empty for max quality. Binary search is used to match target size.</p>
+            </div>
+            <!-- CTA -->
+            <div class="pt-2">
+              <button @click="exportImage" id="exportBtn"
+                      class="w-full py-3 rounded-lg bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white text-headline-sm cta-glow flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">download</span>
+                <span id="exportBtnText">Process &amp; Download</span>
+              </button>
+            </div>
+            <div v-show="exportMessage" class="text-xs text-center mt-1 text-green-400">{{ exportMessage }}</div>
+          </div>
+        </div>
 
-            <section>
-                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z">
-                        </path>
-                    </svg>
-                    Histogram & Curves
-                </h3>
-                
-                <!-- Dominant Colors -->
-                <div class="mb-4 flex flex-col gap-2">
-                    <span class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Dominant Colors</span>
-                    <div id="dominantColors" class="flex gap-2 h-8 w-full rounded overflow-hidden shadow-inner bg-slate-900 border border-slate-700">
-                        <!-- Swatches injected via JS -->
-                    </div>
-                </div>
+      </div>
+    </aside>
+  </main>
 
-                <div class="relative w-full aspect-square bg-slate-800 rounded border border-slate-700">
-                    <canvas id="curveCanvas" class="w-full h-full cursor-crosshair touch-none"></canvas>
-                </div>
-                <p class="text-[10px] text-slate-500 mt-2 text-center">Click to add. Drag to move. Double-click to remove.</p>
-            </section>
+  <!-- ═══════════════ Footer ═══════════════ -->
+  <footer class="bg-surface-container-lowest fixed bottom-0 left-0 w-full border-t border-white/5 flex justify-between items-center px-gutter h-8 z-50">
+    <div class="text-label-caps text-on-surface opacity-80 uppercase tracking-wider">ImageFlow</div>
+    <div class="text-mono-label text-on-surface-variant opacity-80">Made with <span class="text-red-400">&#9829;</span> by Bikram</div>
+  </footer>
 
-            <hr class="border-slate-800">
+  <!-- ═══════════════ Application Logic ═══════════════ -->
+  <script>
+    const { createApp, ref, reactive, onMounted, watch, nextTick, toRefs } = Vue;
 
-            <section>
-                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4">
-                        </path>
-                    </svg>
-                    Scale & Crop
-                </h3>
-                <div class="mb-4">
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-500">Output Scale</span> 
-                        <span id="scaleDisplay" class="text-slate-300">100%</span>
-                    </div>
-                    <input type="range" id="outScale" min="1" max="400" value="100" class="w-full">
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Width (px)</label>
-                        <input type="number" id="outWidth"
-                            class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Height (px)</label>
-                        <input type="number" id="outHeight"
-                            class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button id="setFreeCrop"
-                        class="flex-1 bg-slate-800 hover:bg-slate-700 text-xs py-2 rounded transition">Free
-                        Crop</button>
-                    <button id="setSquareCrop"
-                        class="flex-1 bg-slate-800 hover:bg-slate-700 text-xs py-2 rounded transition">1:1
-                        Square</button>
-                </div>
-            </section>
+    createApp({
+      setup() {
+        /* ─── Reactive State ─── */
+        const state = reactive({
+          brightness: 100,
+          contrast: 100,
+          saturation: 100,
+          outputScale: 100,
+          outWidth: 0,
+          outHeight: 0,
+          exportFormat: 'image/jpeg',
+          targetKB: null,
+          exportMessage: '',
+          imageSrc: '',
+          originalFileName: 'image',
+          imageLoaded: false,
+        });
 
-            <hr class="border-slate-800">
+        const panels = reactive({ tonal: true, histogram: false, scale: false, export: false });
+        const togglePanel = (key) => { panels[key] = !panels[key]; };
 
-            <section>
-                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
-                        </path>
-                    </svg>
-                    Export Options
-                </h3>
+        /* ─── Refs ─── */
+        const dropZone = ref(null);
+        const fileInput = ref(null);
+        const workspace = ref(null);
+        const imagePreview = ref(null);
+        const curveCanvas = ref(null);
 
-                <div class="mb-4">
-                    <label class="text-xs text-slate-500 block mb-1">Format</label>
-                    <select id="exportFormat"
-                        class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                        <option value="image/jpeg">JPEG (.jpg)</option>
-                        <option value="image/png">PNG (.png) - Uncompressed</option>
-                        <option value="image/webp">WebP (.webp) - Best for Web</option>
-                    </select>
-                </div>
-
-                <div class="mb-6" id="compressionGroup">
-                    <label class="text-xs text-slate-500 block mb-1">Target File Size (approx KB)</label>
-                    <input type="number" id="targetKB" placeholder="e.g., 500"
-                        class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                    <p class="text-[10px] text-slate-500 mt-1">Leave empty for max quality. Binary search is used to
-                        match target size.</p>
-                </div>
-
-                <button id="exportBtn"
-                    class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-indigo-500/30 transition transform active:scale-95 flex items-center justify-center gap-2">
-                    Process & Download
-                </button>
-
-                <div id="exportStatus" class="text-xs text-center mt-3 text-green-400 hidden"></div>
-            </section>
-        </aside>
-
-    </main>
-
-    <footer class="mt-8 text-center text-slate-500 text-sm pb-4">
-        Made with <span class="text-red-500">&hearts;</span> by Bikram
-    </footer>
-
-    <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const workspace = document.getElementById('workspace');
-        const imagePreview = document.getElementById('imagePreview');
-        const controlsPanel = document.getElementById('controlsPanel');
-        const resetBtn = document.getElementById('resetBtn');
-
+        /* ─── Internal State ─── */
         let cropper = null;
-        let originalFileName = "image";
-
-        // Curve Setup
-        const curveCanvas = document.getElementById('curveCanvas');
-        const curveCtx = curveCanvas.getContext('2d');
-        let curvePoints = [{ x: 0, y: 0 }, { x: 1, y: 1 }]; // Normalized 0-1
+        let curvePoints = [{ x: 0, y: 0 }, { x: 1, y: 1 }];
         let lutMap = new Uint8Array(256);
-        for(let i=0; i<256; i++) lutMap[i] = i; // Default straight line
-
-        let draggingPoint = null;
-
-        function resizeCanvases() {
-            const rectX = curveCanvas.parentElement.getBoundingClientRect();
-            curveCanvas.width = rectX.width;
-            curveCanvas.height = rectX.height;
-            drawCurve();
-        }
-        window.addEventListener('resize', resizeCanvases);
-        setTimeout(resizeCanvases, 100);
-
-        // Monotone Cubic Interpolation (Fritsch-Carlson) for smooth S-curves preserving X uniformly
-        function getSpline(points) {
-            let pts = [...points].sort((a,b)=>a.x - b.x);
-            if(pts[0].x > 0) pts.unshift({x: 0, y: pts[0].y});
-            if(pts[pts.length-1].x < 1) pts.push({x: 1, y: pts[pts.length-1].y});
-
-            let n = pts.length;
-            let x = pts.map(p => p.x);
-            let y = pts.map(p => p.y);
-
-            let secants = [];
-            for(let i=0; i<n-1; i++) {
-                let dx = x[i+1] - x[i];
-                secants.push(dx === 0 ? 0 : (y[i+1] - y[i]) / dx);
-            }
-            
-            let m = new Array(n);
-            m[0] = secants[0];
-            m[n-1] = secants[n-2];
-            for(let i=1; i<n-1; i++) {
-                if (secants[i-1] * secants[i] <= 0) {
-                    m[i] = 0;
-                } else {
-                    // Harmonic mean for monotonicity to prevent overshoots
-                    m[i] = 2 / ((1/secants[i-1]) + (1/secants[i]));
-                }
-            }
-
-            let lut = new Uint8Array(256);
-            let idx = 0;
-            for (let i = 0; i < 256; i++) {
-                let t = i / 255;
-                while(idx < n-2 && t >= x[idx+1]) idx++;
-                
-                let h = x[idx+1] - x[idx];
-                if (h === 0) {
-                    lut[i] = Math.max(0, Math.min(255, Math.round(y[idx] * 255)));
-                    continue;
-                }
-                
-                let t_local = (t - x[idx]) / h;
-                let t2 = t_local * t_local;
-                let t3 = t2 * t_local;
-
-                let h00 = 2*t3 - 3*t2 + 1;
-                let h10 = t3 - 2*t2 + t_local;
-                let h01 = -2*t3 + 3*t2;
-                let h11 = t3 - t2;
-
-                let val = h00 * y[idx] + h10 * h * m[idx] + h01 * y[idx+1] + h11 * h * m[idx+1];
-                lut[i] = Math.max(0, Math.min(255, Math.round(val * 255)));
-            }
-            return lut;
-        }
-
-        function drawCurve() {
-            if(!curveCanvas.width) return;
-            const w = curveCanvas.width;
-            const h = curveCanvas.height;
-            curveCtx.clearRect(0,0,w,h);
-            
-            // Grid
-            curveCtx.strokeStyle = '#334155';
-            curveCtx.lineWidth = 1;
-            curveCtx.beginPath();
-            for(let i=1; i<4; i++){
-                curveCtx.moveTo(0, i * h/4); curveCtx.lineTo(w, i * h/4);
-                curveCtx.moveTo(i * w/4, 0); curveCtx.lineTo(i * w/4, h);
-            }
-            curveCtx.stroke();
-
-            // Diagonal reference
-            curveCtx.strokeStyle = 'rgba(71, 85, 105, 0.5)';
-            curveCtx.beginPath();
-            curveCtx.moveTo(0, h);
-            curveCtx.lineTo(w, 0);
-            curveCtx.stroke();
-
-            // Histogram underlying curve
-            if (lastHistData) {
-                curveCtx.globalAlpha = 0.3;
-                renderHistogramIntoTarget(curveCtx, w, h, lastHistData);
-                curveCtx.globalAlpha = 1.0;
-            }
-
-            // Curve Line
-            lutMap = getSpline(curvePoints);
-            curveCtx.strokeStyle = '#6366f1';
-            curveCtx.lineWidth = 2;
-            curveCtx.beginPath();
-            for(let i=0; i<256; i++) {
-                let x = (i/255) * w;
-                let y = h - (lutMap[i]/255) * h;
-                if(i===0) curveCtx.moveTo(x,y);
-                else curveCtx.lineTo(x,y);
-            }
-            curveCtx.stroke();
-
-            // Points
-            curveCtx.fillStyle = '#818cf8';
-            for(let p of curvePoints) {
-                curveCtx.beginPath();
-                curveCtx.arc(p.x * w, h - p.y * h, 5, 0, Math.PI*2);
-                curveCtx.fill();
-            }
-
-            updateCurveFilter();
-            queueHistogramUpdate();
-        }
-
-        function updateCurveFilter() {
-            const funcElements = document.querySelectorAll('#curveTransfer feFuncR, #curveTransfer feFuncG, #curveTransfer feFuncB');
-            let tableStr = Array.from(lutMap).map(v => (v/255).toFixed(3)).join(' ');
-            funcElements.forEach(el => el.setAttribute('tableValues', tableStr));
-            applyFiltersToPreview();
-        }
-
-        // Mouse interactions for Curve Editor
-        function getMousePos(e) {
-            const rect = curveCanvas.getBoundingClientRect();
-            // Handle touch or mouse
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)),
-                y: Math.max(0, Math.min(1, 1 - (clientY - rect.top) / rect.height))
-            };
-        }
-
-        const attachDragStart = (e) => {
-            if(e.cancelable) e.preventDefault();
-            const m = getMousePos(e);
-            for(let p of curvePoints) {
-                if(Math.hypot(p.x - m.x, p.y - m.y) < 0.1) {
-                    draggingPoint = p;
-                    return;
-                }
-            }
-            const newP = {x: m.x, y: m.y};
-            curvePoints.push(newP);
-            draggingPoint = newP;
-            drawCurve();
-        };
-
-        curveCanvas.addEventListener('mousedown', attachDragStart);
-        curveCanvas.addEventListener('touchstart', attachDragStart, {passive: false});
-        
-        const attachDragMove = (e) => {
-            if(!draggingPoint) return;
-            if(e.cancelable) e.preventDefault();
-            const m = getMousePos(e);
-            draggingPoint.x = m.x;
-            draggingPoint.y = m.y;
-            drawCurve();
-        };
-
-        window.addEventListener('mousemove', attachDragMove);
-        window.addEventListener('touchmove', attachDragMove, {passive: false});
-        
-        const attachDragEnd = () => { draggingPoint = null; };
-        window.addEventListener('mouseup', attachDragEnd);
-        window.addEventListener('touchend', attachDragEnd);
-        
-        curveCanvas.addEventListener('dblclick', e => {
-            const m = getMousePos(e);
-            for(let i=0; i<curvePoints.length; i++) {
-                if(Math.hypot(curvePoints[i].x - m.x, curvePoints[i].y - m.y) < 0.1) {
-                    if (curvePoints.length > 2) {
-                        curvePoints.splice(i, 1);
-                        drawCurve();
-                    }
-                    break;
-                }
-            }
-        });
-
-        // Histogram Logic
-        let histTimeout = null;
+        for (let i = 0; i < 256; i++) lutMap[i] = i;
         let lastHistData = null;
+        let draggingPoint = null;
+        let histTimeout = null;
 
-        function queueHistogramUpdate() {
-            if(!cropper) return;
-            clearTimeout(histTimeout);
-            histTimeout = setTimeout(calculateHistogram, 100); // debounce 100ms
-        }
+        /* ─── Filter Application ─── */
+        const applyFiltersToPreview = () => {
+          const filterString = `url(#curveFilter) brightness(${state.brightness}%) contrast(${state.contrast}%) saturate(${state.saturation}%)`;
+          const canvasEl = document.querySelector('.cropper-canvas');
+          const viewBox = document.querySelector('.cropper-view-box');
+          if (canvasEl) canvasEl.style.filter = filterString;
+          if (viewBox) viewBox.style.filter = filterString;
+        };
 
-        function calculateHistogram() {
-            if(!cropper) return;
-            const cvs = cropper.getCroppedCanvas({ width: 150 });
-            if(!cvs) return;
-            
-            const ctx = cvs.getContext('2d', {willReadFrequently: true});
-            const imgData = ctx.getImageData(0,0,cvs.width, cvs.height);
-            const data = imgData.data;
+        /* ─── Monotone Hermite Spline ─── */
+        const getSpline = (points) => {
+          let pts = [...points].sort((a, b) => a.x - b.x);
+          if (pts[0].x > 0) pts.unshift({ x: 0, y: pts[0].y });
+          if (pts[pts.length - 1].x < 1) pts.push({ x: 1, y: pts[pts.length - 1].y });
+          const n = pts.length;
+          const x = pts.map(p => p.x);
+          const y = pts.map(p => p.y);
+          const secants = [];
+          for (let i = 0; i < n - 1; i++) {
+            const dx = x[i + 1] - x[i];
+            secants.push(dx === 0 ? 0 : (y[i + 1] - y[i]) / dx);
+          }
+          const m = new Array(n);
+          m[0] = secants[0];
+          m[n - 1] = secants[n - 2];
+          for (let i = 1; i < n - 1; i++) {
+            if (secants[i - 1] * secants[i] <= 0) m[i] = 0;
+            else m[i] = 2 / ((1 / secants[i - 1]) + (1 / secants[i]));
+          }
+          const lut = new Uint8Array(256);
+          let idx = 0;
+          for (let i = 0; i < 256; i++) {
+            const t = i / 255;
+            while (idx < n - 2 && t >= x[idx + 1]) idx++;
+            const h = x[idx + 1] - x[idx];
+            if (h === 0) { lut[i] = Math.max(0, Math.min(255, Math.round(y[idx] * 255))); continue; }
+            const tLocal = (t - x[idx]) / h;
+            const t2 = tLocal * tLocal;
+            const t3 = t2 * tLocal;
+            const h00 = 2 * t3 - 3 * t2 + 1;
+            const h10 = t3 - 2 * t2 + tLocal;
+            const h01 = -2 * t3 + 3 * t2;
+            const h11 = t3 - t2;
+            const val = h00 * y[idx] + h10 * h * m[idx] + h01 * y[idx + 1] + h11 * h * m[idx + 1];
+            lut[i] = Math.max(0, Math.min(255, Math.round(val * 255)));
+          }
+          return lut;
+        };
 
-            const b = parseInt(brightnessInput.value) / 100;
-            const c = parseInt(contrastInput.value) / 100;
-            const s = parseInt(saturationInput.value) / 100;
-
-            const rFreq = new Int32Array(256);
-            const gFreq = new Int32Array(256);
-            const bFreq = new Int32Array(256);
-            
-            const colorBuckets = {};
-
-            for(let i=0; i<data.length; i+=4) {
-                let r = lutMap[data[i]];
-                let g = lutMap[data[i+1]];
-                let bl = lutMap[data[i+2]];
-
-                r = (r/255 - 0.5) * c + 0.5;
-                g = (g/255 - 0.5) * c + 0.5;
-                bl = (bl/255 - 0.5) * c + 0.5;
-                
-                r *= b; g *= b; bl *= b;
-
-                const luma = 0.2989 * r + 0.5870 * g + 0.1140 * bl;
-                r = luma + s * (r - luma);
-                g = luma + s * (g - luma);
-                bl = luma + s * (bl - luma);
-                
-                let cR = Math.max(0, Math.min(255, Math.round(r * 255)));
-                let cG = Math.max(0, Math.min(255, Math.round(g * 255)));
-                let cB = Math.max(0, Math.min(255, Math.round(bl * 255)));
-
-                rFreq[cR]++;
-                gFreq[cG]++;
-                bFreq[cB]++;
-                
-                // Color quantization (4-bit buckets)
-                let key = ((cR >> 4) << 8) | ((cG >> 4) << 4) | (cB >> 4);
-                if (!colorBuckets[key]) colorBuckets[key] = {r:0, g:0, b:0, count:0};
-                colorBuckets[key].r += cR;
-                colorBuckets[key].g += cG;
-                colorBuckets[key].b += cB;
-                colorBuckets[key].count++;
+        /* ─── Histogram Rendering Helper ─── */
+        const renderHistogramIntoTarget = (ctx, w, h, histData) => {
+          const maxVal = Math.max(
+            ...Array.from(histData.r).slice(1, 254),
+            ...Array.from(histData.g).slice(1, 254),
+            ...Array.from(histData.b).slice(1, 254)
+          );
+          if (maxVal === 0) return;
+          const channels = [
+            { data: histData.r, color: 'rgba(255, 80, 80, 0.35)' },
+            { data: histData.g, color: 'rgba(80, 255, 80, 0.35)' },
+            { data: histData.b, color: 'rgba(80, 120, 255, 0.35)' },
+          ];
+          for (const ch of channels) {
+            ctx.fillStyle = ch.color;
+            ctx.beginPath();
+            ctx.moveTo(0, h);
+            for (let i = 0; i < 256; i++) {
+              const x = (i / 255) * w;
+              const y = h - (ch.data[i] / maxVal) * h;
+              ctx.lineTo(x, y);
             }
+            ctx.lineTo(w, h);
+            ctx.closePath();
+            ctx.fill();
+          }
+        };
 
-            lastHistData = {r: rFreq, g: gFreq, b: bFreq};
-            
-            // Extract dominant colors
-            let sorted = Object.values(colorBuckets).sort((a,b) => b.count - a.count).slice(0, 5);
-            let topColorsHtml = sorted.map(bkt => {
-                let r = Math.round(bkt.r / bkt.count).toString(16).padStart(2, '0');
-                let g = Math.round(bkt.g / bkt.count).toString(16).padStart(2, '0');
-                let b = Math.round(bkt.b / bkt.count).toString(16).padStart(2, '0');
-                return `<div class="flex-1 h-full transition-all duration-300 hover:flex-[1.5] cursor-pointer relative group flex items-center justify-center" style="background-color: #${r}${g}${b}" title="#${r}${g}${b}" onclick="navigator.clipboard.writeText('#${r}${g}${b}')"><span class="opacity-0 group-hover:opacity-100 text-white drop-shadow-md text-[8px] font-mono pointer-events-none transition-opacity">Copy</span></div>`;
+        /* ─── Draw Curve ─── */
+        const drawCurve = () => {
+          const canvas = curveCanvas.value;
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+          const w = canvas.width;
+          const h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Diagonal reference
+          ctx.strokeStyle = 'rgba(71,85,105,0.4)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(0, h);
+          ctx.lineTo(w, 0);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Histogram overlay
+          if (lastHistData) {
+            ctx.globalAlpha = 0.4;
+            renderHistogramIntoTarget(ctx, w, h, lastHistData);
+            ctx.globalAlpha = 1.0;
+          }
+
+          // Curve line with gradient
+          lutMap = getSpline(curvePoints);
+          const grad = ctx.createLinearGradient(0, h, w, 0);
+          grad.addColorStop(0, '#494bd6');
+          grad.addColorStop(1, '#c0c1ff');
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 2;
+          ctx.shadowColor = 'rgba(99, 102, 241, 0.7)';
+          ctx.shadowBlur = 6;
+          ctx.beginPath();
+          for (let i = 0; i < 256; i++) {
+            const x = (i / 255) * w;
+            const y = h - (lutMap[i] / 255) * h;
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Control points
+          for (const p of curvePoints) {
+            ctx.fillStyle = '#c0c1ff';
+            ctx.shadowColor = 'rgba(99, 102, 241, 0.8)';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(p.x * w, h - p.y * h, 5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.shadowBlur = 0;
+
+          // Apply to SVG filter
+          updateCurveFilter();
+        };
+
+        const updateCurveFilter = () => {
+          const funcEls = document.querySelectorAll('#curveTransfer feFuncR, #curveTransfer feFuncG, #curveTransfer feFuncB');
+          const tableStr = Array.from(lutMap).map(v => (v / 255).toFixed(3)).join(' ');
+          funcEls.forEach(el => el.setAttribute('tableValues', tableStr));
+          applyFiltersToPreview();
+        };
+
+        /* ─── Curve Interaction ─── */
+        const getMousePos = (e) => {
+          const rect = curveCanvas.value.getBoundingClientRect();
+          const cx = e.touches ? e.touches[0].clientX : e.clientX;
+          const cy = e.touches ? e.touches[0].clientY : e.clientY;
+          return {
+            x: Math.max(0, Math.min(1, (cx - rect.left) / rect.width)),
+            y: Math.max(0, Math.min(1, 1 - (cy - rect.top) / rect.height))
+          };
+        };
+        const attachDragStart = (e) => {
+          if (e.cancelable) e.preventDefault();
+          const m = getMousePos(e);
+          for (const p of curvePoints) {
+            if (Math.hypot(p.x - m.x, p.y - m.y) < 0.1) { draggingPoint = p; return; }
+          }
+          const np = { x: m.x, y: m.y };
+          curvePoints.push(np);
+          draggingPoint = np;
+          drawCurve();
+        };
+        const attachDragMove = (e) => {
+          if (!draggingPoint) return;
+          if (e.cancelable) e.preventDefault();
+          const m = getMousePos(e);
+          draggingPoint.x = m.x;
+          draggingPoint.y = m.y;
+          drawCurve();
+        };
+        const attachDragEnd = () => { draggingPoint = null; };
+        const attachDoubleClick = (e) => {
+          const m = getMousePos(e);
+          for (let i = 0; i < curvePoints.length; i++) {
+            if (Math.hypot(curvePoints[i].x - m.x, curvePoints[i].y - m.y) < 0.1) {
+              if (curvePoints.length > 2) { curvePoints.splice(i, 1); drawCurve(); }
+              break;
+            }
+          }
+        };
+
+        const resizeCanvases = () => {
+          const canvas = curveCanvas.value;
+          if (!canvas) return;
+          const rect = canvas.parentElement.getBoundingClientRect();
+          canvas.width = rect.width;
+          canvas.height = rect.height;
+          drawCurve();
+        };
+
+        /* ─── Histogram Calculation ─── */
+        const queueHistogramUpdate = () => { if (!cropper) return; clearTimeout(histTimeout); histTimeout = setTimeout(calculateHistogram, 100); };
+        const calculateHistogram = () => {
+          if (!cropper) return;
+          const cvs = cropper.getCroppedCanvas({ width: 150 });
+          if (!cvs) return;
+          const ctx = cvs.getContext('2d', { willReadFrequently: true });
+          const imgData = ctx.getImageData(0, 0, cvs.width, cvs.height);
+          const data = imgData.data;
+          const b = state.brightness / 100;
+          const c = state.contrast / 100;
+          const s = state.saturation / 100;
+          const rFreq = new Int32Array(256);
+          const gFreq = new Int32Array(256);
+          const bFreq = new Int32Array(256);
+          const colorBuckets = {};
+          for (let i = 0; i < data.length; i += 4) {
+            let r = lutMap[data[i]];
+            let g = lutMap[data[i + 1]];
+            let bl = lutMap[data[i + 2]];
+            r = (r / 255 - 0.5) * c + 0.5;
+            g = (g / 255 - 0.5) * c + 0.5;
+            bl = (bl / 255 - 0.5) * c + 0.5;
+            r *= b; g *= b; bl *= b;
+            const luma = 0.2989 * r + 0.5870 * g + 0.1140 * bl;
+            r = luma + s * (r - luma);
+            g = luma + s * (g - luma);
+            bl = luma + s * (bl - luma);
+            const cR = Math.max(0, Math.min(255, Math.round(r * 255)));
+            const cG = Math.max(0, Math.min(255, Math.round(g * 255)));
+            const cB = Math.max(0, Math.min(255, Math.round(bl * 255)));
+            rFreq[cR]++; gFreq[cG]++; bFreq[cB]++;
+            const key = ((cR >> 4) << 8) | ((cG >> 4) << 4) | (cB >> 4);
+            if (!colorBuckets[key]) colorBuckets[key] = { r: 0, g: 0, b: 0, count: 0 };
+            colorBuckets[key].r += cR; colorBuckets[key].g += cG; colorBuckets[key].b += cB; colorBuckets[key].count++;
+          }
+          lastHistData = { r: rFreq, g: gFreq, b: bFreq };
+          const sorted = Object.values(colorBuckets).sort((a, b) => b.count - a.count).slice(0, 6);
+          const domContainer = document.getElementById('dominantColors');
+          if (domContainer) {
+            domContainer.innerHTML = sorted.map(bkt => {
+              const r = Math.round(bkt.r / bkt.count).toString(16).padStart(2, '0');
+              const g = Math.round(bkt.g / bkt.count).toString(16).padStart(2, '0');
+              const b = Math.round(bkt.b / bkt.count).toString(16).padStart(2, '0');
+              return `<div class="flex-1 h-full transition-all duration-300 hover:flex-[1.8] cursor-pointer group flex items-center justify-center rounded-sm" style="background-color:#${r}${g}${b}" title="#${r}${g}${b}" onclick="navigator.clipboard.writeText('#${r}${g}${b}')"><span class="opacity-0 group-hover:opacity-100 text-white drop-shadow-md text-[8px] font-mono pointer-events-none transition-opacity duration-200">Copy</span></div>`;
             }).join('');
-            
-            const domContainer = document.getElementById('dominantColors');
-            if (domContainer) domContainer.innerHTML = topColorsHtml;
+          }
+          drawCurve();
+        };
 
-            // Trigger re-render of curve to redraw the shadow underneath
-            if(curveCanvas.width) drawCurveShadow();
-        }
+        /* ─── Cropper Init ─── */
+        const initCropper = () => {
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(imagePreview.value, {
+            viewMode: 1,
+            background: false,
+            autoCropArea: 1,
+            ready() { resizeCanvases(); queueHistogramUpdate(); },
+            crop(event) {
+              const activeEl = document.activeElement;
+              const wInput = document.querySelector('[v-model\\.number="outWidth"]');
+              const hInput = document.querySelector('[v-model\\.number="outHeight"]');
+              if (activeEl?.tagName !== 'INPUT' || (activeEl?.type !== 'number' && activeEl?.type !== 'range')) {
+                state.outWidth = Math.round(event.detail.width * state.outputScale / 100);
+                state.outHeight = Math.round(event.detail.height * state.outputScale / 100);
+              }
+              queueHistogramUpdate();
+            },
+          });
+        };
 
-        function drawCurveShadow() {
-            const w = curveCanvas.width;
-            const h = curveCanvas.height;
-            curveCtx.clearRect(0,0,w,h);
-            
-            curveCtx.strokeStyle = '#334155';
-            curveCtx.lineWidth = 1;
-            curveCtx.beginPath();
-            for(let i=1; i<4; i++){
-                curveCtx.moveTo(0, i * h/4); curveCtx.lineTo(w, i * h/4);
-                curveCtx.moveTo(i * w/4, 0); curveCtx.lineTo(i * w/4, h);
-            }
-            curveCtx.stroke();
+        /* ─── File Handling ─── */
+        const triggerFileInput = () => fileInput.value.click();
+        const filesSelected = (e) => { if (e.target.files.length) loadImage(e.target.files[0]); };
+        const dropFiles = (e) => {
+          dropZone.value?.classList.remove('dragover');
+          if (e.dataTransfer.files.length) loadImage(e.dataTransfer.files[0]);
+        };
+        const dragOver = () => dropZone.value?.classList.add('dragover');
+        const dragLeave = () => dropZone.value?.classList.remove('dragover');
 
-            curveCtx.strokeStyle = 'rgba(71, 85, 105, 0.5)';
-            curveCtx.beginPath();
-            curveCtx.moveTo(0, h);
-            curveCtx.lineTo(w, 0);
-            curveCtx.stroke();
+        const loadImage = (file) => {
+          if (!file.type.startsWith('image/')) return alert('Please upload an image file.');
+          state.originalFileName = file.name.split('.')[0];
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            state.imageSrc = e.target.result;
+            state.imageLoaded = true;
+            nextTick(() => initCropper());
+          };
+          reader.readAsDataURL(file);
+        };
 
-            if (lastHistData) {
-                curveCtx.globalAlpha = 0.3;
-                renderHistogramIntoTarget(curveCtx, w, h, lastHistData);
-                curveCtx.globalAlpha = 1.0;
-            }
+        /* ─── Reset ─── */
+        const resetAll = () => {
+          if (cropper) cropper.destroy();
+          cropper = null;
+          fileInput.value.value = '';
+          state.imageLoaded = false;
+          state.brightness = 100; state.contrast = 100; state.saturation = 100;
+          state.outputScale = 100; state.outWidth = 0; state.outHeight = 0;
+          state.exportMessage = '';
+          curvePoints = [{ x: 0, y: 0 }, { x: 1, y: 1 }];
+          lastHistData = null;
+          const domContainer = document.getElementById('dominantColors');
+          if (domContainer) domContainer.innerHTML = '';
+          drawCurve();
+          applyFiltersToPreview();
+        };
 
-            curveCtx.strokeStyle = '#3b82f6';
-            curveCtx.lineWidth = 2;
-            curveCtx.beginPath();
-            for(let i=0; i<256; i++) {
-                let x = (i/255) * w;
-                let y = h - (lutMap[i]/255) * h;
-                if(i===0) curveCtx.moveTo(x,y);
-                else curveCtx.lineTo(x,y);
-            }
-            curveCtx.stroke();
+        /* ─── Crop Presets ─── */
+        const setFreeCrop = () => { if (cropper) cropper.setAspectRatio(NaN); };
+        const setSquareCrop = () => { if (cropper) cropper.setAspectRatio(1); };
 
-            curveCtx.fillStyle = '#60a5fa';
-            for(let p of curvePoints) {
-                curveCtx.beginPath();
-                curveCtx.arc(p.x * w, h - p.y * h, 5, 0, Math.PI*2);
-                curveCtx.fill();
-            }
-        }
+        /* ─── Export / Compress ─── */
+        const compressToTargetSize = async (canvas, targetKB, format) => {
+          const targetBytes = targetKB * 1024;
+          let minQ = 0.1, maxQ = 1.0, curQ = 0.8, bestBlob = null, bestDiff = Infinity;
+          for (let i = 0; i < 8; i++) {
+            const blob = await new Promise(r => canvas.toBlob(r, format, curQ));
+            const diff = Math.abs(blob.size - targetBytes);
+            if (diff < bestDiff && blob.size <= targetBytes * 1.1) { bestDiff = diff; bestBlob = blob; }
+            if (Math.abs(blob.size - targetBytes) < targetBytes * 0.05) break;
+            if (blob.size > targetBytes) maxQ = curQ; else minQ = curQ;
+            curQ = (minQ + maxQ) / 2;
+          }
+          if (!bestBlob) bestBlob = await new Promise(r => canvas.toBlob(r, format, 0.5));
+          return bestBlob;
+        };
 
-        function renderHistogramIntoTarget(ctx, w, h, data) {
-            let maxVal = 0;
-            for(let i=0; i<256; i++) {
-                maxVal = Math.max(maxVal, data.r[i], data.g[i], data.b[i]);
-            }
-            if(maxVal === 0) return;
-
-            ctx.globalCompositeOperation = "screen";
-
-            const drawChannel = (arr, color) => {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.moveTo(0, h);
-                for(let i=0; i<256; i++) {
-                    ctx.lineTo((i/255)*w, h - (arr[i]/maxVal) * h * 0.9);
-                }
-                ctx.lineTo(w, h);
-                ctx.closePath();
-                ctx.fill();
-            };
-
-            drawChannel(data.r, 'rgba(239, 68, 68, 0.7)');
-            drawChannel(data.g, 'rgba(34, 197, 94, 0.7)');
-            drawChannel(data.b, 'rgba(59, 130, 246, 0.7)');
-            
-            ctx.globalCompositeOperation = "source-over";
-        }
-
-        // UI Inputs
-        const brightnessInput = document.getElementById('brightness');
-        const contrastInput = document.getElementById('contrast');
-        const saturationInput = document.getElementById('saturation');
-        const outWidth = document.getElementById('outWidth');
-        const outHeight = document.getElementById('outHeight');
-        const outScaleInput = document.getElementById('outScale');
-        const scaleDisplay = document.getElementById('scaleDisplay');
-
-        let currentScale = 1.0;
-
-        // --- Initialization & File Handling --- //
-
-        dropZone.addEventListener('click', () => fileInput.click());
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                loadImage(e.dataTransfer.files[0]);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) {
-                loadImage(e.target.files[0]);
-            }
-        });
-
-        function loadImage(file) {
-            if (!file.type.startsWith('image/')) return alert('Please upload an image file.');
-
-            originalFileName = file.name.split('.')[0];
-            const reader = new FileReader();
-
-            reader.onload = (e) => {
-                imagePreview.src = e.target.result;
-
-                // Switch UI states
-                dropZone.classList.add('hidden');
-                workspace.classList.remove('hidden');
-                controlsPanel.classList.remove('opacity-50', 'pointer-events-none');
-                resetBtn.classList.remove('hidden');
-
-                initCropper();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function initCropper() {
-            if (cropper) cropper.destroy();
-
-            cropper = new Cropper(imagePreview, {
-                viewMode: 1,
-                background: false,
-                autoCropArea: 1,
-                ready() {
-                    resizeCanvases();
-                    queueHistogramUpdate();
-                },
-                crop(event) {
-                    // Update scale inputs natively while cropping
-                    if (document.activeElement !== outWidth && document.activeElement !== outHeight && document.activeElement !== outScaleInput) {
-                        outWidth.value = Math.round(event.detail.width * currentScale);
-                        outHeight.value = Math.round(event.detail.height * currentScale);
-                    }
-                    queueHistogramUpdate();
-                }
+        const exportImage = async () => {
+          if (!cropper) return alert('No image loaded');
+          const btn = document.getElementById('exportBtn');
+          const btnText = document.getElementById('exportBtnText');
+          btnText.innerText = 'Processing...';
+          btn.disabled = true;
+          btn.style.opacity = '0.7';
+          try {
+            const cropped = cropper.getCroppedCanvas({
+              width: state.outWidth, height: state.outHeight,
+              imageSmoothingEnabled: true, imageSmoothingQuality: 'high'
             });
-        }
-
-        // --- Controls & Listeners --- //
-
-        function applyFiltersToPreview() {
-            const b = brightnessInput.value;
-            const c = contrastInput.value;
-            const s = saturationInput.value;
-
-            // Apply CSS filter to the cropper preview containers using the SVG Curve + Native CSS Filters
-            const filterString = `url(#curveFilter) brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
-            document.querySelector('.cropper-canvas').style.filter = filterString;
-            document.querySelector('.cropper-view-box').style.filter = filterString;
-
-            document.getElementById('brightVal').innerText = b + '%';
-            document.getElementById('contVal').innerText = c + '%';
-            document.getElementById('satVal').innerText = s + '%';
-            
-            queueHistogramUpdate();
-        }
-
-        [brightnessInput, contrastInput, saturationInput].forEach(el => {
-            el.addEventListener('input', applyFiltersToPreview);
-        });
-
-        document.getElementById('setFreeCrop').addEventListener('click', () => cropper.setAspectRatio(NaN));
-        document.getElementById('setSquareCrop').addEventListener('click', () => cropper.setAspectRatio(1));
-
-        outScaleInput.addEventListener('input', (e) => {
-            currentScale = parseInt(e.target.value) / 100;
-            scaleDisplay.innerText = e.target.value + '%';
-            if (cropper) {
-                const data = cropper.getData();
-                outWidth.value = Math.round(data.width * currentScale);
-                outHeight.value = Math.round(data.height * currentScale);
+            const final = document.createElement('canvas');
+            final.width = cropped.width; final.height = cropped.height;
+            const ctx = final.getContext('2d');
+            ctx.drawImage(cropped, 0, 0);
+            const imgData = ctx.getImageData(0, 0, final.width, final.height);
+            const d = imgData.data;
+            for (let i = 0; i < d.length; i += 4) {
+              d[i] = lutMap[d[i]]; d[i + 1] = lutMap[d[i + 1]]; d[i + 2] = lutMap[d[i + 2]];
             }
-        });
-
-        outWidth.addEventListener('input', (e) => {
-            if (!cropper) return;
-            const data = cropper.getData();
-            const ratio = data.height / data.width;
-            const newWidth = parseInt(e.target.value);
-            if (isNaN(newWidth)) return;
-            outHeight.value = Math.round(newWidth * ratio);
-            
-            currentScale = newWidth / data.width;
-            outScaleInput.value = Math.max(1, Math.min(400, Math.round(currentScale * 100)));
-            scaleDisplay.innerText = outScaleInput.value + '%';
-        });
-
-        outHeight.addEventListener('input', (e) => {
-            if (!cropper) return;
-            const data = cropper.getData();
-            const ratio = data.width / data.height;
-            const newHeight = parseInt(e.target.value);
-            if (isNaN(newHeight)) return;
-            outWidth.value = Math.round(newHeight * ratio);
-            
-            currentScale = newHeight / data.height;
-            outScaleInput.value = Math.max(1, Math.min(400, Math.round(currentScale * 100)));
-            scaleDisplay.innerText = outScaleInput.value + '%';
-        });
-
-        document.getElementById('exportFormat').addEventListener('change', (e) => {
-            const group = document.getElementById('compressionGroup');
-            group.style.display = e.target.value === 'image/png' ? 'none' : 'block';
-        });
-
-        resetBtn.addEventListener('click', () => {
-            if (cropper) cropper.destroy();
-            fileInput.value = '';
-            dropZone.classList.remove('hidden');
-            workspace.classList.add('hidden');
-            controlsPanel.classList.add('opacity-50', 'pointer-events-none');
-            resetBtn.classList.add('hidden');
-
-            // Reset Adjustments
-            brightnessInput.value = 100; contrastInput.value = 100; saturationInput.value = 100;
-            currentScale = 1.0;
-            outScaleInput.value = 100;
-            scaleDisplay.innerText = '100%';
-            curvePoints = [{ x: 0, y: 0 }, { x: 1, y: 1 }];
-            drawCurve();
-            applyFiltersToPreview();
-        });
-
-
-        // --- Export & Compression Logic --- //
-
-        document.getElementById('exportBtn').addEventListener('click', async () => {
-            const btn = document.getElementById('exportBtn');
-            const statusText = document.getElementById('exportStatus');
-            btn.innerText = "Processing...";
-            btn.disabled = true;
-
-            try {
-                // 1. Get the Cropped Canvas
-                const croppedCanvas = cropper.getCroppedCanvas({
-                    width: parseInt(outWidth.value),
-                    height: parseInt(outHeight.value),
-                    imageSmoothingEnabled: true,
-                    imageSmoothingQuality: 'high',
-                });
-
-                // 2. Apply Filters natively to a final canvas
-                const finalCanvas = document.createElement('canvas');
-                finalCanvas.width = croppedCanvas.width;
-                finalCanvas.height = croppedCanvas.height;
-                const ctx = finalCanvas.getContext('2d');
-
-                // Draw initial crop
-                ctx.drawImage(croppedCanvas, 0, 0);
-
-                // Apply LUT curve via Javascript directly to pixels for 100% reliable export across browsers
-                const imgData = ctx.getImageData(0, 0, finalCanvas.width, finalCanvas.height);
-                const data = imgData.data;
-                for(let i=0; i<data.length; i+=4) {
-                    data[i] = lutMap[data[i]];
-                    data[i+1] = lutMap[data[i+1]];
-                    data[i+2] = lutMap[data[i+2]];
-                }
-                ctx.putImageData(imgData, 0, 0);
-
-                // Apply CSS brightness/contrast/saturation over top using a secondary composite step
-                const b = brightnessInput.value;
-                const c = contrastInput.value;
-                const s = saturationInput.value;
-                
-                const secondCanvas = document.createElement('canvas');
-                secondCanvas.width = finalCanvas.width; secondCanvas.height = finalCanvas.height;
-                const sCtx = secondCanvas.getContext('2d');
-                sCtx.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
-                sCtx.drawImage(finalCanvas, 0, 0);
-
-                // Flatten back to finalCanvas so the rest of the flow remains identical
-                ctx.clearRect(0,0,finalCanvas.width, finalCanvas.height);
-                ctx.filter = 'none';
-                ctx.drawImage(secondCanvas, 0, 0);
-
-                // 3. Compress to target size
-                const format = document.getElementById('exportFormat').value;
-                const targetKB = document.getElementById('targetKB').value;
-                let finalBlob;
-
-                if (format === 'image/png' || !targetKB || targetKB <= 0) {
-                    // Direct export for PNG or max quality requests
-                    finalBlob = await new Promise(resolve => finalCanvas.toBlob(resolve, format, 0.95));
-                } else {
-                    // Binary search compression for JPEG/WebP
-                    finalBlob = await compressToTargetSize(finalCanvas, targetKB, format);
-                }
-
-                // 4. Trigger Download
-                const url = URL.createObjectURL(finalBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                const ext = format.split('/')[1];
-                a.download = `${originalFileName}_edited.${ext}`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-
-                statusText.innerText = `Success! Final size: ${(finalBlob.size / 1024).toFixed(1)} KB`;
-                statusText.classList.remove('hidden');
-
-            } catch (err) {
-                console.error(err);
-                alert("An error occurred during export.");
-            } finally {
-                btn.innerText = "Process & Download";
-                btn.disabled = false;
-                setTimeout(() => statusText.classList.add('hidden'), 5000);
+            ctx.putImageData(imgData, 0, 0);
+            const temp = document.createElement('canvas');
+            temp.width = final.width; temp.height = final.height;
+            const tCtx = temp.getContext('2d');
+            tCtx.filter = `brightness(${state.brightness}%) contrast(${state.contrast}%) saturate(${state.saturation}%)`;
+            tCtx.drawImage(final, 0, 0);
+            ctx.clearRect(0, 0, final.width, final.height);
+            ctx.drawImage(temp, 0, 0);
+            let blob;
+            if (state.exportFormat === 'image/png' || !state.targetKB) {
+              blob = await new Promise(r => final.toBlob(r, state.exportFormat, 0.95));
+            } else {
+              blob = await compressToTargetSize(final, state.targetKB, state.exportFormat);
             }
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const ext = state.exportFormat.split('/')[1];
+            a.download = `${state.originalFileName}_edited.${ext}`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            state.exportMessage = `Success! Final size: ${(blob.size / 1024).toFixed(1)} KB`;
+          } catch (e) {
+            console.error(e);
+            alert('An error occurred during export.');
+          } finally {
+            btnText.innerText = 'Process & Download';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            setTimeout(() => (state.exportMessage = ''), 5000);
+          }
+        };
+
+        /* ─── Watchers ─── */
+        watch(() => [state.brightness, state.contrast, state.saturation], () => {
+          applyFiltersToPreview();
+          queueHistogramUpdate();
+        });
+        watch(() => state.outputScale, (newVal) => {
+          if (!cropper) return;
+          const data = cropper.getData();
+          state.outWidth = Math.round(data.width * newVal / 100);
+          state.outHeight = Math.round(data.height * newVal / 100);
+        });
+        watch(() => state.outWidth, (newW) => {
+          if (!cropper) return;
+          const data = cropper.getData();
+          const ratio = data.height / data.width;
+          state.outHeight = Math.round(newW * ratio);
+        });
+        watch(() => state.outHeight, (newH) => {
+          if (!cropper) return;
+          const data = cropper.getData();
+          const ratio = data.width / data.height;
+          state.outWidth = Math.round(newH * ratio);
         });
 
-        // Smart compression algorithm using binary search to hit a target file size
-        async function compressToTargetSize(canvas, targetKB, format) {
-            const targetBytes = targetKB * 1024;
-            let minQuality = 0.1;
-            let maxQuality = 1.0;
-            let currentQuality = 0.8;
-            let bestBlob = null;
-            let closestDiff = Infinity;
+        /* ─── Mounted ─── */
+        onMounted(() => {
+          const canvas = curveCanvas.value;
+          if (!canvas) return;
+          window.addEventListener('resize', resizeCanvases);
+          resizeCanvases();
+          canvas.addEventListener('mousedown', attachDragStart);
+          canvas.addEventListener('touchstart', attachDragStart, { passive: false });
+          canvas.addEventListener('mousemove', attachDragMove);
+          canvas.addEventListener('touchmove', attachDragMove, { passive: false });
+          window.addEventListener('mouseup', attachDragEnd);
+          window.addEventListener('touchend', attachDragEnd);
+          canvas.addEventListener('dblclick', attachDoubleClick);
+        });
 
-            for (let i = 0; i < 8; i++) { // Max 8 iterations to prevent hanging
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, format, currentQuality));
-                const diff = Math.abs(blob.size - targetBytes);
-
-                if (diff < closestDiff && blob.size <= targetBytes * 1.1) {
-                    closestDiff = diff;
-                    bestBlob = blob;
-                }
-
-                // Acceptable margin of error (within 5% of target)
-                if (Math.abs(blob.size - targetBytes) < targetBytes * 0.05) {
-                    break;
-                }
-
-                if (blob.size > targetBytes) {
-                    maxQuality = currentQuality;
-                } else {
-                    minQuality = currentQuality;
-                }
-                currentQuality = (minQuality + maxQuality) / 2;
-            }
-
-            // Fallback if binary search fails to hit exact target but we have a valid blob
-            if (!bestBlob) {
-                bestBlob = await new Promise(resolve => canvas.toBlob(resolve, format, 0.5));
-            }
-            return bestBlob;
-        }
-    </script>
+        return {
+          ...toRefs(state),
+          panels,
+          togglePanel,
+          dropZone,
+          fileInput,
+          workspace,
+          imagePreview,
+          curveCanvas,
+          triggerFileInput,
+          filesSelected,
+          dropFiles,
+          dragOver,
+          dragLeave,
+          setFreeCrop,
+          setSquareCrop,
+          exportImage,
+          resetAll,
+        };
+      }
+    }).mount('#app');
+  </script>
 </body>
-
 </html>
