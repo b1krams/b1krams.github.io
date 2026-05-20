@@ -96,39 +96,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             flex-shrink: 0;
         }
 
-        .layout-toggle {
-            display: flex;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 2px;
-        }
-
-        .layout-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .layout-btn:hover {
-            color: var(--text-main);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .layout-btn.active {
-            color: #ffffff;
-            background: var(--primary);
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
-        }
-
         nav {
             display: flex;
             align-items: center;
@@ -255,27 +222,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── GRID/LIST/COMPACT CONTAINER SWITCHES ── */
-        #news-container.view-grid {
+        #news-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 0.85rem;
-        }
-
-        #news-container.view-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        #news-container.view-compact {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--surface);
-            overflow: hidden;
         }
 
         /* ── CARD ── */
@@ -957,17 +907,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <button class="btn-refresh" onclick="fetchAll()">↻ All</button>
                 </nav>
                 <div class="header-actions">
-                    <div class="layout-toggle">
-                        <button onclick="setLayout('grid')" id="layout-grid" class="layout-btn" title="Grid View" aria-label="Grid View">
-                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-                        </button>
-                        <button onclick="setLayout('list')" id="layout-list" class="layout-btn" title="List View" aria-label="List View">
-                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><rect x="3" y="5" width="3" height="2" rx="0.5"/><rect x="3" y="11" width="3" height="2" rx="0.5"/><rect x="3" y="17" width="3" height="2" rx="0.5"/></svg>
-                        </button>
-                        <button onclick="setLayout('compact')" id="layout-compact" class="layout-btn" title="Compact View" aria-label="Compact View">
-                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
-                        </button>
-                    </div>
                     <button class="btn-settings" id="btn-settings-toggle" onclick="openSettings()" aria-label="Open settings" title="Source settings">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3"/>
@@ -1033,11 +972,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     ];
 
     const LS_KEY = 'newsnow_settings_v1';
-    const LS_LAYOUT_KEY = 'newsnow_layout_v2';
-    let currentLayout = 'grid';
-    try {
-        currentLayout = localStorage.getItem(LS_LAYOUT_KEY) || 'grid';
-    } catch (_) {}
 
     // ─────────────────────────────────────────────
     //  SETTINGS STORE — load / save / merge
@@ -1233,27 +1167,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (btn) btn.classList.add('active');
     }
 
-    function setLayout(layout) {
-        currentLayout = layout;
-        try {
-            localStorage.setItem(LS_LAYOUT_KEY, layout);
-        } catch (_) {}
-
-        document.querySelectorAll('.layout-btn').forEach(btn => btn.classList.remove('active'));
-        const activeBtn = document.getElementById('layout-' + layout);
-        if (activeBtn) activeBtn.classList.add('active');
-
-        const newsContainer = document.getElementById('news-container');
-        if (newsContainer) {
-            newsContainer.className = '';
-            newsContainer.classList.add('view-' + layout);
-        }
-
-        if (window.lastFetchedStories) {
-            renderNews(window.lastFetchedStories);
-        }
-    }
-
     async function switchCategory(cat) {
         setActiveBtn(cat);
         loader.style.display = 'flex';
@@ -1309,50 +1222,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const delay = Math.min(i * 30, 300);
             const pubDateFormatted = formatDate(post.pubDate);
             
-            if (currentLayout === 'compact') {
-                return `
-                <div class="compact-row" style="animation-delay:${delay}ms">
-                    <span class="compact-source">${post.source}</span>
-                    <h2 class="compact-title">
-                        <a href="${post.link}" target="_blank" rel="noopener">${post.title}</a>
-                    </h2>
-                    <span class="compact-time" title="${pubDateFormatted.date} ${pubDateFormatted.time}">
-                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        ${pubDateFormatted.time}
-                    </span>
-                </div>`;
-            }
-
             const imgSrc = post.thumbnail || post.enclosure?.link;
             const desc = (post.description || '').replace(/<[^>]*>?/gm, '').trim();
 
-            if (currentLayout === 'list') {
-                const imgHtml = imgSrc
-                    ? `<div class="list-img-wrap"><img src="${imgSrc}" alt="" loading="lazy" onerror="this.parentElement.outerHTML=noListImgHtml()"></div>`
-                    : `<div class="list-no-img">${noListImgSvg()}</div>`;
-
-                return `
-                <div class="list-row" style="animation-delay:${delay}ms">
-                    ${imgHtml}
-                    <div class="list-content">
-                        <div class="list-meta">
-                            <span class="list-source">${post.source}</span>
-                            <span class="list-time">
-                                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${pubDateFormatted.date} • ${pubDateFormatted.time}
-                            </span>
-                        </div>
-                        <h2 class="list-title">
-                            <a href="${post.link}" target="_blank" rel="noopener">${post.title}</a>
-                        </h2>
-                        ${desc ? `<p class="list-desc">${desc}</p>` : ''}
-                        <div class="list-footer">
-                            <a href="${post.link}" target="_blank" rel="noopener" class="list-link">Read full story <span>→</span></a>
-                        </div>
-                    </div>
-                </div>`;
-            }
-
-            // Otherwise, grid (default)
             const imgHtml = imgSrc
                 ? `<div class="card-img-wrap"><img src="${imgSrc}" alt="" loading="lazy" onerror="this.parentElement.outerHTML=noImgHtml()"></div>`
                 : `<div class="card-no-img">${noImgSvg()}</div>`;
@@ -1400,7 +1272,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && settingsOpen) closeSettings(); });
 
     // Initial load
-    setLayout(currentLayout);
     switchCategory('national');
     </script>
 </body>
