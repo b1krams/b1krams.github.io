@@ -222,43 +222,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         .btn-settings.open svg { transform: rotate(90deg); }
 
-        /* ── HERO STRIP ── */
-        .hero-strip {
-            max-width: 1200px;
-            margin: 3rem auto 0;
-            padding: 0 2rem;
-        }
-
-        .hero-strip h2 {
-            font-family: 'Inter', sans-serif;
-            font-size: clamp(1.9rem, 4vw, 2.8rem);
-            font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -0.04em;
-            color: var(--text-main);
-        }
-
-        .hero-strip h2 em {
-            font-style: italic;
-            color: var(--accent);
-        }
-
-        .hero-strip p {
-            margin-top: 0.5rem;
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            font-weight: 300;
-            letter-spacing: 0.01em;
-        }
-
-        .divider {
-            width: 48px;
-            height: 2px;
-            background: var(--primary);
-            margin: 1.2rem 0;
-            border-radius: 2px;
-        }
-
         /* ── MAIN ── */
         main {
             max-width: 1200px;
@@ -911,8 +874,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         @media (max-width: 600px) {
             .header-inner { height: auto; flex-direction: column; padding: 1rem 0; gap: 0.75rem; }
             nav { flex-wrap: wrap; justify-content: center; }
-            .hero-strip, main { padding: 0 1rem; }
-            .hero-strip { margin-top: 1.5rem; }
+            main { padding: 0 1rem; }
         }
     </style>
 </head>
@@ -1013,12 +975,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </header>
 
-    <div class="hero-strip">
-        <h2>Today's <em>Headlines</em></h2>
-        <p id="subtitle">Curated from India's most trusted newsrooms</p>
-        <div class="divider"></div>
-    </div>
-
     <main>
         <div id="loading">
             <div class="spinner"></div>
@@ -1112,16 +1068,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     // ─────────────────────────────────────────────
     const container = document.getElementById('news-container');
     const loader    = document.getElementById('loading');
-    const subtitle  = document.getElementById('subtitle');
-
-    const categoryLabels = {
-        national: "Curated from India's most trusted newsrooms",
-        business: 'Markets, economy & corporate news',
-        tech:     'Technology, gadgets & innovation',
-        world:    'Top stories from international newsrooms',
-        kids:     '🌍 Science, space & curiosity for young minds',
-        custom:   'Your custom feeds',
-    };
 
     // ─────────────────────────────────────────────
     //  SETTINGS DRAWER
@@ -1281,7 +1227,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.querySelectorAll('#nav button:not(.btn-refresh)').forEach(b => b.classList.remove('active'));
         const btn = document.getElementById('btn-' + cat);
         if (btn) btn.classList.add('active');
-        subtitle.textContent = categoryLabels[cat] || '';
     }
 
     function setLayout(layout) {
@@ -1325,7 +1270,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     async function fetchAll() {
         document.querySelectorAll('#nav button:not(.btn-refresh)').forEach(b => b.classList.remove('active'));
-        subtitle.textContent = 'All enabled sources';
         loader.style.display = 'flex';
         container.innerHTML = '';
         const settings = loadSettings();
