@@ -76,19 +76,49 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="max-w-4xl mx-auto py-6 sm:py-12 px-4">
         <div class="text-center mb-8 sm:mb-10">
             <h1 class="text-3xl sm:text-4xl font-extrabold mb-2" style="background: linear-gradient(135deg,#818cf8,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">PDF Swift</h1>
-            <p class="text-sm sm:text-base text-slate-400">Fast, local, and secure PDF manipulation.</p>
+            <p class="text-sm sm:text-base text-slate-400">Fast, local, and secure PDF processing.</p>
         </div>
 
         <div class="glass rounded-3xl shadow-xl p-4 sm:p-8">
             
             <div id="dropZone" class="border-2 border-dashed border-slate-700 rounded-2xl p-6 sm:p-10 text-center transition-all cursor-pointer hover:border-indigo-500 group">
-                <input type="file" id="fileInput" multiple accept="application/pdf" class="hidden">
+                <input type="file" id="fileInput" multiple accept="application/pdf,image/jpeg,image/jpg" class="hidden">
                 <div class="flex flex-col items-center">
                     <div class="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-500/10 text-indigo-400 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-cloud-arrow-up text-xl sm:text-2xl"></i>
                     </div>
-                    <p class="text-base sm:text-lg font-medium text-slate-200">Drag & drop PDFs or <span class="text-indigo-400">browse</span></p>
+                    <p class="text-base sm:text-lg font-medium text-slate-200">Drag & drop PDFs/JPGs or <span class="text-indigo-400">browse</span></p>
                     <p class="text-xs sm:text-sm text-slate-500 mt-1">Files are processed locally in your browser</p>
+                </div>
+            </div>
+
+            <!-- Target Size Input (Top Form) -->
+            <div class="mt-5 p-4 rounded-2xl border border-violet-500/20 bg-violet-500/5">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-compress text-violet-400 text-sm"></i>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-semibold text-slate-300">Target PDF Size Constraint (Optional)</span>
+                            <span class="text-xs text-slate-500">Converts pages to JPEG internally to hit target size</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-2 self-start sm:self-auto">
+                        <label for="targetSizeMB" class="text-xs text-slate-400 whitespace-nowrap">Target size</label>
+                        <div class="flex items-center gap-1">
+                            <input type="number" id="targetSizeMB" min="0.1" step="0.1" placeholder="e.g. 1.5"
+                                class="bg-transparent text-slate-100 text-sm w-16 sm:w-20 outline-none placeholder-slate-600 text-right sm:text-left">
+                            <span class="text-xs text-slate-500 font-medium">MB</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="compressProgress" class="hidden mt-4 space-y-1.5 border-t border-slate-700/60 pt-3">
+                    <div class="flex items-center justify-between">
+                        <span id="compressStatus" class="text-xs text-slate-400">Processing...</span>
+                        <span id="compressPercent" class="text-xs text-violet-400 font-mono">0%</span>
+                    </div>
+                    <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="compressBar" class="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-[width] duration-300" style="width:0%"></div>
+                    </div>
                 </div>
             </div>
 
@@ -105,46 +135,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </ul>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 border-t border-slate-700/60 pt-6 sm:pt-8">
-                    <button onclick="mergePDFs()" class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all shadow-lg shadow-indigo-900/40 text-sm sm:text-base">
+                    <button id="mergeBtn" onclick="mergePDFs()" class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all shadow-lg shadow-indigo-900/40 text-sm sm:text-base">
                         <i class="fa-solid fa-layer-group mr-2"></i> Combine & Save PDF
                     </button>
-                    <button onclick="splitPDFs()" class="btn-split flex items-center justify-center font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all border-2 border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10 text-sm sm:text-base">
+                    <button id="splitBtn" onclick="splitPDFs()" class="btn-split flex items-center justify-center font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all border-2 border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10 text-sm sm:text-base">
                         <i class="fa-solid fa-scissors mr-2"></i> Split Pages to ZIP
                     </button>
-                </div>
-
-                <!-- Compress Section -->
-                <div class="mt-5 rounded-2xl border border-violet-500/20 bg-violet-500/5 p-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-file-zipper text-violet-400 text-sm"></i>
-                            <span class="text-sm font-semibold text-slate-300">Compress PDF</span>
-                        </div>
-                        <span class="sm:ml-auto text-xs text-slate-600">Converts pages to JPEG internally</span>
-                    </div>
-                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                        <div class="flex items-center justify-between sm:justify-start gap-2 bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-2">
-                            <label for="targetSizeMB" class="text-xs text-slate-400 whitespace-nowrap">Target size</label>
-                            <div class="flex items-center gap-1">
-                                <input type="number" id="targetSizeMB" min="0.1" step="0.1" placeholder="e.g. 1.5"
-                                    class="bg-transparent text-slate-100 text-sm w-16 sm:w-20 outline-none placeholder-slate-600 text-right sm:text-left">
-                                <span class="text-xs text-slate-500">MB</span>
-                            </div>
-                        </div>
-                        <button onclick="compressPDFs()" id="compressBtn"
-                            class="flex items-center justify-center w-full sm:w-auto gap-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-all shadow-lg shadow-violet-900/40">
-                            <i class="fa-solid fa-compress"></i> Compress &amp; Download
-                        </button>
-                    </div>
-                    <div id="compressProgress" class="hidden mt-4 space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span id="compressStatus" class="text-xs text-slate-400">Processing...</span>
-                            <span id="compressPercent" class="text-xs text-violet-400 font-mono">0%</span>
-                        </div>
-                        <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div id="compressBar" class="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-[width] duration-300" style="width:0%"></div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -153,6 +149,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             Made with <i class="fa-solid fa-heart text-red-500"></i> by Bikram
         </footer>
     </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
         const dropZone = document.getElementById('dropZone');
@@ -184,344 +183,481 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         });
 
-        function handleFiles(e) {
-            const files = Array.from(e.target.files)
-                .filter(f => f.type === 'application/pdf')
-                .map(f => ({ file: f, removePages: '' }));
-            selectedFiles = [...selectedFiles, ...files];
-            renderFileList();
-        }
-
-        function updateRemovePages(index, value) {
-            selectedFiles[index].removePages = value;
-        }
-
-        function parsePageNumbers(input, maxPage) {
-            const pages = new Set();
-            if (!input || !input.trim()) return pages;
-            
-            const parts = input.split(',');
-            for (const part of parts) {
-                const range = part.trim().split('-');
-                if (range.length === 1) {
-                    const num = parseInt(range[0], 10);
-                    if (!isNaN(num) && num >= 1 && num <= maxPage) {
-                        pages.add(num - 1); // 0-indexed
-                    }
-                } else if (range.length === 2) {
-                    const start = parseInt(range[0], 10);
-                    const end = parseInt(range[1], 10);
-                    if (!isNaN(start) && !isNaN(end)) {
-                        const s = Math.max(1, Math.min(start, end));
-                        const e = Math.min(maxPage, Math.max(start, end));
-                        for (let i = s; i <= e; i++) {
-                            pages.add(i - 1);
-                        }
-                    }
-                }
-            }
-            return pages;
-        }
-
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            renderFileList();
-        }
-
-        let dragSrcIndex = null;
-
-        function renderFileList() {
-            fileList.innerHTML = '';
-            if (selectedFiles.length > 0) {
-                fileListContainer.classList.remove('hidden');
+        // Dynamic change of Merge button text when target size is entered
+        document.getElementById('targetSizeMB').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            const mergeBtn = document.getElementById('mergeBtn');
+            if (val && val > 0) {
+                mergeBtn.innerHTML = '<i class="fa-solid fa-compress mr-2"></i> Combine, Compress & Save PDF';
             } else {
-                fileListContainer.classList.add('hidden');
+                mergeBtn.innerHTML = '<i class="fa-solid fa-layer-group mr-2"></i> Combine & Save PDF';
             }
+        });
 
-            selectedFiles.forEach((item, index) => {
-                const file = item.file;
-                const li = document.createElement('li');
-                li.className = "file-item flex flex-col p-4 bg-white/[0.03] rounded-xl border border-slate-700/60 gap-3";
-                li.draggable = true;
-                li.dataset.index = index;
-
-                li.innerHTML = `
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="flex items-center space-x-2 sm:space-x-3 overflow-hidden">
-                            <span class="drag-handle px-1 sm:px-2" title="Drag to reorder">⠿</span>
-                            <span class="bg-indigo-500/15 text-indigo-400 w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg font-bold text-xs flex-shrink-0">${index + 1}</span>
-                            <p class="truncate font-medium text-slate-200 text-sm sm:text-base">${file.name}</p>
-                            <span class="text-xs text-slate-500 text-nowrap hidden sm:inline">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                        </div>
-                        <div class="flex items-center gap-3 flex-shrink-0">
-                            <span class="text-xs text-slate-500 text-nowrap sm:hidden">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                            <button onclick="removeFile(${index})" class="text-slate-600 hover:text-red-400 transition-colors">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 pl-2 sm:pl-11 mt-1 sm:mt-0">
-                        <label class="text-slate-400 text-xs flex-shrink-0"><i class="fa-solid fa-minus-circle mr-1"></i>Remove Pages:</label>
-                        <input type="text" placeholder="e.g. 1, 3, 5-7" class="bg-slate-900/60 border border-slate-700/60 rounded px-2 py-1 text-xs outline-none text-slate-200 placeholder-slate-600 w-full sm:flex-1" value="${item.removePages}" oninput="updateRemovePages(${index}, this.value)">
-                    </div>
-                `;
-
-                // Drag events
-                li.addEventListener('dragstart', (e) => {
-                    if (e.target.tagName.toLowerCase() === 'input') {
-                        e.preventDefault();
-                        return;
-                    }
-                    dragSrcIndex = index;
-                    li.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                });
-
-                li.addEventListener('dragend', () => {
-                    li.classList.remove('dragging');
-                    document.querySelectorAll('.file-item').forEach(el => {
-                        el.classList.remove('drag-over-top', 'drag-over-bottom');
-                    });
-                });
-
-                li.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                    const rect = li.getBoundingClientRect();
-                    const midY = rect.top + rect.height / 2;
-                    document.querySelectorAll('.file-item').forEach(el => {
-                        el.classList.remove('drag-over-top', 'drag-over-bottom');
-                    });
-                    li.classList.add(e.clientY < midY ? 'drag-over-top' : 'drag-over-bottom');
-                });
-
-                li.addEventListener('dragleave', () => {
-                    li.classList.remove('drag-over-top', 'drag-over-bottom');
-                });
-
-                li.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const targetIndex = parseInt(li.dataset.index);
-                    if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
-
-                    const rect = li.getBoundingClientRect();
-                    const midY = rect.top + rect.height / 2;
-                    let insertAt = e.clientY < midY ? targetIndex : targetIndex + 1;
-                    if (dragSrcIndex < insertAt) insertAt--;
-
-                    const moved = selectedFiles.splice(dragSrcIndex, 1)[0];
-                    selectedFiles.splice(insertAt, 0, moved);
-                    dragSrcIndex = null;
-                    renderFileList();
-                });
-
-                fileList.appendChild(li);
-            });
-        }
-
-        async function mergePDFs() {
-            if (selectedFiles.length === 0) return;
-            
-            try {
-                const mergedPdf = await PDFLib.PDFDocument.create();
+        function handleFiles(e) {
+            const files = Array.from(e.target.files);
+            const newFiles = [];
+            for (const f of files) {
+                const isPdf = f.type === 'application/pdf';
+                const isJpg = f.type === 'image/jpeg' || f.type === 'image/jpg' || f.name.toLowerCase().endsWith('.jpg') || f.name.toLowerCase().endsWith('.jpeg');
                 
-                for (const item of selectedFiles) {
-                    const bytes = await item.file.arrayBuffer();
-                    const pdf = await PDFLib.PDFDocument.load(bytes);
-                    const pageCount = pdf.getPageCount();
-                    const pagesToRemove = parsePageNumbers(item.removePages, pageCount);
-                    
-                    const pagesToCopy = [];
-                    for (let i = 0; i < pageCount; i++) {
-                        if (!pagesToRemove.has(i)) {
-                            pagesToCopy.push(i);
-                        }
-                    }
+                if (isPdf) {
+                    newFiles.push({ file: f, removePages: '', isImage: false });
+                  } else if (isJpg) {
+                      newFiles.push({ file: f, removePages: '', isImage: true });
+                  }
+              }
+              selectedFiles = [...selectedFiles, ...newFiles];
+              renderFileList();
+          }
 
-                    if (pagesToCopy.length > 0) {
-                        const copiedPages = await mergedPdf.copyPages(pdf, pagesToCopy);
-                        copiedPages.forEach((page) => mergedPdf.addPage(page));
-                    }
-                }
+          function updateRemovePages(index, value) {
+              selectedFiles[index].removePages = value;
+          }
 
-                const pdfBytes = await mergedPdf.save();
-                const prefix = selectedFiles[0].file.name.replace('.pdf', '');
-                downloadBlob(pdfBytes, prefix + '_merged.pdf', 'application/pdf');
-            } catch (err) {
-                console.error(err);
-                alert("Error merging PDFs. Ensure files aren't encrypted.");
-            }
-        }
+          function parsePageNumbers(input, maxPage) {
+              const pages = new Set();
+              if (!input || !input.trim()) return pages;
+              
+              const parts = input.split(',');
+              for (const part of parts) {
+                  const range = part.trim().split('-');
+                  if (range.length === 1) {
+                      const num = parseInt(range[0], 10);
+                      if (!isNaN(num) && num >= 1 && num <= maxPage) {
+                          pages.add(num - 1); // 0-indexed
+                      }
+                  } else if (range.length === 2) {
+                      const start = parseInt(range[0], 10);
+                      const end = parseInt(range[1], 10);
+                      if (!isNaN(start) && !isNaN(end)) {
+                          const s = Math.max(1, Math.min(start, end));
+                          const e = Math.min(maxPage, Math.max(start, end));
+                          for (let i = s; i <= e; i++) {
+                              pages.add(i - 1);
+                          }
+                      }
+                  }
+              }
+              return pages;
+          }
 
-        async function splitPDFs() {
-            if (selectedFiles.length === 0) return;
-            const zip = new JSZip();
-            
-            try {
-                for (const item of selectedFiles) {
-                    const bytes = await item.file.arrayBuffer();
-                    const pdf = await PDFLib.PDFDocument.load(bytes);
-                    const pageCount = pdf.getPageCount();
-                    const fileNameBase = item.file.name.replace('.pdf', '');
-                    const pagesToRemove = parsePageNumbers(item.removePages, pageCount);
+          function removeFile(index) {
+              selectedFiles.splice(index, 1);
+              renderFileList();
+          }
 
-                    let outputPageIndex = 1;
-                    for (let i = 0; i < pageCount; i++) {
-                        if (pagesToRemove.has(i)) continue;
+          let dragSrcIndex = null;
 
-                        const newPdf = await PDFLib.PDFDocument.create();
-                        const [page] = await newPdf.copyPages(pdf, [i]);
-                        newPdf.addPage(page);
-                        const pageBytes = await newPdf.save();
-                        zip.file(`${fileNameBase}_page_${outputPageIndex}.pdf`, pageBytes);
-                        outputPageIndex++;
-                    }
-                }
+          function renderFileList() {
+              fileList.innerHTML = '';
+              if (selectedFiles.length > 0) {
+                  fileListContainer.classList.remove('hidden');
+              } else {
+                  fileListContainer.classList.add('hidden');
+              }
 
-                const content = await zip.generateAsync({ type: "blob" });
-                const prefix = selectedFiles[0].file.name.replace('.pdf', '');
-                downloadBlob(content, prefix + '_split.zip', 'application/zip');
-            } catch (err) {
-                console.error(err);
-                alert("Error splitting PDFs.");
-            }
-        }
+              selectedFiles.forEach((item, index) => {
+                  const file = item.file;
+                  const li = document.createElement('li');
+                  li.className = "file-item flex flex-col p-4 bg-white/[0.03] rounded-xl border border-slate-700/60 gap-3";
+                  li.draggable = true;
+                  li.dataset.index = index;
 
-        function downloadBlob(data, fileName, type) {
-            const blob = new Blob([data], { type: type });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-        // ─── PDF Compression ────────────────────────────────────────────────
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                  const isImage = item.isImage;
+                  const iconColorClass = isImage ? "text-amber-400 bg-amber-500/15" : "text-indigo-400 bg-indigo-500/15";
+                  const fileIcon = isImage ? "fa-solid fa-file-image" : "fa-solid fa-file-pdf";
 
-        function setCompressProgress(pct, status) {
-            document.getElementById('compressProgress').classList.remove('hidden');
-            document.getElementById('compressBar').style.width = pct + '%';
-            document.getElementById('compressPercent').textContent = Math.round(pct) + '%';
-            if (status) document.getElementById('compressStatus').textContent = status;
-        }
+                  li.innerHTML = `
+                      <div class="flex items-center justify-between gap-2">
+                          <div class="flex items-center space-x-2 sm:space-x-3 overflow-hidden">
+                              <span class="drag-handle px-1 sm:px-2" title="Drag to reorder">⠿</span>
+                              <span class="${iconColorClass} w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg font-bold text-xs flex-shrink-0">${index + 1}</span>
+                              <p class="truncate font-medium text-slate-200 text-sm sm:text-base">${file.name}</p>
+                              <span class="text-xs text-slate-500 text-nowrap hidden sm:inline">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                          </div>
+                          <div class="flex items-center gap-3 flex-shrink-0">
+                              <span class="text-xs text-slate-500 text-nowrap sm:hidden">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                              <button onclick="removeFile(${index})" class="text-slate-600 hover:text-red-400 transition-colors">
+                                  <i class="fa-solid fa-trash-can"></i>
+                              </button>
+                          </div>
+                      </div>
+                      ${!isImage ? `
+                      <div class="flex flex-col sm:flex-row sm:items-center gap-2 pl-2 sm:pl-11 mt-1 sm:mt-0">
+                          <label class="text-slate-400 text-xs flex-shrink-0"><i class="fa-solid fa-minus-circle mr-1"></i>Remove Pages:</label>
+                          <input type="text" placeholder="e.g. 1, 3, 5-7" class="bg-slate-900/60 border border-slate-700/60 rounded px-2 py-1 text-xs outline-none text-slate-200 placeholder-slate-600 w-full sm:flex-1" value="${item.removePages}" oninput="updateRemovePages(${index}, this.value)">
+                      </div>
+                      ` : `
+                      <div class="flex flex-col sm:flex-row sm:items-center gap-2 pl-2 sm:pl-11 mt-1 sm:mt-0 text-slate-400 text-xs">
+                          <span><i class="fa-solid ${fileIcon} mr-1 text-amber-400"></i> JPG image page (will be added as a page)</span>
+                      </div>
+                      `}
+                  `;
 
-        async function renderPDFAtQuality(pdfJsDoc, numPages, pagesToRemove, quality, scale, onPage) {
-            const newPdf = await PDFLib.PDFDocument.create();
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            let outputPageCount = 0;
-            const totalOutputPages = numPages - pagesToRemove.size;
+                  // Drag events
+                  li.addEventListener('dragstart', (e) => {
+                      if (e.target.tagName.toLowerCase() === 'input') {
+                          e.preventDefault();
+                          return;
+                      }
+                      dragSrcIndex = index;
+                      li.classList.add('dragging');
+                      e.dataTransfer.effectAllowed = 'move';
+                  });
 
-            for (let i = 1; i <= numPages; i++) {
-                if (pagesToRemove.has(i - 1)) continue;
-                outputPageCount++;
-                const page = await pdfJsDoc.getPage(i);
-                const vp = page.getViewport({ scale });
-                canvas.width  = Math.round(vp.width);
-                canvas.height = Math.round(vp.height);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                await page.render({ canvasContext: ctx, viewport: vp }).promise;
-                const dataUrl = canvas.toDataURL('image/jpeg', quality);
-                const b64 = dataUrl.split(',')[1];
-                const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-                const img = await newPdf.embedJpg(bytes);
-                const pg  = newPdf.addPage([vp.width, vp.height]);
-                pg.drawImage(img, { x: 0, y: 0, width: vp.width, height: vp.height });
-                if (onPage) onPage(outputPageCount, totalOutputPages);
-            }
-            return await newPdf.save();
-        }
+                  li.addEventListener('dragend', () => {
+                      li.classList.remove('dragging');
+                      document.querySelectorAll('.file-item').forEach(el => {
+                          el.classList.remove('drag-over-top', 'drag-over-bottom');
+                      });
+                  });
 
-        async function compressSinglePDF(item, targetBytes, onProgress) {
-            const arrayBuf = await item.file.arrayBuffer();
-            const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
-            const numPages = pdfJsDoc.numPages;
-            const pagesToRemove = parsePageNumbers(item.removePages, numPages);
-            const totalOutputPages = numPages - pagesToRemove.size;
+                  li.addEventListener('dragover', (e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                      const rect = li.getBoundingClientRect();
+                      const midY = rect.top + rect.height / 2;
+                      document.querySelectorAll('.file-item').forEach(el => {
+                          el.classList.remove('drag-over-top', 'drag-over-bottom');
+                      });
+                      li.classList.add(e.clientY < midY ? 'drag-over-top' : 'drag-over-bottom');
+                  });
 
-            if (totalOutputPages === 0) {
-                const emptyPdf = await PDFLib.PDFDocument.create();
-                return await emptyPdf.save();
-            }
+                  li.addEventListener('dragleave', () => {
+                      li.classList.remove('drag-over-top', 'drag-over-bottom');
+                  });
 
-            // Phase 1: binary search on JPEG quality at scale 1.5
-            let scale = 1.5;
-            let lo = 0.05, hi = 0.95, bestResult = null;
-            for (let iter = 0; iter < 8; iter++) {
-                const q = (lo + hi) / 2;
-                onProgress(0, `Pass ${iter + 1}: testing quality ${(q * 100).toFixed(0)}%…`);
-                const result = await renderPDFAtQuality(pdfJsDoc, numPages, pagesToRemove, q, scale,
-                    (pg, total) => onProgress((pg / total) * 85, `Pass ${iter + 1}: page ${pg}/${total}`));
-                if (result.byteLength <= targetBytes) {
-                    bestResult = result;
-                    lo = q;
-                } else {
-                    hi = q;
-                }
-                if (hi - lo < 0.04) break;
-            }
+                  li.addEventListener('drop', (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const targetIndex = parseInt(li.dataset.index);
+                      if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
 
-            // Phase 2: if still over target, reduce render scale too
-            if (!bestResult) {
-                for (const s of [1.2, 0.9, 0.7, 0.5]) {
-                    onProgress(85, `Reducing resolution (scale ${s})…`);
-                    const result = await renderPDFAtQuality(pdfJsDoc, numPages, pagesToRemove, 0.5, s,
-                        (pg, total) => onProgress(85 + (pg / total) * 13, `Scale ${s}: page ${pg}/${total}`));
-                    if (result.byteLength <= targetBytes) { bestResult = result; break; }
-                    bestResult = result; // keep last attempt as best effort
-                }
-            }
+                      const rect = li.getBoundingClientRect();
+                      const midY = rect.top + rect.height / 2;
+                      let insertAt = e.clientY < midY ? targetIndex : targetIndex + 1;
+                      if (dragSrcIndex < insertAt) insertAt--;
 
-            return bestResult;
-        }
+                      const moved = selectedFiles.splice(dragSrcIndex, 1)[0];
+                      selectedFiles.splice(insertAt, 0, moved);
+                      dragSrcIndex = null;
+                      renderFileList();
+                  });
 
-        async function compressPDFs() {
-            if (selectedFiles.length === 0) return;
-            const targetMBVal = parseFloat(document.getElementById('targetSizeMB').value);
-            if (!targetMBVal || targetMBVal <= 0) {
-                alert('Please enter a valid target size in MB.');
-                return;
-            }
-            const targetBytes = targetMBVal * 1024 * 1024;
-            const btn = document.getElementById('compressBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Working…';
+                  fileList.appendChild(li);
+              });
+          }
 
-            try {
-                if (selectedFiles.length === 1) {
-                    const compressed = await compressSinglePDF(selectedFiles[0], targetBytes,
-                        (pct, status) => setCompressProgress(pct, status));
-                    const actualMB = (compressed.byteLength / 1024 / 1024).toFixed(2);
-                    setCompressProgress(100, `Done! Output: ${actualMB} MB`);
-                    const prefix = selectedFiles[0].file.name.replace('.pdf', '');
-                    downloadBlob(compressed, prefix + '_compressed.pdf', 'application/pdf');
-                } else {
-                    const zip = new JSZip();
-                    for (let i = 0; i < selectedFiles.length; i++) {
-                        const item = selectedFiles[i];
-                        setCompressProgress(0, `File ${i + 1}/${selectedFiles.length}: ${item.file.name}`);
-                        const compressed = await compressSinglePDF(item, targetBytes,
-                            (pct, status) => setCompressProgress(pct, `[${i+1}/${selectedFiles.length}] ${status}`));
-                        const base = item.file.name.replace('.pdf', '');
-                        zip.file(base + '_compressed.pdf', compressed);
-                    }
-                    setCompressProgress(100, 'Building ZIP…');
-                    const content = await zip.generateAsync({ type: 'blob' });
-                    setCompressProgress(100, `Done! ${selectedFiles.length} files compressed.`);
-                    const prefix = selectedFiles[0].file.name.replace('.pdf', '');
-                    downloadBlob(content, prefix + '_compressed.zip', 'application/zip');
-                }
-            } catch (err) {
-                console.error(err);
-                document.getElementById('compressStatus').textContent = 'Error: ' + err.message;
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-compress"></i> Compress &amp; Download';
-            }
-        }
-    </script>
-</body>
-</html>
+          function setProcessingState(isProcessing, activeBtnId, loadingText) {
+              const mergeBtn = document.getElementById('mergeBtn');
+              const splitBtn = document.getElementById('splitBtn');
+              
+              const buttons = [mergeBtn, splitBtn];
+              
+              if (isProcessing) {
+                  buttons.forEach(btn => { if (btn) btn.disabled = true; });
+                  const activeBtn = document.getElementById(activeBtnId);
+                  if (activeBtn) {
+                      activeBtn.dataset.originalHtml = activeBtn.innerHTML;
+                      activeBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> ${loadingText}`;
+                  }
+              } else {
+                  buttons.forEach(btn => { if (btn) btn.disabled = false; });
+                  const activeBtn = document.getElementById(activeBtnId);
+                  if (activeBtn && activeBtn.dataset.originalHtml) {
+                      activeBtn.innerHTML = activeBtn.dataset.originalHtml;
+                  }
+              }
+          }
+
+          function showToast(message, type = 'success') {
+              const toastContainer = document.getElementById('toastContainer');
+              if (!toastContainer) return;
+              const toast = document.createElement('div');
+              toast.className = `glass flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg transition-all duration-300 transform translate-y-2 opacity-0 text-sm pointer-events-auto max-w-sm`;
+              if (type === 'success') {
+                  toast.classList.add('border-emerald-500/20', 'bg-emerald-500/5', 'text-emerald-400');
+              } else {
+                  toast.classList.add('border-rose-500/20', 'bg-rose-500/5', 'text-rose-400');
+              }
+              
+              const icon = type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation';
+              toast.innerHTML = `
+                  <i class="${icon} text-base flex-shrink-0"></i>
+                  <span class="font-medium">${message}</span>
+              `;
+              
+              toastContainer.appendChild(toast);
+              
+              setTimeout(() => {
+                  toast.classList.remove('translate-y-2', 'opacity-0');
+              }, 10);
+              
+              setTimeout(() => {
+                  toast.classList.add('translate-y-2', 'opacity-0');
+                  setTimeout(() => {
+                      toast.remove();
+                  }, 300);
+              }, 3000);
+          }
+
+          function getTimestampSuffix() {
+              const now = new Date();
+              const yy = String(now.getFullYear()).slice(-2);
+              const mm = String(now.getMonth() + 1).padStart(2, '0');
+              const dd = String(now.getDate()).padStart(2, '0');
+              const hh = String(now.getHours()).padStart(2, '0');
+              const min = String(now.getMinutes()).padStart(2, '0');
+              const ss = String(now.getSeconds()).padStart(2, '0');
+              return `${yy}${mm}${dd}${hh}${min}${ss}`;
+          }
+          function addImagePageToPdf(pdfDoc, img) {
+              const A4_WIDTH = 595.28;
+              const A4_HEIGHT = 841.89;
+              const MARGIN = 36; // 0.5 inch in points (72 points/inch)
+              
+              const maxW = A4_WIDTH - 2 * MARGIN;
+              const maxH = A4_HEIGHT - 2 * MARGIN;
+              
+              const scale = Math.min(maxW / img.width, maxH / img.height);
+              const wScaled = img.width * scale;
+              const hScaled = img.height * scale;
+              
+              const x = MARGIN + (maxW - wScaled) / 2;
+              const y = MARGIN + (maxH - hScaled) / 2;
+              
+              const page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
+              page.drawImage(img, {
+                  x: x,
+                  y: y,
+                  width: wScaled,
+                  height: hScaled
+              });
+              return page;
+          }
+
+          async function mergePDFs() {
+              if (selectedFiles.length === 0) return;
+              
+              const targetMBVal = parseFloat(document.getElementById('targetSizeMB').value);
+              const shouldCompress = targetMBVal && targetMBVal > 0;
+              
+              const progressEl = document.getElementById('compressProgress');
+              if (progressEl) progressEl.classList.add('hidden');
+              
+              setProcessingState(true, 'mergeBtn', shouldCompress ? 'Compressing…' : 'Combining…');
+              
+              try {
+                  const mergedPdf = await PDFLib.PDFDocument.create();
+                  
+                  for (const item of selectedFiles) {
+                      const bytes = await item.file.arrayBuffer();
+                      if (item.isImage) {
+                          const img = await mergedPdf.embedJpg(bytes);
+                          addImagePageToPdf(mergedPdf, img);
+                      } else {
+                          const pdf = await PDFLib.PDFDocument.load(bytes);
+                          const pageCount = pdf.getPageCount();
+                          const pagesToRemove = parsePageNumbers(item.removePages, pageCount);
+                          
+                          const pagesToCopy = [];
+                          for (let i = 0; i < pageCount; i++) {
+                              if (!pagesToRemove.has(i)) {
+                                  pagesToCopy.push(i);
+                              }
+                          }
+
+                          if (pagesToCopy.length > 0) {
+                              const copiedPages = await mergedPdf.copyPages(pdf, pagesToCopy);
+                              copiedPages.forEach((page) => mergedPdf.addPage(page));
+                          }
+                      }
+                  }
+
+                  let pdfBytes = await mergedPdf.save();
+                  let actualMB = (pdfBytes.byteLength / 1024 / 1024).toFixed(2);
+                  
+                  if (shouldCompress) {
+                      const targetBytes = targetMBVal * 1024 * 1024;
+                      const pseudoItem = {
+                          file: new File([pdfBytes], "merged.pdf", { type: "application/pdf" }),
+                          isImage: false,
+                          removePages: ""
+                      };
+                      
+                      pdfBytes = await compressSinglePDF(pseudoItem, targetBytes,
+                          (pct, status) => setCompressProgress(pct, status));
+                      actualMB = (pdfBytes.byteLength / 1024 / 1024).toFixed(2);
+                      setCompressProgress(100, `Done! Output: ${actualMB} MB`);
+                      showToast(`Done! Combined and compressed to ${actualMB} MB.`);
+                  } else {
+                      showToast('Done! Files combined successfully.');
+                  }
+
+                  const prefix = selectedFiles[0].file.name.replace(/\.[^/.]+$/, "");
+                  const suffix = getTimestampSuffix();
+                  const filename = shouldCompress ? `${prefix}_compressed_${suffix}.pdf` : `${prefix}_${suffix}.pdf`;
+                  downloadBlob(pdfBytes, filename, 'application/pdf');
+              } catch (err) {
+                  console.error(err);
+                  if (shouldCompress) {
+                      document.getElementById('compressStatus').textContent = 'Error: ' + err.message;
+                      showToast('Error compressing PDF: ' + err.message, 'error');
+                  } else {
+                      showToast('Error merging files. Ensure PDFs aren\'t encrypted.', 'error');
+                  }
+              } finally {
+                  setProcessingState(false, 'mergeBtn');
+              }
+          }
+
+          async function splitPDFs() {
+              if (selectedFiles.length === 0) return;
+              setProcessingState(true, 'splitBtn', 'Splitting…');
+              const zip = new JSZip();
+              
+              try {
+                  for (const item of selectedFiles) {
+                      const bytes = await item.file.arrayBuffer();
+                      const fileNameBase = item.file.name.replace(/\.[^/.]+$/, "");
+                      
+                      if (item.isImage) {
+                          const newPdf = await PDFLib.PDFDocument.create();
+                          const img = await newPdf.embedJpg(bytes);
+                          addImagePageToPdf(newPdf, img);
+                          const pageBytes = await newPdf.save();
+                          zip.file(`${fileNameBase}.pdf`, pageBytes);
+                      } else {
+                          const pdf = await PDFLib.PDFDocument.load(bytes);
+                          const pageCount = pdf.getPageCount();
+                          const pagesToRemove = parsePageNumbers(item.removePages, pageCount);
+
+                          let outputPageIndex = 1;
+                          for (let i = 0; i < pageCount; i++) {
+                              if (pagesToRemove.has(i)) continue;
+
+                              const newPdf = await PDFLib.PDFDocument.create();
+                              const [page] = await newPdf.copyPages(pdf, [i]);
+                              newPdf.addPage(page);
+                              const pageBytes = await newPdf.save();
+                              zip.file(`${fileNameBase}_page_${outputPageIndex}.pdf`, pageBytes);
+                              outputPageIndex++;
+                          }
+                      }
+                  }
+
+                  const content = await zip.generateAsync({ type: "blob" });
+                  const prefix = selectedFiles[0].file.name.replace(/\.[^/.]+$/, "");
+                  downloadBlob(content, prefix + '_split.zip', 'application/zip');
+                  showToast('Done! PDF pages split successfully.');
+              } catch (err) {
+                  console.error(err);
+                  showToast('Error splitting PDFs.', 'error');
+              } finally {
+                  setProcessingState(false, 'splitBtn');
+              }
+          }
+
+          function downloadBlob(data, fileName, type) {
+              const blob = new Blob([data], { type: type });
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = fileName;
+              a.click();
+              window.URL.revokeObjectURL(url);
+          }
+          // ─── PDF Compression ────────────────────────────────────────────────
+          pdfjsLib.GlobalWorkerOptions.workerSrc =
+              'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+          function setCompressProgress(pct, status) {
+              document.getElementById('compressProgress').classList.remove('hidden');
+              document.getElementById('compressBar').style.width = pct + '%';
+              document.getElementById('compressPercent').textContent = Math.round(pct) + '%';
+              if (status) document.getElementById('compressStatus').textContent = status;
+          }
+
+          async function renderPDFAtQuality(pdfJsDoc, numPages, pagesToRemove, quality, scale, onPage) {
+              const newPdf = await PDFLib.PDFDocument.create();
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              let outputPageCount = 0;
+              const totalOutputPages = numPages - pagesToRemove.size;
+
+              for (let i = 1; i <= numPages; i++) {
+                  if (pagesToRemove.has(i - 1)) continue;
+                  outputPageCount++;
+                  const page = await pdfJsDoc.getPage(i);
+                  const vp = page.getViewport({ scale });
+                  canvas.width  = Math.round(vp.width);
+                  canvas.height = Math.round(vp.height);
+                  ctx.clearRect(0, 0, canvas.width, canvas.height);
+                  await page.render({ canvasContext: ctx, viewport: vp }).promise;
+                  const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                  const b64 = dataUrl.split(',')[1];
+                  const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+                  const img = await newPdf.embedJpg(bytes);
+                  const pg  = newPdf.addPage([vp.width, vp.height]);
+                  pg.drawImage(img, { x: 0, y: 0, width: vp.width, height: vp.height });
+                  if (onPage) onPage(outputPageCount, totalOutputPages);
+              }
+              return await newPdf.save();
+          }
+
+          async function compressSinglePDF(item, targetBytes, onProgress) {
+              let arrayBuf;
+              if (item.isImage) {
+                  const bytes = await item.file.arrayBuffer();
+                  const newPdf = await PDFLib.PDFDocument.create();
+                  const img = await newPdf.embedJpg(bytes);
+                  addImagePageToPdf(newPdf, img);
+                  const pdfBytes = await newPdf.save();
+                  arrayBuf = pdfBytes.buffer;
+              } else {
+                  arrayBuf = await item.file.arrayBuffer();
+              }
+              const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
+              const numPages = pdfJsDoc.numPages;
+              const pagesToRemove = parsePageNumbers(item.removePages, numPages);
+              const totalOutputPages = numPages - pagesToRemove.size;
+
+              if (totalOutputPages === 0) {
+                  const emptyPdf = await PDFLib.PDFDocument.create();
+                  return await emptyPdf.save();
+              }
+
+              // Phase 1: binary search on JPEG quality at scale 1.5
+              let scale = 1.5;
+              let lo = 0.05, hi = 0.95, bestResult = null;
+              for (let iter = 0; iter < 8; iter++) {
+                  const q = (lo + hi) / 2;
+                  onProgress(0, `Pass ${iter + 1}: testing quality ${(q * 100).toFixed(0)}%…`);
+                  const result = await renderPDFAtQuality(pdfJsDoc, numPages, pagesToRemove, q, scale,
+                      (pg, total) => onProgress((pg / total) * 85, `Pass ${iter + 1}: page ${pg}/${total}`));
+                  if (result.byteLength <= targetBytes) {
+                      bestResult = result;
+                      lo = q;
+                  } else {
+                      hi = q;
+                  }
+                  if (hi - lo < 0.04) break;
+              }
+
+              // Phase 2: if still over target, reduce render scale too
+              if (!bestResult) {
+                  for (const s of [1.2, 0.9, 0.7, 0.5]) {
+                      onProgress(85, `Reducing resolution (scale ${s})…`);
+                      const result = await renderPDFAtQuality(pdfJsDoc, numPages, pagesToRemove, 0.5, s,
+                          (pg, total) => onProgress(85 + (pg / total) * 13, `Scale ${s}: page ${pg}/${total}`));
+                      if (result.byteLength <= targetBytes) { bestResult = result; break; }
+                      bestResult = result; // keep last attempt as best effort
+                  }
+              }
+
+              return bestResult;
+          }
+      </script>
+  </body>
+  </html>
