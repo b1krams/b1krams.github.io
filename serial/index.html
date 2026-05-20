@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serial Monitor — SwissWeb</title>
+    <meta name="description" content="Real-time USB serial terminal. Connect any device, choose baud rate, send and receive data.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        /* ── Design tokens ─────────────────────────────────── */
+        :root {
+            --bg:         #04070f;
+            --bg2:        #070c18;
+            --glass:      rgba(255,255,255,0.035);
+            --glass-h:    rgba(255,255,255,0.06);
+            --border:     rgba(255,255,255,0.08);
+            --border-h:   rgba(255,255,255,0.15);
+
+            --violet:     #7c3aed;
+            --indigo:     #6366f1;
+            --purple:     #a855f7;
+            --glow:       rgba(124,58,237,0.35);
+
+            --success:    #10b981;
+            --success-bg: rgba(16,185,129,0.12);
+            --success-b:  rgba(16,185,129,0.3);
+
+            --danger:     #f43f5e;
+            --danger-bg:  rgba(244,63,94,0.12);
+            --danger-b:   rgba(244,63,94,0.3);
+
+            --text:       #e2e8f0;
+            --muted:      #64748b;
+            --faint:      rgba(255,255,255,0.25);
+
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+
+            /* terminal colors */
+            --c-data: #67e8f9;
+            --c-sent: #86efac;
+            --c-sys:  #a78bfa;
+            --c-err:  #f43f5e;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        [v-cloak] { display: none !important; }
+
+        html, body {
+            height: 100%;
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        /* ── Noise texture overlay ─────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Grid lines bg ─────────────────────────────────── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #app {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ══════════════════════════════════════════════════════
+           HEADER
+        ══════════════════════════════════════════════════════ */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(7,12,24,0.85);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            flex-shrink: 0;
+        }
+
+        /* Accent bar at very top */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--violet), var(--indigo), var(--purple));
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--violet), var(--indigo));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 0 16px var(--glow);
+            flex-shrink: 0;
+        }
+
+        .brand-copy {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-name {
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text);
+            line-height: 1.1;
+        }
+
+        .brand-tagline {
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* separator */
+        .h-sep {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        /* Status pill */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.28rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border: 1px solid var(--border);
+            background: var(--glass);
+            color: var(--muted);
+            transition: all 0.4s ease;
+        }
+        .status-pill.connected {
+            background: var(--success-bg);
+            border-color: var(--success-b);
+            color: var(--success);
+            box-shadow: 0 0 12px rgba(16,185,129,0.2);
+        }
+        .status-pill.error {
+            background: var(--danger-bg);
+            border-color: var(--danger-b);
+            color: var(--danger);
+        }
+        .pill-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            flex-shrink: 0;
+        }
+        .status-pill.connected .pill-dot {
+            animation: blink 1.8s ease-in-out infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+        /* not-supported banner */
+        .no-serial {
+            margin-left: auto;
+            padding: 0.3rem 0.9rem;
+            border-radius: 6px;
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-b);
+            color: var(--danger);
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .no-serial a { color: inherit; }
+
+        /* ══════════════════════════════════════════════════════
+           TOOLBAR
+        ══════════════════════════════════════════════════════ */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            padding: 0.5rem 1.5rem;
+            background: rgba(4,7,15,0.7);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            row-gap: 0.4rem;
+        }
+        .toolbar.locked { opacity: 0.4; pointer-events: none; }
+
+        /* Groups inside toolbar */
+        .tg {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0 0.6rem;
+            border-right: 1px solid var(--border);
+        }
+        .tg:first-child { padding-left: 0; }
+        .tg:last-child  { border-right: none; padding-right: 0; margin-left: auto; }
+
+        .tg-label {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-right: 0.2rem;
+            user-select: none;
+        }
+
+        /* Selects */
+        select {
+            appearance: none;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: var(--sans);
+            font-size: 0.78rem;
+            font-weight: 500;
+            padding: 0.3rem 1.6rem 0.3rem 0.6rem;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.45rem center;
+        }
+        select:hover  { border-color: var(--border-h); background-color: var(--glass-h); }
+        select:focus  { border-color: var(--indigo); outline: none; box-shadow: 0 0 0 2px rgba(99,102,241,0.2); }
+        select:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        select.wide { min-width: 175px; }
+        select.sm   { min-width: 58px; }
+        select.med  { min-width: 90px; }
+
+        /* Icon refresh button */
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--glass);
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .icon-btn:hover:not(:disabled) { background: var(--glass-h); border-color: var(--border-h); color: var(--text); }
+        .icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .icon-btn.spin svg { animation: rotateSpin 0.7s linear infinite; }
+        @keyframes rotateSpin { to { transform: rotate(360deg); } }
+
+        /* Action buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.32rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            font-family: var(--sans);
+            font-size: 0.76rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            letter-spacing: 0.01em;
+        }
+        .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .btn-connect {
+            background: linear-gradient(135deg, var(--violet), var(--indigo));
+            color: #fff;
+            box-shadow: 0 2px 10px var(--glow);
+        }
+        .btn-connect:hover:not(:disabled) {
+            box-shadow: 0 4px 20px var(--glow);
+            transform: translateY(-1px);
+        }
+
+        .btn-disconnect {
+            background: var(--danger-bg);
+            border-color: var(--danger-b);
+            color: var(--danger);
+        }
+        .btn-disconnect:hover:not(:disabled) { background: rgba(244,63,94,0.22); transform: translateY(-1px); }
+
+        .btn-ghost {
+            background: var(--glass);
+            border-color: var(--border);
+            color: var(--muted);
+        }
+        .btn-ghost:hover:not(:disabled) { background: var(--glass-h); border-color: var(--border-h); color: var(--text); }
+
+        /* ══════════════════════════════════════════════════════
+           WORKSPACE  (stats sidebar + terminal)
+        ══════════════════════════════════════════════════════ */
+        .workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ── Stats sidebar ─────────────────────────────────── */
+        .sidebar {
+            width: 130px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border-right: 1px solid var(--border);
+            background: rgba(4,7,15,0.5);
+            padding: 1rem 0.85rem;
+            gap: 0.9rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .stat-key {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .stat-val {
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .stat-val.highlight { color: var(--c-sys); }
+
+        /* ── Terminal pane ─────────────────────────────────── */
+        .terminal-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg2);
+        }
+
+        /* Terminal toolbar */
+        .term-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.45rem 1rem;
+            background: rgba(4,7,15,0.6);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .term-bar-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .term-bar-label::before {
+            content: '';
+            display: block;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--indigo);
+            box-shadow: 0 0 6px var(--indigo);
+        }
+
+        .line-badge {
+            margin-left: auto;
+            font-size: 0.65rem;
+            font-family: var(--mono);
+            color: var(--muted);
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.1rem 0.45rem;
+        }
+
+        /* Auto-scroll toggle */
+        .autoscroll {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.68rem;
+            font-weight: 500;
+            color: var(--muted);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .sw { position: relative; width: 28px; height: 16px; }
+        .sw input { opacity: 0; width: 0; height: 0; }
+        .sw-track {
+            position: absolute; inset: 0;
+            background: var(--border);
+            border-radius: 16px;
+            transition: background 0.2s;
+        }
+        .sw-track::before {
+            content: '';
+            position: absolute;
+            width: 10px; height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            top: 3px; left: 3px;
+            transition: transform 0.2s;
+        }
+        .sw input:checked + .sw-track { background: var(--indigo); }
+        .sw input:checked + .sw-track::before { transform: translateX(12px); }
+
+        /* Terminal output */
+        .term-output {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem 1.1rem;
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            line-height: 1.75;
+            scroll-behavior: smooth;
+        }
+
+        .term-output::-webkit-scrollbar { width: 5px; }
+        .term-output::-webkit-scrollbar-track { background: transparent; }
+        .term-output::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+        .term-output::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+        /* Empty state */
+        .term-empty {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            color: var(--muted);
+            opacity: 0.5;
+            user-select: none;
+        }
+        .term-empty-icon { font-size: 2.5rem; filter: grayscale(1); }
+        .term-empty-text { font-size: 0.8rem; font-weight: 500; letter-spacing: 0.03em; }
+
+        /* Lines */
+        .t-line {
+            display: flex;
+            gap: 1rem;
+            padding: 0.06rem 0;
+            animation: slideIn 0.1s ease;
+        }
+        @keyframes slideIn { from { opacity:0; transform: translateY(2px); } to { opacity:1; transform:none; } }
+
+        .t-ts {
+            flex-shrink: 0;
+            color: rgba(100,116,139,0.5);
+            font-size: 0.72rem;
+            padding-top: 0.15rem;
+            letter-spacing: 0.01em;
+        }
+
+        .t-text { word-break: break-all; color: var(--c-data); }
+        .t-text.sys  { color: var(--c-sys); font-style: italic; }
+        .t-text.err  { color: var(--c-err); }
+        .t-text.sent { color: var(--c-sent); }
+
+        /* ── Send bar ──────────────────────────────────────── */
+        .send-bar {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            border-top: 1px solid var(--border);
+            background: rgba(4,7,15,0.8);
+            flex-shrink: 0;
+        }
+
+        .send-input {
+            flex: 1;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            padding: 0.42rem 0.85rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+        .send-input::placeholder { color: var(--muted); }
+        .send-input:focus { border-color: var(--indigo); background: var(--glass-h); box-shadow: 0 0 0 2px rgba(99,102,241,0.15); }
+        .send-input:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* ── Responsive ────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .sidebar { width: 100px; padding: 0.75rem 0.6rem; }
+            .toolbar { padding: 0.4rem 0.75rem; }
+            .tg { padding: 0 0.4rem; gap: 0.25rem; }
+        }
+        @media (max-width: 580px) {
+            .sidebar { display: none; }
+            .tg-label { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+
+    <!-- ═══════════ HEADER ═══════════ -->
+    <header class="header">
+        <div class="brand">
+            <div class="brand-logo">📡</div>
+            <div class="brand-copy">
+                <span class="brand-name">Serial Monitor</span>
+                <span class="brand-tagline">Real-time USB terminal</span>
+            </div>
+        </div>
+
+        <div class="h-sep"></div>
+
+        <div class="status-pill" :class="{ connected, error: hasError }">
+            <span class="pill-dot"></span>
+            {{ statusText }}
+        </div>
+
+        <div class="no-serial" v-if="!serialSupported">
+            ⚠ Web Serial not supported —
+            use <a href="https://www.google.com/chrome/" target="_blank">Chrome</a> /
+            <a href="https://www.microsoft.com/edge" target="_blank">Edge</a> 89+
+        </div>
+    </header>
+
+    <!-- ═══════════ TOOLBAR ═══════════ -->
+    <div class="toolbar" :class="{ locked: !serialSupported }">
+
+        <!-- Connection group -->
+        <div class="tg">
+            <span class="tg-label">Port</span>
+            <select class="wide" v-model="selPortVal" :disabled="connected">
+                <option value="__new__">↗ Request New Port…</option>
+                <option v-for="(lbl, i) in portLabels" :key="i" :value="String(i)">{{ lbl }}</option>
+            </select>
+            <button class="icon-btn" :class="{ spin: refreshing }" :disabled="connected" @click="refreshPorts" title="Refresh ports">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                    <path d="M3.51 9a9 9 0 0114.36-3.36L23 10M1 14l5.13 4.36A9 9 0 0020.49 15"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Settings group -->
+        <div class="tg">
+            <span class="tg-label">Baud</span>
+            <select class="med" v-model="selBaud" :disabled="connected">
+                <option v-for="b in BAUD_RATES" :key="b" :value="b">{{ b }}</option>
+            </select>
+        </div>
+
+        <div class="tg">
+            <span class="tg-label">Frame</span>
+            <select class="sm" v-model="selData"   :disabled="connected" title="Data bits">
+                <option value="7">7</option><option value="8">8</option>
+            </select>
+            <select class="sm" v-model="selStop"   :disabled="connected" title="Stop bits">
+                <option value="1">1</option><option value="2">2</option>
+            </select>
+            <select class="sm" v-model="selParity" :disabled="connected" title="Parity">
+                <option value="none">N</option><option value="even">E</option><option value="odd">O</option>
+            </select>
+        </div>
+
+        <div class="tg">
+            <span class="tg-label">EOL</span>
+            <select class="med" v-model="selEnding" :disabled="connected">
+                <option value="\n">LF (\n)</option>
+                <option value="\r\n">CRLF</option>
+                <option value="\r">CR (\r)</option>
+                <option value="">None</option>
+            </select>
+        </div>
+
+        <!-- Actions — pushed to the right -->
+        <div class="tg">
+            <button class="btn btn-connect"    id="btn-connect"    @click="connect"       :disabled="connected">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+                Connect
+            </button>
+            <button class="btn btn-disconnect" id="btn-disconnect" @click="disconnect"    :disabled="!connected">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Disconnect
+            </button>
+            <button class="btn btn-ghost"      id="btn-clear"      @click="clearTerminal">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                Clear
+            </button>
+            <button class="btn btn-ghost"      id="btn-export"     @click="exportLog" :disabled="!lines.length">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════ WORKSPACE ═══════════ -->
+    <div class="workspace">
+
+        <!-- Stats sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Stats</div>
+
+            <div class="stat-item">
+                <span class="stat-key">RX</span>
+                <span class="stat-val">{{ statRx }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-key">TX</span>
+                <span class="stat-val">{{ statTx }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-key">Lines</span>
+                <span class="stat-val">{{ lines.length }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-key">Port</span>
+                <span class="stat-val highlight">{{ portName }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-key">Baud</span>
+                <span class="stat-val">{{ baudName }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-key">Uptime</span>
+                <span class="stat-val">{{ uptimeText }}</span>
+            </div>
+        </aside>
+
+        <!-- Terminal pane -->
+        <div class="terminal-pane">
+
+            <!-- Terminal toolbar -->
+            <div class="term-bar">
+                <span class="term-bar-label">Output</span>
+
+                <label class="autoscroll" for="autoscroll-chk">
+                    <span class="sw">
+                        <input type="checkbox" id="autoscroll-chk" v-model="autoscroll">
+                        <span class="sw-track"></span>
+                    </span>
+                    Auto-scroll
+                </label>
+
+                <span class="line-badge">{{ lines.length }} lines</span>
+            </div>
+
+            <!-- Output -->
+            <div class="term-output" id="terminal-output" ref="terminalEl" role="log" aria-live="polite">
+
+                <!-- Empty state -->
+                <div class="term-empty" v-if="!lines.length">
+                    <span class="term-empty-icon">🖥️</span>
+                    <span class="term-empty-text">Connect a device to start receiving data</span>
+                </div>
+
+                <div v-for="line in lines" :key="line.id" class="t-line">
+                    <span class="t-ts">{{ line.ts }}</span>
+                    <span class="t-text" :class="line.type">{{ line.text }}</span>
+                </div>
+            </div>
+
+            <!-- Send bar -->
+            <div class="send-bar">
+                <input
+                    class="send-input"
+                    type="text"
+                    id="send-input"
+                    v-model="sendText"
+                    :disabled="!connected"
+                    @keydown.enter="sendData"
+                    placeholder="Type a command and press Enter to send…"
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+                <button class="btn btn-connect" id="btn-send" @click="sendData" :disabled="!connected">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /#app -->
+
+<script>
+(function () {
+    const { createApp, ref, computed, watch, nextTick, onMounted, onUnmounted } = Vue;
+
+    const BAUD_RATES = [300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200, 230400, 460800, 921600];
+    const MAX_LINES  = 2000;
+
+    function formatBytes(n) {
+        if (n === 0)  return '0 B';
+        if (n < 1024) return n + ' B';
+        if (n < 1e6)  return (n / 1024).toFixed(1) + ' KB';
+        return (n / 1e6).toFixed(2) + ' MB';
+    }
+
+    function nowTs() {
+        const d = new Date();
+        return d.toTimeString().slice(0, 8) + '.' + String(d.getMilliseconds()).padStart(3, '0');
+    }
+
+    function makePortLabel(p, idx) {
+        const info = p.getInfo ? p.getInfo() : {};
+        const vid  = info.usbVendorId  ? '0x' + info.usbVendorId.toString(16).toUpperCase().padStart(4,'0') : null;
+        const pid  = info.usbProductId ? '0x' + info.usbProductId.toString(16).toUpperCase().padStart(4,'0') : null;
+        if (vid && pid) return `Port ${idx+1}  —  VID:${vid}  PID:${pid}`;
+        if (vid)        return `Port ${idx+1}  —  VID:${vid}`;
+        return `Port ${idx+1}  —  USB Serial`;
+    }
+
+    createApp({
+        setup() {
+            const serialSupported = ref('serial' in navigator);
+            const connected  = ref(false);
+            const hasError   = ref(false);
+            const statusText = ref('Disconnected');
+
+            const portLabels = ref([]);
+            const selPortVal = ref('__new__');
+            const refreshing = ref(false);
+
+            const selBaud   = ref('9600');
+            const selData   = ref('8');
+            const selStop   = ref('1');
+            const selParity = ref('none');
+            const selEnding = ref('\r\n');
+
+            const lines      = ref([]);
+            const autoscroll = ref(true);
+            const sendText   = ref('');
+            const terminalEl = ref(null);
+
+            const rxBytes    = ref(0);
+            const txBytes    = ref(0);
+            const portName   = ref('—');
+            const baudName   = ref('—');
+            const uptimeText = ref('—');
+
+            let _port=null, _reader=null, _writer=null, _reading=false;
+            let _connectTs=null, _uptimeTimer=null, _logBuffer=[], _lineId=0, _portRegistry=[];
+
+            const statRx = computed(() => formatBytes(rxBytes.value));
+            const statTx = computed(() => formatBytes(txBytes.value));
+
+            watch(() => lines.value.length, async () => {
+                if (autoscroll.value) {
+                    await nextTick();
+                    if (terminalEl.value) terminalEl.value.scrollTop = terminalEl.value.scrollHeight;
+                }
+            });
+
+            function appendLine(text, type = 'data') {
+                if (lines.value.length >= MAX_LINES) lines.value.splice(0, 50);
+                lines.value.push({ id: _lineId++, ts: nowTs(), text, type });
+                _logBuffer.push(`[${nowTs()}] ${text}`);
+            }
+
+            function updateUptime() {
+                if (!_connectTs) { uptimeText.value = '—'; return; }
+                const s = Math.floor((Date.now() - _connectTs) / 1000);
+                const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+                uptimeText.value = (h ? h+'h ' : '') + (h||m ? String(m).padStart(2,'0')+'m ' : '') + String(sec).padStart(2,'0')+'s';
+            }
+
+            async function refreshPorts() {
+                if (!serialSupported.value) return;
+                refreshing.value = true;
+                try {
+                    const granted = await navigator.serial.getPorts();
+                    _portRegistry = granted;
+                    portLabels.value = granted.map((p,i) => makePortLabel(p,i));
+                    const idx = parseInt(selPortVal.value, 10);
+                    if (selPortVal.value !== '__new__' && (isNaN(idx) || idx >= granted.length)) {
+                        selPortVal.value = granted.length > 0 ? '0' : '__new__';
+                    } else if (granted.length > 0 && selPortVal.value === '__new__') {
+                        selPortVal.value = '0';
+                    }
+                } finally { refreshing.value = false; }
+            }
+
+            function setConnected(state) {
+                connected.value  = state;
+                statusText.value = state ? 'Connected' : 'Disconnected';
+                if (!state) hasError.value = false;
+            }
+
+            async function connect() {
+                try {
+                    hasError.value = false;
+                    if (selPortVal.value === '__new__') {
+                        _port = await navigator.serial.requestPort();
+                        await refreshPorts();
+                    } else {
+                        _port = _portRegistry[parseInt(selPortVal.value, 10)];
+                        if (!_port) { appendLine('Selected port no longer available. Try refreshing.', 'err'); return; }
+                    }
+                    const baudRate = parseInt(selBaud.value, 10);
+                    await _port.open({ baudRate, dataBits: parseInt(selData.value,10), stopBits: parseInt(selStop.value,10), parity: selParity.value });
+                    const portIdx = _portRegistry.indexOf(_port);
+                    const pLabel  = portIdx >= 0 ? makePortLabel(_port, portIdx) : 'USB Serial';
+                    setConnected(true);
+                    _connectTs     = Date.now();
+                    portName.value = pLabel.split('—')[0].trim();
+                    baudName.value = baudRate.toLocaleString();
+                    _uptimeTimer   = setInterval(updateUptime, 1000);
+                    appendLine(`Connected — ${pLabel} @ ${baudRate} baud`, 'sys');
+                    const enc = new TextEncoderStream(); enc.readable.pipeTo(_port.writable); _writer = enc.writable.getWriter();
+                    const dec = new TextDecoderStream(); _port.readable.pipeTo(dec.writable);  _reader = dec.readable.getReader();
+                    _reading = true;
+                    let buf = '';
+                    (async function readLoop() {
+                        while (_reading) {
+                            try {
+                                const { value, done } = await _reader.read();
+                                if (done) break;
+                                rxBytes.value += value.length;
+                                buf += value;
+                                let idx;
+                                while ((idx = buf.indexOf('\n')) !== -1) {
+                                    const ln = buf.slice(0, idx).replace(/\r$/, '');
+                                    buf = buf.slice(idx + 1);
+                                    if (ln.length > 0) appendLine(ln);
+                                }
+                            } catch (err) {
+                                if (_reading) { appendLine('Read error: ' + err.message, 'err'); hasError.value = true; statusText.value = 'Error'; }
+                                break;
+                            }
+                        }
+                    })();
+                } catch (err) {
+                    if (err.name !== 'NotFoundError') { appendLine('Connection error: ' + err.message, 'err'); hasError.value = true; statusText.value = 'Error'; }
+                }
+            }
+
+            async function doDisconnect(reason) {
+                _reading = false;
+                clearInterval(_uptimeTimer); _uptimeTimer = null;
+                try { await _reader?.cancel(); } catch(_){}
+                try { await _writer?.close(); }  catch(_){}
+                try { await _port?.close(); }    catch(_){}
+                _reader = _writer = _port = null; _connectTs = null;
+                setConnected(false);
+                portName.value = '—'; baudName.value = '—'; uptimeText.value = '—';
+                appendLine(reason, 'sys');
+            }
+
+            function disconnect() { doDisconnect('Disconnected by user.'); }
+
+            async function sendData() {
+                const text = sendText.value.trim();
+                if (!text || !_writer) return;
+                const payload = text + selEnding.value;
+                try {
+                    await _writer.write(payload);
+                    txBytes.value += payload.length;
+                    appendLine('> ' + text, 'sent');
+                    sendText.value = '';
+                } catch (err) { appendLine('Send error: ' + err.message, 'err'); }
+            }
+
+            function clearTerminal() { lines.value = []; _logBuffer = []; rxBytes.value = 0; txBytes.value = 0; }
+
+            function exportLog() {
+                if (!_logBuffer.length) return;
+                const blob = new Blob([_logBuffer.join('\n')], { type: 'text/plain' });
+                const url  = URL.createObjectURL(blob);
+                const a    = document.createElement('a');
+                a.href = url;
+                a.download = `serial_log_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.txt`;
+                a.click(); URL.revokeObjectURL(url);
+            }
+
+            onMounted(() => {
+                refreshPorts();
+                if (serialSupported.value) {
+                    navigator.serial.addEventListener('connect', refreshPorts);
+                    navigator.serial.addEventListener('disconnect', (e) => {
+                        refreshPorts();
+                        if (_port && e.target === _port) doDisconnect('Device disconnected.');
+                    });
+                }
+            });
+
+            onUnmounted(() => { if (_uptimeTimer) clearInterval(_uptimeTimer); });
+
+            return {
+                BAUD_RATES, serialSupported,
+                connected, hasError, statusText,
+                portLabels, selPortVal, refreshing,
+                selBaud, selData, selStop, selParity, selEnding,
+                lines, autoscroll, sendText, terminalEl,
+                statRx, statTx, portName, baudName, uptimeText,
+                refreshPorts, connect, disconnect, sendData, clearTerminal, exportLog,
+            };
+        }
+    }).mount('#app');
+})();
+</script>
+</body>
+</html>
