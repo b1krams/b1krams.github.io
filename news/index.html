@@ -576,7 +576,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             background: rgba(99, 102, 241, 0.1); color: var(--primary);
             font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em;
             text-transform: uppercase; padding: 0.15rem 0.5rem;
-            border-radius: 4px; margin-bottom: 0.5rem; align-self: flex-start;
+            border-radius: 4px;
+        }
+
+        .card-footer-meta {
+            display: flex; align-items: center; gap: 0.75rem;
         }
 
         .card-title {
@@ -1357,16 +1361,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="card" style="animation-delay:${delay}ms">
                 ${imgHtml}
                 <div class="card-body">
-                    <span class="card-source">${post.source}</span>
                     <h2 class="card-title">${post.title}</h2>
                     ${desc ? `<p class="card-desc">${desc}</p>` : ''}
                     <div class="card-footer">
-                        <span class="card-date">
-                            <span class="card-date-day">${pubDateFormatted.date}</span>
-                            <span class="card-date-time">
-                                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${pubDateFormatted.time}
+                        <div class="card-footer-meta">
+                            <span class="card-source">${post.source}</span>
+                            <span class="card-date">
+                                <span class="card-date-day">${pubDateFormatted.date}</span>
+                                <span class="card-date-time">
+                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${pubDateFormatted.time}
+                                </span>
                             </span>
-                        </span>
+                        </div>
                         <a href="${post.link}" target="_blank" rel="noopener" class="card-link">Read more <span>→</span></a>
                     </div>
                 </div>
