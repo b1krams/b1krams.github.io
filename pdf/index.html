@@ -16,62 +16,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: #0b0e14;
-            background-image: radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.1) 0%, transparent 60%),
-                              radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.05) 0%, transparent 60%);
-            background-attachment: fixed;
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .drop-zone--over {
-            border-color: #6366f1 !important;
-            background: rgba(99,102,241,0.08) !important;
-        }
-        .file-item {
-            transition: box-shadow 0.15s, opacity 0.15s;
-        }
-        .file-item.dragging {
-            opacity: 0.35;
-            box-shadow: 0 4px 24px rgba(99,102,241,0.25);
-        }
-        .file-item.drag-over-top {
-            border-top: 2px solid #6366f1;
-        }
-        .file-item.drag-over-bottom {
-            border-bottom: 2px solid #6366f1;
-        }
-        .drag-handle {
-            cursor: grab;
-            touch-action: none;
-            color: #334155;
-            padding: 0 6px;
-            font-size: 1.1rem;
-            line-height: 1;
-            user-select: none;
-            flex-shrink: 0;
-        }
-        .drag-handle:hover { color: #818cf8; }
-        .drag-handle:active { cursor: grabbing; }
-        .btn-split {
-            background: transparent;
-            border: 2px solid #6366f1;
-            color: #818cf8;
-        }
-        .btn-split:hover {
-            background: rgba(99,102,241,0.12);
-        }
-    </style>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
 </head>
 <body class="min-h-screen font-sans text-slate-100">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+
+<nav class="global-nav">
+    <a href="/" class="global-nav-brand">
+        <svg class="global-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        Swiss<span>Web</span>
+    </a>
+    <div class="global-nav-links">
+        <a href="/" class="global-nav-link">Home</a>
+    </div>
+</nav>
+
 
     <div class="max-w-4xl mx-auto py-6 sm:py-12 px-4">
         <div class="text-center mb-8 sm:mb-10">
@@ -228,8 +194,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           pages.add(num - 1); // 0-indexed
                       }
                   } else if (range.length === 2) {
-                      const start = parseInt(range[0], 10);
-                      const end = parseInt(range[1], 10);
+                      const str0 = range[0].trim();
+                      const str1 = range[1].trim();
+                      const start = str0 === "" ? 1 : parseInt(str0, 10);
+                      const end = str1 === "" ? maxPage : parseInt(str1, 10);
                       if (!isNaN(start) && !isNaN(end)) {
                           const s = Math.max(1, Math.min(start, end));
                           const e = Math.min(maxPage, Math.max(start, end));
