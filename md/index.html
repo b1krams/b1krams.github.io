@@ -43,240 +43,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <script src="https://cdn.jsdelivr.net/npm/marked-alert/lib/index.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked-gfm-heading-id/lib/index.umd.js"></script>
 
-    <style>
-        :root {
-            --primary: #4f46e5;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #ffffff;
-            color: #1e293b;
-        }
-
-        .code-font {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f8fafc;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #cbd5e1;
-        }
-
-        /* Elegant Typography for Preview */
-        #preview-content {
-            color: #0f172a;
-            line-height: 1.6;
-        }
-
-        #preview-content h1 {
-            font-size: 2.25rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            color: #0f172a;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 0.5rem;
-        }
-
-        #preview-content h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            color: #1e293b;
-        }
-
-        #preview-content p {
-            margin-bottom: 1.25rem;
-        }
-
-        /* Inline Code */
-        #preview-content :not(pre)>code {
-            background: #f1f5f9;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            color: #be185d;
-            font-size: 0.9em;
-        }
-
-        /* Block Code Overrides for Prism */
-        #preview-content pre {
-            background: #fdfdfd !important;
-            padding: 1.25rem;
-            border-radius: 8px;
-            margin: 1.5rem 0;
-            font-size: 14px;
-            border: 1px solid #e2e8f0;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-
-        /* Darken Prism tokens for light background while keeping the hues */
-        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #64748b; }
-        .token.punctuation { color: #475569; }
-        .token.namespace { opacity: .7; }
-        .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: #b91c1c; }
-        .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: #15803d; }
-        .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string { color: #a16207; }
-        .token.atrule, .token.attr-value, .token.keyword { color: #7e22ce; }
-        .token.function, .token.class-name { color: #1d4ed8; }
-        .token.regex, .token.important, .token.variable { color: #ea580c; }
-
-        #preview-content blockquote {
-            border-left: 4px solid #4f46e5;
-            padding-left: 1.25rem;
-            font-style: italic;
-            color: #64748b;
-            margin: 1.5rem 0;
-            background: #f8fafc;
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-radius: 0 8px 8px 0;
-        }
-
-        #preview-content ul {
-            list-style-type: disc;
-            margin-left: 1.5rem;
-            margin-bottom: 1.25rem;
-        }
-
-        #preview-content a {
-            color: #4f46e5;
-            text-decoration: none;
-            border-bottom: 1px solid transparent;
-            transition: border-color 0.2s;
-        }
-
-        #preview-content a:hover {
-            border-bottom-color: #4f46e5;
-        }
-
-        /* Extended Elements Styling */
-        #preview-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5rem 0;
-            font-size: 0.95em;
-        }
-
-        #preview-content th,
-        #preview-content td {
-            border: 1px solid #e2e8f0;
-            padding: 0.75rem;
-        }
-
-        #preview-content th {
-            background-color: #f8fafc;
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        #preview-content input[type="checkbox"] {
-            margin-right: 0.5rem;
-            accent-color: #4f46e5;
-        }
-
-        #preview-content hr {
-            margin: 2.5rem 0;
-            border: 0;
-            border-top: 2px solid #f1f5f9;
-        }
-
-        /* KaTeX specific tweaks for visibility on white */
-        .katex-display {
-            margin: 1.5em 0;
-            overflow-x: auto;
-            overflow-y: hidden;
-            padding: 0.5em 0;
-        }
-
-        /* Footnotes Styling */
-        .footnotes {
-            margin-top: 3rem;
-            padding-top: 1.5rem;
-            border-top: 2px solid #f1f5f9;
-            font-size: 0.875rem;
-            color: #64748b;
-        }
-        .footnote-item {
-            margin-bottom: 0.5rem;
-        }
-        .footnote-backref {
-            margin-left: 0.5rem;
-            color: #4f46e5;
-            text-decoration: none;
-        }
-        
-        /* Mermaid Styling */
-        .mermaid {
-            display: flex;
-            justify-content: center;
-            margin: 2rem 0;
-            background: #fff;
-            padding: 1rem;
-            border-radius: 8px;
-        }
-
-        #preview-content dt {
-            font-weight: 700;
-            margin-top: 1rem;
-            color: #1e293b;
-        }
-        #preview-content dd {
-            margin-left: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: #475569;
-        }
-
-        /* GFM Alerts */
-        .markdown-alert {
-            padding: 0.75rem 1rem;
-            margin-bottom: 1rem;
-            border-left: 0.25rem solid #e2e8f0;
-            border-radius: 0.375rem;
-            background: #f8fafc;
-        }
-        .markdown-alert .markdown-alert-title {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            font-size: 0.875rem;
-            text-transform: capitalize;
-        }
-        .markdown-alert.markdown-alert-note { border-left-color: #0969da; background-color: #f6f8fa; }
-        .markdown-alert.markdown-alert-note .markdown-alert-title { color: #0969da; }
-        .markdown-alert.markdown-alert-tip { border-left-color: #1a7f37; background-color: #f0fdf4; }
-        .markdown-alert.markdown-alert-tip .markdown-alert-title { color: #1a7f37; }
-        .markdown-alert.markdown-alert-important { border-left-color: #8250df; background-color: #fbefff; }
-        .markdown-alert.markdown-alert-important .markdown-alert-title { color: #8250df; }
-        .markdown-alert.markdown-alert-warning { border-left-color: #9a6700; background-color: #fff8c5; }
-        .markdown-alert.markdown-alert-warning .markdown-alert-title { color: #9a6700; }
-        .markdown-alert.markdown-alert-caution { border-left-color: #cf222e; background-color: #fff5f5; }
-        .markdown-alert.markdown-alert-caution .markdown-alert-title { color: #cf222e; }
-
-        .mention { transition: all 0.2s; cursor: pointer; }
-        .mention:hover { background-color: #e0e7ff; color: #4338ca; }
-    </style>
+    
+    <link href="/style.css" rel="stylesheet">
+    <link rel="icon" href="/logo.png" type="image/png">
 </head>
 
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex flex-col overflow-hidden pt-[60px]">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
-    <nav class="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 z-10 shadow-sm">
+<nav class="global-nav">
+    <a href="/" class="global-nav-brand">
+        <img src="/logo.png" alt="Logo" class="global-nav-icon">
+        Swiss<span>Web</span>
+    </a>
+    <div class="global-nav-links">
+        <a href="/" class="global-nav-link">Home</a>
+    </div>
+</nav>
+
+    <nav class="h-14 border-b border-slate-200 bg-white flex shrink-0 items-center justify-between px-6 z-10 shadow-sm">
         <div class="flex items-center gap-3">
             <div class="bg-indigo-600 text-white p-1.5 rounded-lg shadow-indigo-200/50 shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -618,6 +406,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     ${headContent}
+    <link href="/style.css" rel="stylesheet">
+    <link rel="icon" href="/logo.png" type="image/png">
 </head>
 <body class="bg-gray-50 p-8">
     <div id="preview-content" class="max-w-4xl mx-auto bg-white p-12 rounded-xl shadow-sm border border-gray-100">
@@ -657,7 +447,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->${previewContent.innerHTML}</body></html>`;
+<!-- End Google Tag Manager (noscript) -->
+
+<nav class="global-nav">
+    <a href="/" class="global-nav-brand">
+        <img src="/logo.png" alt="Logo" class="global-nav-icon">
+        Swiss<span>Web</span>
+    </a>
+    <div class="global-nav-links">
+        <a href="/" class="global-nav-link">Home</a>
+    </div>
+</nav>
+${previewContent.innerHTML}</body></html>`;
             const converted = htmlDocx.asBlob(html);
             const a = document.createElement('a');
             a.href = URL.createObjectURL(converted);

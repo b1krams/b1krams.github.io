@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <!-- Google Tag Manager -->
@@ -8,261 +9,208 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 <!-- End Google Tag Manager -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Studio</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Wavesurfer.js -->
-    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
-    <script src="https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js"></script>
-
-    <!-- FFmpeg.wasm Single Thread -->
-    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
-    <script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
-
-    <style>
-        body {
-            background-color: #0b0e14;
-            color: #f8fafc;
-        }
-
-        .drop-zone {
-            border: 2px dashed #475569;
-            transition: all 0.3s ease;
-        }
-
-        .drop-zone.dragover {
-            border-color: #6366f1;
-            background-color: rgba(99, 102, 241, 0.1);
-        }
-        
-        #waveform-container {
-            width: 100%;
-            height: 128px;
-        }
-        
-        /* Custom scrollbar for track list */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #161b22; 
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #475569; 
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #64748b; 
-        }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Audio Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Wavesurfer.js -->
+<script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+<script src="https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js"></script>
+<!-- FFmpeg.wasm Single Thread -->
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+<script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/logo.png" rel="icon" type="image/png"/>
 </head>
 <body class="min-h-screen flex flex-col p-6 font-sans">
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+<nav class="global-nav">
+<div class="flex items-center"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
+        Swiss<span>Web</span>
+</a><div class="hidden sm:block border-l border-slate-700/60 pl-4 ml-4 py-1"><h1 class="text-sm font-bold text-slate-200 m-0 leading-none">Audio<span class="text-indigo-500">Studio</span></h1></div></div>
+<div class="global-nav-links">
+<a class="global-nav-link" href="/">Home</a>
+</div>
+</nav>
+<header class="mb-6 flex justify-between items-center">
 
-    <header class="mb-6 flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-bold text-white tracking-tight">Audio<span class="text-indigo-500">Studio</span></h1>
-            <p class="text-slate-400 text-sm mt-1">Local, client-side audio conversion & trimming.</p>
-        </div>
-        <div class="flex gap-4">
-            <button id="addTrackBtnHeader" class="hidden px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium transition text-white">+ Add Track</button>
-            <button id="resetBtn" class="hidden px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-medium transition">Start Over</button>
-        </div>
-    </header>
-
-    <main class="flex-grow min-w-0 min-h-0 flex gap-6 flex-col">
-        
-        <div class="flex flex-col lg:flex-row gap-6 flex-grow min-h-0">
-            <!-- Track List Sidebar -->
-            <aside id="trackListPanel" class="w-full lg:w-80 bg-[#161b22] rounded-xl border border-slate-800 flex flex-col overflow-hidden hidden shadow-xl flex-shrink-0">
-                <div class="p-4 border-b border-slate-800 bg-[#0d1117] flex justify-between items-center">
-                    <h3 class="font-semibold text-slate-300">Tracks</h3>
-                    <button id="addTrackBtn" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded transition">+ Add</button>
-                </div>
-                <div id="trackList" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
-                    <!-- Track items will go here -->
-                </div>
-            </aside>
-
-            <!-- Workspace Area -->
-            <div class="flex-grow min-w-0 min-h-0 bg-[#0b0e14] rounded-xl border border-slate-800 overflow-hidden relative flex flex-col shadow-xl p-4">
-                
-                <div id="dropZone" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0b0e14] cursor-pointer drop-zone m-4 rounded-lg">
-                    <svg class="w-16 h-16 text-slate-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
-                    </svg>
-                    <p class="text-lg font-medium text-slate-300">Drag & Drop audio files here</p>
-                    <p class="text-sm text-slate-500 mt-2">or click to browse</p>
-                    <input type="file" id="fileInput" class="hidden" accept="audio/*,video/*" multiple>
-                </div>
-
-                <div id="workspace" class="hidden w-full h-full flex flex-col items-center justify-center min-w-0 min-h-0 relative">
-                    <h2 id="currentTrackName" class="absolute top-0 left-0 text-slate-400 font-medium text-sm mb-2 truncate w-full px-1 font-semibold"></h2>
-                    <div class="w-full bg-[#161b22] p-3 rounded-lg border border-slate-700 mb-2 mt-4 relative shadow-inner">
-                        <div id="waveform" class="w-full"></div>
-                    </div>
-                    
-                    <div class="w-full flex flex-wrap gap-4 items-center justify-between mt-2">
-                        <!-- Play/Pause & Time -->
-                        <div class="flex items-center gap-3">
-                            <button id="playBtn" class="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center shadow-lg transition transform active:scale-95">
-                                <svg id="playIcon" class="w-4 h-4 ml-0.5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                <svg id="pauseIcon" class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                            </button>
-                            <button id="playRegionBtn" title="Play Selection Only" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-300 text-xs font-semibold transition flex items-center gap-1.5 transform active:scale-95">
-                                <svg class="w-3.5 h-3.5 text-indigo-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+<div class="flex gap-4">
+<button class="hidden px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium transition text-white" id="addTrackBtnHeader">+ Add Track</button>
+<button class="hidden px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-medium transition" id="resetBtn">Start Over</button>
+</div>
+</header>
+<main class="flex-grow min-w-0 min-h-0 flex gap-6 flex-col">
+<div class="flex flex-col lg:flex-row gap-6 flex-grow min-h-0">
+<!-- Track List Sidebar -->
+<aside class="w-full lg:w-80 bg-[#161b22] rounded-xl border border-slate-800 flex flex-col overflow-hidden hidden shadow-xl flex-shrink-0" id="trackListPanel">
+<div class="p-4 border-b border-slate-800 bg-[#0d1117] flex justify-between items-center">
+<h3 class="font-semibold text-slate-300">Tracks</h3>
+<button class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded transition" id="addTrackBtn">+ Add</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2" id="trackList">
+<!-- Track items will go here -->
+</div>
+</aside>
+<!-- Workspace Area -->
+<div class="flex-grow min-w-0 min-h-0 bg-[#0b0e14] rounded-xl border border-slate-800 overflow-hidden relative flex flex-col shadow-xl p-4">
+<div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0b0e14] cursor-pointer drop-zone m-4 rounded-lg" id="dropZone">
+<svg class="w-16 h-16 text-slate-500 mb-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<p class="text-lg font-medium text-slate-300">Drag &amp; Drop audio files here</p>
+<p class="text-sm text-slate-500 mt-2">or click to browse</p>
+<input accept="audio/*,video/*" class="hidden" id="fileInput" multiple="" type="file"/>
+</div>
+<div class="hidden w-full h-full flex flex-col items-center justify-center min-w-0 min-h-0 relative" id="workspace">
+<h2 class="absolute top-0 left-0 text-slate-400 font-medium text-sm mb-2 truncate w-full px-1 font-semibold" id="currentTrackName"></h2>
+<div class="w-full bg-[#161b22] p-3 rounded-lg border border-slate-700 mb-2 mt-4 relative shadow-inner">
+<div class="w-full" id="waveform"></div>
+</div>
+<div class="w-full flex flex-wrap gap-4 items-center justify-between mt-2">
+<!-- Play/Pause & Time -->
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center shadow-lg transition transform active:scale-95" id="playBtn">
+<svg class="w-4 h-4 ml-0.5 text-white" fill="currentColor" id="playIcon" viewbox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+<svg class="w-4 h-4 text-white hidden" fill="currentColor" id="pauseIcon" viewbox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+</button>
+<button class="p-2 rounded-lg bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-300 text-xs font-semibold transition flex items-center gap-1.5 transform active:scale-95" id="playRegionBtn" title="Play Selection Only">
+<svg class="w-3.5 h-3.5 text-indigo-400" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"></path></svg>
                                 Play Selection
                             </button>
-                            <div class="text-slate-400 font-mono text-xs" id="timeDisplay">00:00.0 / 00:00.0</div>
-                        </div>
-
-                        <!-- Zoom Slider -->
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path></svg>
-                            <input type="range" id="zoomSlider" min="10" max="180" value="20" class="w-24 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
-                            <span class="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Zoom</span>
-                        </div>
-
-                        <!-- Speed selector -->
-                        <div class="flex items-center gap-2">
-                            <label class="text-xs text-slate-500 font-medium">Speed</label>
-                            <select id="playbackSpeed" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-indigo-500">
-                                <option value="0.5">0.5x</option>
-                                <option value="0.75">0.75x</option>
-                                <option value="1.0" selected>1.0x</option>
-                                <option value="1.25">1.25x</option>
-                                <option value="1.5">1.5x</option>
-                                <option value="2.0">2.0x</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Options Panel at the bottom -->
-        <aside id="controlsPanel" class="w-full bg-[#161b22] rounded-xl border border-slate-800 p-4 flex flex-col lg:flex-row gap-6 opacity-50 pointer-events-none transition-opacity duration-300 shadow-xl flex-shrink-0">
-            
-            <!-- Section 1: Track Editor -->
-            <section class="flex-grow lg:w-1/3 min-w-0">
-                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
-                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+<div class="text-slate-400 font-mono text-xs" id="timeDisplay">00:00.0 / 00:00.0</div>
+</div>
+<!-- Zoom Slider -->
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<input class="w-24 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" id="zoomSlider" max="180" min="10" type="range" value="20"/>
+<span class="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Zoom</span>
+</div>
+<!-- Speed selector -->
+<div class="flex items-center gap-2">
+<label class="text-xs text-slate-500 font-medium">Speed</label>
+<select class="bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-indigo-500" id="playbackSpeed">
+<option value="0.5">0.5x</option>
+<option value="0.75">0.75x</option>
+<option selected="" value="1.0">1.0x</option>
+<option value="1.25">1.25x</option>
+<option value="1.5">1.5x</option>
+<option value="2.0">2.0x</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Options Panel at the bottom -->
+<aside class="w-full bg-[#161b22] rounded-xl border border-slate-800 p-4 flex flex-col lg:flex-row gap-6 opacity-50 pointer-events-none transition-opacity duration-300 shadow-xl flex-shrink-0" id="controlsPanel">
+<!-- Section 1: Track Editor -->
+<section class="flex-grow lg:w-1/3 min-w-0">
+<h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
+<svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     Track Editor
                 </h3>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Start Time (sec)</label>
-                        <input type="number" id="startTime" step="0.1" min="0" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">End Time (sec)</label>
-                        <input type="number" id="endTime" step="0.1" min="0" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="text-xs text-slate-500">Volume / Gain</label>
-                        <span id="volumeDisplay" class="text-xs font-mono text-indigo-400 font-semibold">100%</span>
-                    </div>
-                    <input type="range" id="trackVolume" min="0" max="2.0" step="0.05" value="1.0" class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Fade In (sec)</label>
-                        <input type="number" id="trackFadeIn" value="0.0" step="0.5" min="0" max="10" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Fade Out (sec)</label>
-                        <input type="number" id="trackFadeOut" value="0.0" step="0.5" min="0" max="10" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                </div>
-            </section>
-
-            <hr class="border-slate-800 lg:hidden">
-            <div class="hidden lg:block w-px bg-slate-800"></div>
-
-            <!-- Section 2: Mix Configuration -->
-            <section class="flex-grow lg:w-1/3 min-w-0">
-                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
-                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+<div class="grid grid-cols-2 gap-4 mb-4">
+<div>
+<label class="text-xs text-slate-500 block mb-1">Start Time (sec)</label>
+<input class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500" id="startTime" min="0" step="0.1" type="number"/>
+</div>
+<div>
+<label class="text-xs text-slate-500 block mb-1">End Time (sec)</label>
+<input class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500" id="endTime" min="0" step="0.1" type="number"/>
+</div>
+</div>
+<div class="mb-4">
+<div class="flex justify-between items-center mb-1">
+<label class="text-xs text-slate-500">Volume / Gain</label>
+<span class="text-xs font-mono text-indigo-400 font-semibold" id="volumeDisplay">100%</span>
+</div>
+<input class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" id="trackVolume" max="2.0" min="0" step="0.05" type="range" value="1.0"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="text-xs text-slate-500 block mb-1">Fade In (sec)</label>
+<input class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500" id="trackFadeIn" max="10" min="0" step="0.5" type="number" value="0.0"/>
+</div>
+<div>
+<label class="text-xs text-slate-500 block mb-1">Fade Out (sec)</label>
+<input class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500" id="trackFadeOut" max="10" min="0" step="0.5" type="number" value="0.0"/>
+</div>
+</div>
+</section>
+<hr class="border-slate-800 lg:hidden"/>
+<div class="hidden lg:block w-px bg-slate-800"></div>
+<!-- Section 2: Mix Configuration -->
+<section class="flex-grow lg:w-1/3 min-w-0">
+<h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
+<svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     Mix Configuration
                 </h3>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Transition</label>
-                        <select id="transitionType" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                            <option value="none">Seamless</option>
-                            <option value="gap">Gap (Silence)</option>
-                            <option value="crossfade">Crossfade</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Duration (sec)</label>
-                        <input type="number" id="transitionDuration" value="2.0" step="0.1" min="0" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="text-xs text-slate-500 block mb-2">Mix Timeline Sequence</label>
-                    <div id="mixTimeline" class="p-3 bg-slate-900 border border-slate-800 rounded-lg flex flex-col gap-2 max-h-24 overflow-y-auto custom-scrollbar">
-                        <p class="text-[10px] text-slate-500 text-center py-2">Add tracks to visualize layout.</p>
-                    </div>
-                </div>
-            </section>
-
-            <hr class="border-slate-800 lg:hidden">
-            <div class="hidden lg:block w-px bg-slate-800"></div>
-
-            <!-- Section 3: Export Options -->
-            <section class="flex-grow lg:w-1/3 min-w-0">
-                <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
-                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+<div class="grid grid-cols-2 gap-4 mb-4">
+<div>
+<label class="text-xs text-slate-500 block mb-1">Transition</label>
+<select class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500" id="transitionType">
+<option value="none">Seamless</option>
+<option value="gap">Gap (Silence)</option>
+<option value="crossfade">Crossfade</option>
+</select>
+</div>
+<div>
+<label class="text-xs text-slate-500 block mb-1">Duration (sec)</label>
+<input class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500" id="transitionDuration" min="0" step="0.1" type="number" value="2.0"/>
+</div>
+</div>
+<div>
+<label class="text-xs text-slate-500 block mb-2">Mix Timeline Sequence</label>
+<div class="p-3 bg-slate-900 border border-slate-800 rounded-lg flex flex-col gap-2 max-h-24 overflow-y-auto custom-scrollbar" id="mixTimeline">
+<p class="text-[10px] text-slate-500 text-center py-2">Add tracks to visualize layout.</p>
+</div>
+</div>
+</section>
+<hr class="border-slate-800 lg:hidden"/>
+<div class="hidden lg:block w-px bg-slate-800"></div>
+<!-- Section 3: Export Options -->
+<section class="flex-grow lg:w-1/3 min-w-0">
+<div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
+<h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+<svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                         Export Settings
                     </h3>
-                    <button id="toggleLogsBtn" class="text-xs text-slate-500 hover:text-slate-350 transition flex items-center gap-1">
-                        <span>Show Logs</span>
-                        <svg id="logsChevron" class="w-3 h-3 transition transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="text-xs text-slate-500 block mb-1">Output Format</label>
-                    <select id="exportFormat" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                        <option value="mp3">MP3 Audio (.mp3)</option>
-                        <option value="wav">WAV Lossless (.wav)</option>
-                        <option value="ogg">OGG Vorbis (.ogg)</option>
-                        <option value="aac">AAC Audio (.aac)</option>
-                    </select>
-                </div>
-
-                <button id="exportBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-indigo-500/30 transition transform active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden">
-                    <span id="exportBtnText" class="z-10 relative">Process & Download</span>
-                    <div id="exportProgress" class="absolute bottom-0 left-0 h-full bg-indigo-400/30 w-0 transition-all duration-300 z-0"></div>
-                </button>
-                
-                <div id="logContainer" class="mt-4 hidden transition-all duration-300">
-                    <div class="flex justify-between items-center mb-1 bg-slate-900 border border-slate-800 px-2 py-1 rounded-t">
-                        <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">FFmpeg console</span>
-                        <button id="clearLogsBtn" class="text-[9px] text-slate-500 hover:text-red-400 transition font-medium">Clear</button>
-                    </div>
-                    <div id="logOutput" class="p-2 bg-slate-950 border border-t-0 border-slate-800 rounded-b text-[10px] text-emerald-400 font-mono h-24 overflow-y-auto custom-scrollbar shadow-inner"></div>
-                </div>
-            </section>
-        </aside>
-
-    </main>
-
-    <footer class="mt-8 text-center text-slate-500 text-sm pb-4">
-        Made with <span class="text-red-500">&hearts;</span> by Bikram
+<button class="text-xs text-slate-500 hover:text-slate-350 transition flex items-center gap-1" id="toggleLogsBtn">
+<span>Show Logs</span>
+<svg class="w-3 h-3 transition transform rotate-0" fill="none" id="logsChevron" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<div class="mb-4">
+<label class="text-xs text-slate-500 block mb-1">Output Format</label>
+<select class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:outline-none focus:border-indigo-500" id="exportFormat">
+<option value="mp3">MP3 Audio (.mp3)</option>
+<option value="wav">WAV Lossless (.wav)</option>
+<option value="ogg">OGG Vorbis (.ogg)</option>
+<option value="aac">AAC Audio (.aac)</option>
+</select>
+</div>
+<button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-indigo-500/30 transition transform active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden" id="exportBtn">
+<span class="z-10 relative" id="exportBtnText">Process &amp; Download</span>
+<div class="absolute bottom-0 left-0 h-full bg-indigo-400/30 w-0 transition-all duration-300 z-0" id="exportProgress"></div>
+</button>
+<div class="mt-4 hidden transition-all duration-300" id="logContainer">
+<div class="flex justify-between items-center mb-1 bg-slate-900 border border-slate-800 px-2 py-1 rounded-t">
+<span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">FFmpeg console</span>
+<button class="text-[9px] text-slate-500 hover:text-red-400 transition font-medium" id="clearLogsBtn">Clear</button>
+</div>
+<div class="p-2 bg-slate-950 border border-t-0 border-slate-800 rounded-b text-[10px] text-emerald-400 font-mono h-24 overflow-y-auto custom-scrollbar shadow-inner" id="logOutput"></div>
+</div>
+</section>
+</aside>
+</main>
+<footer class="mt-8 text-center text-slate-500 text-sm pb-4">
+        Made with <span class="text-red-500">♥</span> by Bikram
     </footer>
-
-    <script>
+<script>
         const { FFmpeg } = window.FFmpegWASM;
         const { fetchFile } = window.FFmpegUtil;
 

@@ -101,147 +101,32 @@
       }
     };
   </script>
-  <style>
-    /* ─── Glassmorphism Panels ─── */
-    .glass-panel {
-      background-color: rgba(26, 31, 46, 0.8);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-    }
-
-    /* ─── Checkerboard Transparency Grid ─── */
-    .checkerboard {
-      background-image:
-        linear-gradient(45deg, rgba(255,255,255,0.04) 25%, transparent 25%),
-        linear-gradient(-45deg, rgba(255,255,255,0.04) 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.04) 75%),
-        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.04) 75%);
-      background-size: 20px 20px;
-      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-    }
-
-    /* ─── Animated Gradient Drop Border ─── */
-    .gradient-border-anim {
-      background: linear-gradient(90deg, #6366f1, #a855f7, #6366f1, #818cf8);
-      background-size: 300% 100%;
-      animation: gradientMove 4s ease infinite;
-    }
-    @keyframes gradientMove {
-      0%   { background-position: 100% 0; }
-      50%  { background-position: 0% 0; }
-      100% { background-position: 100% 0; }
-    }
-
-    /* ─── Pulse glow on drop zone hover ─── */
-    .drop-glow {
-      transition: box-shadow 0.5s ease;
-    }
-    .drop-glow:hover {
-      box-shadow: 0 0 60px rgba(99, 102, 241, 0.25);
-    }
-    .drop-glow.dragover {
-      box-shadow: 0 0 80px rgba(99, 102, 241, 0.4);
-    }
-
-    /* ─── Sleek Range Sliders ─── */
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      background: transparent;
-      cursor: pointer;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      height: 14px;
-      width: 14px;
-      border-radius: 50%;
-      background: #c0c1ff;
-      cursor: pointer;
-      margin-top: -6px;
-      box-shadow: 0 0 12px rgba(99, 102, 241, 0.8), 0 0 4px rgba(192, 193, 255, 0.4);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    input[type=range]::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-      box-shadow: 0 0 18px rgba(99, 102, 241, 1), 0 0 6px rgba(192, 193, 255, 0.6);
-    }
-    input[type=range]::-webkit-slider-runnable-track {
-      width: 100%;
-      height: 2px;
-      cursor: pointer;
-      background: #31353c;
-      border-radius: 1px;
-    }
-    input[type=range]::-moz-range-thumb {
-      height: 14px;
-      width: 14px;
-      border-radius: 50%;
-      background: #c0c1ff;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 0 12px rgba(99, 102, 241, 0.8);
-    }
-    input[type=range]::-moz-range-track {
-      width: 100%;
-      height: 2px;
-      background: #31353c;
-      border-radius: 1px;
-    }
-
-    /* ─── Curve Grid ─── */
-    .curve-grid {
-      background-image:
-        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-      background-size: 25% 25%;
-    }
-
-    /* ─── Custom Scrollbar ─── */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #31353c; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #464554; }
-
-    /* ─── Cropper overrides ─── */
-    .cropper-view-box { outline: 1px solid rgba(192, 193, 255, 0.6); outline-color: rgba(192, 193, 255, 0.6); }
-    .cropper-line { background-color: rgba(192, 193, 255, 0.3); }
-    .cropper-point { background-color: #c0c1ff; width: 8px !important; height: 8px !important; opacity: 0.9; }
-    .cropper-modal { background-color: rgba(10, 14, 20, 0.7); }
-
-    /* ─── Accordion transition ─── */
-    .accordion-body { overflow: hidden; transition: max-height 0.3s ease, opacity 0.25s ease; }
-    .accordion-body.collapsed { max-height: 0 !important; opacity: 0; padding-top: 0 !important; padding-bottom: 0 !important; }
-
-    /* ─── Glow CTA ─── */
-    .cta-glow {
-      box-shadow: 0 0 24px rgba(99, 102, 241, 0.35);
-      transition: all 0.2s ease;
-    }
-    .cta-glow:hover {
-      box-shadow: 0 0 36px rgba(99, 102, 241, 0.55);
-      filter: brightness(1.1);
-    }
-    .cta-glow:active {
-      transform: scale(0.97);
-    }
-
-    /* ─── Format toggle buttons ─── */
-    .fmt-btn {
-      transition: all 0.15s ease;
-    }
-    .fmt-btn.active {
-      background: rgba(99, 102, 241, 0.2);
-      color: #c0c1ff;
-      border-color: rgba(99, 102, 241, 0.3);
-    }
-
-    /* ─── Hide workspace initially ─── */
-    .workspace-hidden { display: none !important; }
-  </style>
+  
+    <link href="/style.css" rel="stylesheet">
+    <link rel="icon" href="/logo.png" type="image/png">
 </head>
 
 <body class="bg-background text-on-background min-h-screen flex flex-col overflow-hidden selection:bg-primary-container selection:text-on-primary-container font-sans" id="app">
+
+<nav class="global-nav">
+    <div class="flex items-center">
+        <a href="/" class="global-nav-brand">
+            <img src="/logo.png" alt="Logo" class="global-nav-icon">
+            Swiss<span>Web</span>
+        </a>
+        <div class="hidden sm:block border-l border-slate-700/60 pl-4 ml-4 py-1">
+            <h1 class="text-sm font-bold text-slate-200 m-0 leading-none">Image<span class="text-[#6366f1]">Flow</span></h1>
+        </div>
+    </div>
+    <div class="global-nav-links flex items-center gap-4">
+        <button v-show="imageLoaded" @click="resetAll" id="resetBtn" class="text-body-md text-on-surface-variant hover:text-primary transition-colors hover:scale-95 duration-150 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-primary/50 hover:bg-primary/5">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0; font-size: 18px;">restart_alt</span>
+            Start Over
+        </button>
+        <a href="/" class="global-nav-link">Home</a>
+    </div>
+</nav>
+
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0];var j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 
@@ -256,20 +141,8 @@
     </filter>
   </svg>
 
-  <!-- ═══════════════ Top NavBar ═══════════════ -->
-  <nav class="bg-surface-container/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-white/10 shadow-sm flex justify-between items-center px-gutter h-[56px]">
-    <div class="flex items-center gap-4">
-      <span class="text-headline-md font-bold text-on-surface tracking-tight">Image<span class="text-[#6366f1]">Flow</span></span>
-      <span class="text-body-md text-on-surface-variant hidden md:block pl-4 border-l border-white/10">Local, client-side static image processing.</span>
-    </div>
-    <button v-show="imageLoaded" @click="resetAll" id="resetBtn" class="text-body-md text-on-surface-variant hover:text-primary transition-colors hover:scale-95 duration-150 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-primary/50 hover:bg-primary/5">
-      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0; font-size: 18px;">restart_alt</span>
-      Start Over
-    </button>
-  </nav>
-
   <!-- ═══════════════ Main Layout ═══════════════ -->
-  <main class="flex-1 flex mt-[56px] h-[calc(100vh-56px-32px)]">
+  <main class="flex-1 flex min-h-0 w-full">
 
     <!-- ─── Center Workspace ─── -->
     <div class="flex-1 relative bg-surface-dim overflow-hidden flex items-center justify-center checkerboard border-r border-white/10">
@@ -461,7 +334,7 @@
   </main>
 
   <!-- ═══════════════ Footer ═══════════════ -->
-  <footer class="bg-surface-container-lowest fixed bottom-0 left-0 w-full border-t border-white/5 flex justify-between items-center px-gutter h-8 z-50">
+  <footer class="bg-surface-container-lowest w-full border-t border-white/5 flex justify-between items-center px-gutter h-8 shrink-0 z-40">
     <div class="text-label-caps text-on-surface opacity-80 uppercase tracking-wider">ImageFlow</div>
     <div class="text-mono-label text-on-surface-variant opacity-80">Made with <span class="text-red-400">&#9829;</span> by Bikram</div>
   </footer>

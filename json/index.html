@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
 
+<html lang="en">
 <head>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -9,89 +9,56 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 <!-- End Google Tag Manager -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON Fix & Format</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.css" rel="stylesheet"
-        type="text/css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.js"></script>
-    <style>
-        :root {
-            --jsoneditor-font-family: 'Inter', ui-sans-serif, system-ui;
-            --jsoneditor-bg: #161b22;
-        }
-
-        body {
-            background: radial-gradient(circle at top left, #161b22, #0b0e14);
-            min-height: 100vh;
-        }
-
-        /* Customizing the JSON Editor to look modern */
-        .jsoneditor {
-            border: none !important;
-            border-radius: 0.75rem;
-            overflow: hidden;
-        }
-
-        .jsoneditor-menu {
-            background-color: #30363d !important;
-            border-bottom: 1px solid #484f58 !important;
-        }
-
-        .jsoneditor-footer {
-            display: none;
-        }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JSON Fix &amp; Format</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.css" rel="stylesheet" type="text/css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/logo.png" rel="icon" type="image/png"/>
 </head>
-
 <body class="text-slate-200 p-4 md:p-8">
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+<nav class="global-nav">
+<div class="flex items-center"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
+        Swiss<span>Web</span>
+</a><div class="hidden sm:block border-l border-slate-700/60 pl-4 ml-4 py-1"><h1 class="text-sm font-bold text-slate-200 m-0 leading-none">JSON <span class="text-indigo-500">Refiner</span></h1></div></div>
+<div class="global-nav-links">
+<a class="global-nav-link" href="/">Home</a>
+</div>
+</nav>
+<div class="w-full">
 
-    <div class="w-full">
-        <header class="mb-8 text-center">
-            <h1 class="text-4xl font-bold tracking-tight text-white mb-2">JSON <span
-                    class="text-indigo-500">Refiner</span></h1>
-            <p class="text-slate-400">Paste messy JSON below to fix, format, and explore nodes.</p>
-        </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <div class="flex flex-col gap-4">
-                <div class="flex justify-between items-center">
-                    <label class="font-medium text-slate-300">Raw Input</label>
-                    <button onclick="processJSON()"
-                        class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-sm transition-all shadow-lg shadow-indigo-500/20">
-                        Fix & Format →
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<label class="font-medium text-slate-300">Raw Input</label>
+<button class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-sm transition-all shadow-lg shadow-indigo-500/20" onclick="processJSON()">
+                        Fix &amp; Format →
                     </button>
-                </div>
-                <textarea id="jsonInput"
-                    class="w-full h-[500px] lg:h-[calc(100vh-250px)] bg-slate-900/50 border border-slate-800 rounded-xl p-4 font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none text-emerald-400 placeholder-slate-700"
-                    placeholder='{"tip": "Paste messy or broken JSON here..."}'></textarea>
-            </div>
-
-            <div class="flex flex-col gap-4">
-                <div class="flex justify-between items-center">
-                    <label class="font-medium text-slate-300">Formatted Output</label>
-                    <button onclick="copyToClipboard()"
-                        class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-1.5 rounded-lg text-sm transition-all border border-slate-700">
+</div>
+<textarea class="w-full h-[500px] lg:h-[calc(100vh-250px)] bg-slate-900/50 border border-slate-800 rounded-xl p-4 font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none text-emerald-400 placeholder-slate-700" id="jsonInput" placeholder='{"tip": "Paste messy or broken JSON here..."}'></textarea>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<label class="font-medium text-slate-300">Formatted Output</label>
+<button class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-1.5 rounded-lg text-sm transition-all border border-slate-700" onclick="copyToClipboard()">
                         Copy JSON
                     </button>
-                </div>
-                <div id="jsoneditor" class="h-[500px] lg:h-[calc(100vh-250px)] shadow-2xl"></div>
-            </div>
-
-        </div>
-
-        <footer class="mt-12 text-center text-slate-500 text-xs">
+</div>
+<div class="h-[500px] lg:h-[calc(100vh-250px)] shadow-2xl" id="jsoneditor"></div>
+</div>
+</div>
+<footer class="mt-12 text-center text-slate-500 text-xs">
             Made with ❤️ by Bikram
         </footer>
-    </div>
-
-    <script>
+</div>
+<script>
         // Initialize JSON Editor
         const container = document.getElementById("jsoneditor");
         const options = {
@@ -145,5 +112,4 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         editor.set(initialData);
     </script>
 </body>
-
 </html>

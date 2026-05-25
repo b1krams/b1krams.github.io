@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <!-- Google Tag Manager -->
@@ -8,92 +9,73 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 <!-- End Google Tag Manager -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZenTime | Pomodoro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.3)); }
-        .progress-ring__circle { transition: stroke-dashoffset 0.5s ease-in-out; stroke-linecap: round; }
-        [v-cloak] { display: none !important; }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>ZenTime | Pomodoro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/logo.png" rel="icon" type="image/png"/>
 </head>
-
 <body class="bg-[#0b0e14] text-slate-50 flex flex-col justify-between items-center h-[100dvh] m-0 overflow-hidden select-none">
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+<nav class="global-nav">
+<div class="flex items-center"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
+        Swiss<span>Web</span>
+</a><div class="hidden sm:block border-l border-slate-700/60 pl-4 ml-4 py-1"><h1 class="text-sm font-bold text-slate-200 m-0 leading-none">ZenTime</h1></div></div>
+<div class="global-nav-links">
+<a class="global-nav-link" href="/">Home</a>
+</div>
+</nav>
+<div class="w-full h-full flex flex-col justify-between items-center" id="app" v-cloak="">
+<!-- Header -->
 
-    <div id="app" v-cloak class="w-full h-full flex flex-col justify-between items-center">
-        <!-- Header -->
-        <header class="w-full pt-8 pb-4 text-center">
-            <h1 class="font-semibold tracking-[4px] opacity-80 uppercase text-xs text-indigo-500 m-0">ZenTime</h1>
-        </header>
-
-        <!-- Main Content -->
-        <main class="flex-1 flex flex-col items-center justify-center w-full max-w-sm px-6">
-            
-            <!-- Mode Selector (Segmented Control) -->
-            <div class="flex justify-center gap-2 mb-8 bg-[#0b0e14]/50 p-1.5 rounded-2xl border border-slate-800 w-fit mx-auto">
-                <button 
-                    v-for="mode in modes" 
-                    :key="mode.id"
-                    @click="setMode(mode.id)"
-                    :class="['px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300', activeMode === mode.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800']"
-                >
+<!-- Main Content -->
+<main class="flex-1 flex flex-col items-center justify-center w-full max-w-sm px-6">
+<!-- Mode Selector (Segmented Control) -->
+<div class="flex justify-center gap-2 mb-8 bg-[#0b0e14]/50 p-1.5 rounded-2xl border border-slate-800 w-fit mx-auto">
+<button :class="['px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300', activeMode === mode.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800']" :key="mode.id" @click="setMode(mode.id)" v-for="mode in modes">
                     {{ mode.label }}
                 </button>
-            </div>
-
-            <!-- Timer Circle -->
-            <div class="relative w-[240px] h-[240px] flex items-center justify-center mb-12">
-                <svg class="progress-ring origin-center absolute w-full h-full" width="240" height="240" viewBox="0 0 240 240">
-                    <!-- Background track -->
-                    <circle class="stroke-slate-800" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" />
-                    <!-- Progress track -->
-                    <circle class="progress-ring__circle stroke-indigo-500" stroke-width="8" fill="transparent" r="110" cx="120" cy="120" 
-                            :stroke-dasharray="circumference + ' ' + circumference"
-                            :stroke-dashoffset="progressOffset" />
-                </svg>
-                <div class="z-10 flex flex-col items-center">
-                    <div class="text-[4rem] font-light tracking-tight">{{ formattedTime }}</div>
-                    <div class="text-xs font-medium text-slate-400 uppercase tracking-wider mt-1">{{ currentModeLabel }}</div>
-                </div>
-            </div>
-
-            <!-- Controls -->
-            <div class="flex justify-center gap-4 w-full">
-                <button 
-                    @click="toggleTimer"
-                    :class="['flex-1 font-bold py-4 px-8 rounded-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl text-lg flex items-center justify-center gap-2', isPlaying ? 'bg-rose-500 hover:bg-rose-400 text-white shadow-rose-500/25' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-900/40']"
-                >
-                    <svg v-if="isPlaying" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                    <span>{{ isPlaying ? 'Pause' : (timeLeft === totalTime ? 'Start' : 'Resume') }}</span>
-                </button>
-                <button @click="resetTimer" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 px-8 rounded-2xl transition-all border border-slate-700 text-lg" aria-label="Reset">
+</div>
+<!-- Timer Circle -->
+<div class="relative w-[240px] h-[240px] flex items-center justify-center mb-12">
+<svg class="progress-ring origin-center absolute w-full h-full" height="240" viewbox="0 0 240 240" width="240">
+<!-- Background track -->
+<circle class="stroke-slate-800" cx="120" cy="120" fill="transparent" r="110" stroke-width="8"></circle>
+<!-- Progress track -->
+<circle :stroke-dasharray="circumference + ' ' + circumference" :stroke-dashoffset="progressOffset" class="progress-ring__circle stroke-indigo-500" cx="120" cy="120" fill="transparent" r="110" stroke-width="8"></circle>
+</svg>
+<div class="z-10 flex flex-col items-center">
+<div class="text-[4rem] font-light tracking-tight">{{ formattedTime }}</div>
+<div class="text-xs font-medium text-slate-400 uppercase tracking-wider mt-1">{{ currentModeLabel }}</div>
+</div>
+</div>
+<!-- Controls -->
+<div class="flex justify-center gap-4 w-full">
+<button :class="['flex-1 font-bold py-4 px-8 rounded-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl text-lg flex items-center justify-center gap-2', isPlaying ? 'bg-rose-500 hover:bg-rose-400 text-white shadow-rose-500/25' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-900/40']" @click="toggleTimer">
+<svg class="lucide lucide-pause" fill="currentColor" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" v-if="isPlaying" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><rect height="16" width="4" x="6" y="4"></rect><rect height="16" width="4" x="14" y="4"></rect></svg>
+<svg class="lucide lucide-play" fill="currentColor" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" v-else="" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+<span>{{ isPlaying ? 'Pause' : (timeLeft === totalTime ? 'Start' : 'Resume') }}</span>
+</button>
+<button @click="resetTimer" aria-label="Reset" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 px-8 rounded-2xl transition-all border border-slate-700 text-lg">
                     Reset
                 </button>
-            </div>
-        </main>
-
-        <!-- Footer -->
-        <footer class="w-full pb-8 text-center pt-2 flex flex-col items-center gap-2">
-            <button 
-                @click="requestNotification"
-                :class="['text-[0.65rem] transition-opacity uppercase tracking-widest bg-transparent border-none cursor-pointer p-2', notificationEnabled ? 'opacity-100 text-sky-400' : 'opacity-40 hover:opacity-100 text-slate-50']"
-            >
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full pb-8 text-center pt-2 flex flex-col items-center gap-2">
+<button :class="['text-[0.65rem] transition-opacity uppercase tracking-widest bg-transparent border-none cursor-pointer p-2', notificationEnabled ? 'opacity-100 text-sky-400' : 'opacity-40 hover:opacity-100 text-slate-50']" @click="requestNotification">
                 {{ notificationStatus }}
             </button>
-            <p class="text-[0.65rem] opacity-50 tracking-wider m-0">Made with ❤️ by Bikram</p>
-        </footer>
-    </div>
-
-    <script>
+<p class="text-[0.65rem] opacity-50 tracking-wider m-0">Made with ❤️ by Bikram</p>
+</footer>
+</div>
+<script>
         const { createApp, ref, computed, onMounted } = Vue;
 
         createApp({

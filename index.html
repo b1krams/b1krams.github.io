@@ -14,310 +14,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="description" content="A comprehensive collection of developer tools including JSON formatter, Markdown editor, PDF utilities, and more.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <style>
-        :root {
-            --bg-color: #0b0e14;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --card-bg: #161b22;
-            --card-border: #30363d;
-            --accent: #6366f1;
-            --accent-hover: #4f46e5;
-            --gradient-start: #6366f1;
-            --gradient-end: #8b5cf6;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        [v-cloak] {
-            display: none !important;
-        }
-
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            padding: 4rem 2rem;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.02em;
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.25rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Search and Filter Styles */
-        .controls {
-            margin-bottom: 3rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            align-items: center;
-        }
-
-        .search-bar {
-            width: 100%;
-            max-width: 600px;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 1rem 1.5rem 1rem 3rem;
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 9999px;
-            color: var(--text-primary);
-            font-size: 1.1rem;
-            outline: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 1.2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-        }
-
-        .categories {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .category-btn {
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
-            color: var(--text-secondary);
-            padding: 0.5rem 1.25rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .category-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-        }
-
-        .category-btn.active {
-            background-color: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-
-        /* Grid */
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-            position: relative;
-        }
-
-        .tool-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 1rem;
-            padding: 2rem;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            height: 100%;
-        }
-
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .tool-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-            border-color: rgba(99, 102, 241, 0.5);
-        }
-
-        .tool-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-        }
-
-        .icon-wrapper {
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            transition: all 0.3s ease;
-        }
-
-        .tool-card:hover .icon-wrapper {
-            background: rgba(99, 102, 241, 0.1);
-            transform: scale(1.1);
-        }
-
-        .star-btn {
-            background: none;
-            border: none;
-            color: var(--card-border);
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            padding: 0.5rem;
-            margin: -0.5rem;
-        }
-
-        .star-btn:hover {
-            color: #fbbf24;
-            transform: scale(1.1);
-        }
-
-        .star-btn.active {
-            color: #fbbf24;
-        }
-
-        .tool-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .tool-title::after {
-            content: '→';
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: all 0.3s ease;
-            color: var(--accent);
-        }
-
-        .tool-card:hover .tool-title::after {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .tool-desc {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            flex-grow: 1;
-        }
-        
-        .tool-category {
-            margin-top: 1.5rem;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            font-weight: 600;
-            background: rgba(255,255,255,0.05);
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            width: fit-content;
-        }
-
-        /* Vue Transition Classes */
-        .list-move,
-        .list-enter-active,
-        .list-leave-active {
-            transition: all 0.5s ease;
-        }
-
-        .list-enter-from,
-        .list-leave-to {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        
-        .list-leave-active {
-            position: absolute;
-        }
-
-        .empty-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 4rem 0;
-            color: var(--text-secondary);
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-            .container {
-                padding: 2rem 1rem;
-            }
-            .tools-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    
+    <link href="/style.css" rel="stylesheet">
+    <link rel="icon" href="/logo.png" type="image/png">
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -325,12 +24,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
-    <div id="app" class="container" v-cloak>
-        <header>
-            <h1>SwissWeb</h1>
-            <p class="subtitle">A comprehensive collection of web-based utilities and tools to streamline your workflow and boost productivity.</p>
-        </header>
+<nav class="global-nav">
+    <a href="/" class="global-nav-brand">
+        <img src="/logo.png" alt="Logo" class="global-nav-icon">
+        Swiss<span>Web</span>
+    </a>
+    <div class="global-nav-links">
+        <a href="/" class="global-nav-link">Home</a>
+    </div>
+</nav>
 
+    <div id="app" class="container" v-cloak>
         <div class="controls">
             <div class="search-bar">
                 <span class="search-icon">🔍</span>
@@ -397,15 +101,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             setup() {
                 const tools = ref([
                     { name: 'PDF Utilities', url: './pdf/', icon: '📄', desc: 'Merge, split, compress, and manipulate your PDF documents locally.', category: 'Utilities' },
+                    { name: 'Image Tools', url: './image/', icon: '🖼️', desc: 'Quickly process, convert, and manipulate your images right in the browser.', category: 'Media' },
+                    { name: 'Pomodoro Timer', url: './pomo/', icon: '⏱️', desc: 'Boost your focus and productivity with the proven Pomodoro technique.', category: 'Productivity' },
+                    { name: 'News Reader', url: './news/', icon: '📰', desc: 'Stay updated with the latest headlines and articles in a clean interface.', category: 'Utilities' },
+                    { name: 'Mind Map', url: './mind/', icon: '🧠', desc: 'Visualize your thoughts, brainstorm, and organize complex ideas graphically.', category: 'Productivity' },
+                    { name: 'Markdown Editor', url: './md/', icon: '📝', desc: 'Write, edit, and preview markdown with real-time rendering capabilities.', category: 'Developer' },
                     { name: 'Audio Studio', url: './audio/', icon: '🎵', desc: 'Trim, convert formats, and process your audio files entirely in the browser.', category: 'Media' },
                     { name: 'Decision Maker', url: './decide/', icon: '⚖️', desc: 'Make choices easier with this interactive decision wheel and tool.', category: 'Productivity' },
                     { name: 'Finance Engine', url: './finance/', icon: '💰', desc: 'Investment comparison engine with post-tax compounded wealth projections.', category: 'Finance' },
-                    { name: 'Image Tools', url: './image/', icon: '🖼️', desc: 'Quickly process, convert, and manipulate your images right in the browser.', category: 'Media' },
                     { name: 'JSON Formatter', url: './json/', icon: '⚙️', desc: 'Format, parse, minify, and validate your JSON data structures easily.', category: 'Developer' },
-                    { name: 'Markdown Editor', url: './md/', icon: '📝', desc: 'Write, edit, and preview markdown with real-time rendering capabilities.', category: 'Developer' },
-                    { name: 'Mind Map', url: './mind/', icon: '🧠', desc: 'Visualize your thoughts, brainstorm, and organize complex ideas graphically.', category: 'Productivity' },
-                    { name: 'News Reader', url: './news/', icon: '📰', desc: 'Stay updated with the latest headlines and articles in a clean interface.', category: 'Utilities' },
-                    { name: 'Pomodoro Timer', url: './pomo/', icon: '⏱️', desc: 'Boost your focus and productivity with the proven Pomodoro technique.', category: 'Productivity' },
                     { name: 'Quiz Maker', url: './quiz/', icon: '❓', desc: 'Create, test, and take interactive quizzes for learning and assessment.', category: 'Productivity' },
                     { name: 'Signal Scope', url: './signal/', icon: '📡', desc: "Visualize real-time audio from your sound card's line-in with waveform and spectrum views.", category: 'Media' },
                     { name: 'Serial Monitor', url: './serial/', icon: '🔌', desc: 'Read and display real-time USB serial data in the browser. Supports custom baud rates, send commands, and export logs.', category: 'Developer' }

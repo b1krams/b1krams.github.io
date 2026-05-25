@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
 
+<html lang="en">
 <head>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -9,174 +9,138 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 <!-- End Google Tag Manager -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decidely | Modern Decision Matrix</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0b0e14;
-            color: #f8fafc;
-        }
-
-        [v-cloak] {
-            display: none !important;
-        }
-
-        /* Dark mode scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0b0e14;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #30363d;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #484f58;
-        }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Decidely | Modern Decision Matrix</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/logo.png" rel="icon" type="image/png"/>
 </head>
-
-<body class="p-4 md:p-12" id="app" v-cloak>
+<body class="p-4 md:p-12" id="app" v-cloak="">
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+<nav class="global-nav">
+<div class="flex items-center"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
+        Swiss<span>Web</span>
+</a><div class="hidden sm:block border-l border-slate-700/60 pl-4 ml-4 py-1"><h1 class="text-sm font-bold text-slate-200 m-0 leading-none">Decidely</h1></div></div>
+<div class="global-nav-links">
+<a class="global-nav-link" href="/">Home</a>
+</div>
+</nav>
+<div class="max-w-6xl mx-auto">
+<header class="mb-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
 
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
-            <div class="text-center md:text-left">
-                <h1 class="text-4xl font-bold text-white tracking-tight">Decidely</h1>
-                <p class="text-slate-400 mt-2 text-lg">Weight your priorities and find the objective winner.</p>
-            </div>
-            <div class="flex gap-3">
-                <button @click="exportData()" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 transition rounded-xl font-medium shadow-sm flex items-center gap-2 border border-slate-700">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+<div class="flex gap-3">
+<button @click="exportData()" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 transition rounded-xl font-medium shadow-sm flex items-center gap-2 border border-slate-700">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     Export
                 </button>
-                <button @click="$refs.importFile.click()" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 transition rounded-xl font-medium shadow-sm flex items-center gap-2 border border-slate-700">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+<button @click="$refs.importFile.click()" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 transition rounded-xl font-medium shadow-sm flex items-center gap-2 border border-slate-700">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     Import
                 </button>
-                <input type="file" ref="importFile" @change="importData" class="hidden" accept=".json">
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
-            <div class="lg:col-span-1 space-y-6">
-                <div class="bg-[#161b22] p-6 rounded-2xl shadow-sm border border-slate-800">
-                    <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4">1. Define Criteria</h2>
-                    <template v-for="(crit, index) in criteria" :key="index">
-                        <div class="mb-5 group bg-[#0d1117] p-3 rounded-xl border border-slate-800">
-                            <div class="flex justify-between mb-2">
-                                <input type="text" v-model="crit.name"
-                                    class="font-semibold text-slate-200 bg-transparent border-b border-transparent focus:border-indigo-500 focus:ring-0 p-1 w-full outline-none transition">
-                                <button @click="removeCriteria(index)"
-                                    class="text-slate-600 hover:text-red-500 transition ml-2 p-1">✕</button>
-                            </div>
-                            <input type="range" v-model.number="crit.weight" min="1" max="10"
-                                class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
-                            <div class="flex justify-between text-xs font-medium text-slate-500 mt-2 px-1">
-                                <span>Weight</span>
-                                <span class="bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full">{{ crit.weight }}</span>
-                            </div>
-                        </div>
-                    </template>
-                    <button @click="addCriteria()"
-                        class="w-full py-3 mt-2 text-sm font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-xl hover:bg-indigo-500/20 transition shadow-sm">
+<input @change="importData" accept=".json" class="hidden" ref="importFile" type="file"/>
+</div>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+<div class="lg:col-span-1 space-y-6">
+<div class="bg-[#161b22] p-6 rounded-2xl shadow-sm border border-slate-800">
+<h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4">1. Define Criteria</h2>
+<template :key="index" v-for="(crit, index) in criteria">
+<div class="mb-5 group bg-[#0d1117] p-3 rounded-xl border border-slate-800">
+<div class="flex justify-between mb-2">
+<input class="font-semibold text-slate-200 bg-transparent border-b border-transparent focus:border-indigo-500 focus:ring-0 p-1 w-full outline-none transition" type="text" v-model="crit.name"/>
+<button @click="removeCriteria(index)" class="text-slate-600 hover:text-red-500 transition ml-2 p-1">✕</button>
+</div>
+<input class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" max="10" min="1" type="range" v-model.number="crit.weight"/>
+<div class="flex justify-between text-xs font-medium text-slate-500 mt-2 px-1">
+<span>Weight</span>
+<span class="bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full">{{ crit.weight }}</span>
+</div>
+</div>
+</template>
+<button @click="addCriteria()" class="w-full py-3 mt-2 text-sm font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-xl hover:bg-indigo-500/20 transition shadow-sm">
                         + Add Criterion
                     </button>
-                </div>
-            </div>
-
-            <div class="lg:col-span-3 space-y-6">
-                <div class="bg-[#161b22] rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full border-collapse">
-                            <thead>
-                                <tr class="bg-slate-900/50 border-b border-slate-800">
-                                    <th class="p-3 sm:p-4 md:p-6 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-800">Criteria</th>
-                                    <template v-for="(option, optIdx) in options" :key="optIdx">
-                                        <th class="p-3 sm:p-4 md:p-6 min-w-[120px] md:min-w-[160px] border-r border-slate-800 group relative hover:bg-slate-800/50 transition">
-                                            <div class="flex items-center justify-center">
-                                                <input type="text" v-model="option.name"
-                                                    class="font-bold text-lg text-slate-200 bg-transparent border-b-2 border-transparent focus:border-indigo-500 focus:ring-0 p-1 text-center w-full outline-none transition">
-                                                <button @click="removeOption(optIdx)"
-                                                    class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-500 transition bg-slate-800 rounded-full p-0.5 shadow-sm">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>   
-                                                </button>
-                                            </div>
-                                        </th>
-                                    </template>
-                                    <th class="p-3 sm:p-4 md:p-6 w-16 md:w-24">
-                                        <button @click="addOption()"
-                                            class="p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20 flex mx-auto">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                            </svg>
-                                        </button>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <template v-for="(crit, cIdx) in criteria" :key="cIdx">
-                                    <tr class="border-b border-slate-800 even:bg-slate-900/30 hover:bg-indigo-500/5 transition">
-                                        <td class="p-3 sm:p-4 md:p-6 border-r border-slate-800">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-slate-300 font-semibold">{{ crit.name }}</span>
-                                                <span class="text-xs bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full font-bold ml-2 whitespace-nowrap shrink-0">{{ '× ' + crit.weight }}</span>
-                                            </div>
-                                        </td>
-                                        <template v-for="(option, oIdx) in options" :key="oIdx">
-                                            <td class="p-3 sm:p-4 md:p-6 text-center border-r border-slate-800">
-                                                <input type="number" v-model.number="scores[oIdx][cIdx]" min="0" max="10"
-                                                    class="w-20 text-center text-lg font-medium bg-[#0d1117] border border-slate-700 rounded-lg py-2 px-3 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition shadow-sm text-white">
-                                            </td>
-                                        </template>
-                                        <td></td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                            <tfoot>
-                                <tr class="bg-indigo-600 border-t-4 border-indigo-400">
-                                    <td class="p-3 sm:p-4 md:p-6 font-bold text-white text-base md:text-lg border-r border-indigo-500">Total Score</td>
-                                    <template v-for="(option, oIdx) in options" :key="oIdx">
-                                        <td class="p-3 sm:p-4 md:p-6 text-center border-r border-indigo-500 relative overflow-hidden">
-                                            <div v-show="isWinner(oIdx)" class="absolute inset-0 bg-emerald-500 opacity-20"></div>
-                                            <div class="text-3xl font-black relative z-10"
-                                                :class="isWinner(oIdx) ? 'text-emerald-400' : 'text-white'">{{ calculateTotal(oIdx) }}</div>
-                                            <div v-show="isWinner(oIdx)" class="text-xs font-bold text-emerald-400 uppercase tracking-widest mt-2 relative z-10">
+</div>
+</div>
+<div class="lg:col-span-3 space-y-6">
+<div class="bg-[#161b22] rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full border-collapse">
+<thead>
+<tr class="bg-slate-900/50 border-b border-slate-800">
+<th class="p-3 sm:p-4 md:p-6 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-800">Criteria</th>
+<template :key="optIdx" v-for="(option, optIdx) in options">
+<th class="p-3 sm:p-4 md:p-6 min-w-[120px] md:min-w-[160px] border-r border-slate-800 group relative hover:bg-slate-800/50 transition">
+<div class="flex items-center justify-center">
+<input class="font-bold text-lg text-slate-200 bg-transparent border-b-2 border-transparent focus:border-indigo-500 focus:ring-0 p-1 text-center w-full outline-none transition" type="text" v-model="option.name"/>
+<button @click="removeOption(optIdx)" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-500 transition bg-slate-800 rounded-full p-0.5 shadow-sm">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</th>
+</template>
+<th class="p-3 sm:p-4 md:p-6 w-16 md:w-24">
+<button @click="addOption()" class="p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20 flex mx-auto">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</th>
+</tr>
+</thead>
+<tbody>
+<template :key="cIdx" v-for="(crit, cIdx) in criteria">
+<tr class="border-b border-slate-800 even:bg-slate-900/30 hover:bg-indigo-500/5 transition">
+<td class="p-3 sm:p-4 md:p-6 border-r border-slate-800">
+<div class="flex items-center justify-between">
+<span class="text-slate-300 font-semibold">{{ crit.name }}</span>
+<span class="text-xs bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full font-bold ml-2 whitespace-nowrap shrink-0">{{ '× ' + crit.weight }}</span>
+</div>
+</td>
+<template :key="oIdx" v-for="(option, oIdx) in options">
+<td class="p-3 sm:p-4 md:p-6 text-center border-r border-slate-800">
+<input class="w-20 text-center text-lg font-medium bg-[#0d1117] border border-slate-700 rounded-lg py-2 px-3 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition shadow-sm text-white" max="10" min="0" type="number" v-model.number="scores[oIdx][cIdx]"/>
+</td>
+</template>
+<td></td>
+</tr>
+</template>
+</tbody>
+<tfoot>
+<tr class="bg-indigo-600 border-t-4 border-indigo-400">
+<td class="p-3 sm:p-4 md:p-6 font-bold text-white text-base md:text-lg border-r border-indigo-500">Total Score</td>
+<template :key="oIdx" v-for="(option, oIdx) in options">
+<td class="p-3 sm:p-4 md:p-6 text-center border-r border-indigo-500 relative overflow-hidden">
+<div class="absolute inset-0 bg-emerald-500 opacity-20" v-show="isWinner(oIdx)"></div>
+<div :class="isWinner(oIdx) ? 'text-emerald-400' : 'text-white'" class="text-3xl font-black relative z-10">{{ calculateTotal(oIdx) }}</div>
+<div class="text-xs font-bold text-emerald-400 uppercase tracking-widest mt-2 relative z-10" v-show="isWinner(oIdx)">
                                                 🏆 Winner
                                             </div>
-                                        </td>
-                                    </template>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-4 bg-indigo-500/5 border border-indigo-500/10 p-5 rounded-2xl text-indigo-300 text-sm shadow-sm">
-                    <span class="text-2xl">💡</span>
-                    <p class="leading-relaxed">Enter scores from <strong>1 to 10</strong> for each criterion. The tool automatically multiplies the score by the weight to calculate the final ranking. Your data is <strong>autosaved</strong> to your browser.</p>
-                </div>
-            </div>
-        </div>
-
-        <footer class="mt-16 mb-4 text-center text-slate-400 text-sm">
+</td>
+</template>
+<td></td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-indigo-500/5 border border-indigo-500/10 p-5 rounded-2xl text-indigo-300 text-sm shadow-sm">
+<span class="text-2xl">💡</span>
+<p class="leading-relaxed">Enter scores from <strong>1 to 10</strong> for each criterion. The tool automatically multiplies the score by the weight to calculate the final ranking. Your data is <strong>autosaved</strong> to your browser.</p>
+</div>
+</div>
+</div>
+<footer class="mt-16 mb-4 text-center text-slate-400 text-sm">
             Made with ❤️ by Bikram
         </footer>
-    </div>
-
-    <script>
+</div>
+<script>
         const { createApp, ref, watch, onMounted } = Vue;
 
         createApp({
@@ -315,5 +279,4 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }).mount('#app');
     </script>
 </body>
-
 </html>

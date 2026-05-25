@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <!-- Google Tag Manager -->
@@ -8,118 +9,100 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 <!-- End Google Tag Manager -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Swift | Merge & Split</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="/style.css" rel="stylesheet">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PDF Swift | Merge &amp; Split</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/logo.png" rel="icon" type="image/png"/>
 </head>
 <body class="min-h-screen font-sans text-slate-100">
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
-
 <nav class="global-nav">
-    <a href="/" class="global-nav-brand">
-        <svg class="global-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-        </svg>
+<div class="flex items-center"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
         Swiss<span>Web</span>
-    </a>
-    <div class="global-nav-links">
-        <a href="/" class="global-nav-link">Home</a>
-    </div>
+</a><div class="hidden sm:block border-l border-slate-700/60 pl-4 ml-4 py-1"><h1 class="text-sm font-bold text-slate-200 m-0 leading-none" style="background: linear-gradient(135deg,#818cf8,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">PDF Swift</h1></div></div>
+<div class="global-nav-links">
+<a class="global-nav-link" href="/">Home</a>
+</div>
 </nav>
+<div class="max-w-4xl mx-auto py-6 sm:py-12 px-4">
 
-
-    <div class="max-w-4xl mx-auto py-6 sm:py-12 px-4">
-        <div class="text-center mb-8 sm:mb-10">
-            <h1 class="text-3xl sm:text-4xl font-extrabold mb-2" style="background: linear-gradient(135deg,#818cf8,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">PDF Swift</h1>
-            <p class="text-sm sm:text-base text-slate-400">Fast, local, and secure PDF processing.</p>
-        </div>
-
-        <div class="glass rounded-3xl shadow-xl p-4 sm:p-8">
-            
-            <div id="dropZone" class="border-2 border-dashed border-slate-700 rounded-2xl p-6 sm:p-10 text-center transition-all cursor-pointer hover:border-indigo-500 group">
-                <input type="file" id="fileInput" multiple accept="application/pdf,image/jpeg,image/jpg" class="hidden">
-                <div class="flex flex-col items-center">
-                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-500/10 text-indigo-400 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-cloud-arrow-up text-xl sm:text-2xl"></i>
-                    </div>
-                    <p class="text-base sm:text-lg font-medium text-slate-200">Drag & drop PDFs/JPGs or <span class="text-indigo-400">browse</span></p>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Files are processed locally in your browser</p>
-                </div>
-            </div>
-
-            <!-- Target Size Input (Top Form) -->
-            <div class="mt-5 p-4 rounded-2xl border border-violet-500/20 bg-violet-500/5">
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-compress text-violet-400 text-sm"></i>
-                        <div class="flex flex-col">
-                            <span class="text-sm font-semibold text-slate-300">Target PDF Size Constraint (Optional)</span>
-                            <span class="text-xs text-slate-500">Converts pages to JPEG internally to hit target size</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-2 self-start sm:self-auto">
-                        <label for="targetSizeMB" class="text-xs text-slate-400 whitespace-nowrap">Target size</label>
-                        <div class="flex items-center gap-1">
-                            <input type="number" id="targetSizeMB" min="0.1" step="0.1" placeholder="e.g. 1.5"
-                                class="bg-transparent text-slate-100 text-sm w-16 sm:w-20 outline-none placeholder-slate-600 text-right sm:text-left">
-                            <span class="text-xs text-slate-500 font-medium">MB</span>
-                        </div>
-                    </div>
-                </div>
-                <div id="compressProgress" class="hidden mt-4 space-y-1.5 border-t border-slate-700/60 pt-3">
-                    <div class="flex items-center justify-between">
-                        <span id="compressStatus" class="text-xs text-slate-400">Processing...</span>
-                        <span id="compressPercent" class="text-xs text-violet-400 font-mono">0%</span>
-                    </div>
-                    <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                        <div id="compressBar" class="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-[width] duration-300" style="width:0%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="fileListContainer" class="mt-8 hidden">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-                    <h3 class="font-semibold text-slate-300 flex items-center text-sm sm:text-base">
-                        <i class="fa-solid fa-file-pdf mr-2 text-indigo-400"></i> Selected Files
+<div class="glass rounded-3xl shadow-xl p-4 sm:p-8">
+<div class="border-2 border-dashed border-slate-700 rounded-2xl p-6 sm:p-10 text-center transition-all cursor-pointer hover:border-indigo-500 group" id="dropZone">
+<input accept="application/pdf,image/jpeg,image/jpg" class="hidden" id="fileInput" multiple="" type="file"/>
+<div class="flex flex-col items-center">
+<div class="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-500/10 text-indigo-400 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<i class="fa-solid fa-cloud-arrow-up text-xl sm:text-2xl"></i>
+</div>
+<p class="text-base sm:text-lg font-medium text-slate-200">Drag &amp; drop PDFs/JPGs or <span class="text-indigo-400">browse</span></p>
+<p class="text-xs sm:text-sm text-slate-500 mt-1">Files are processed locally in your browser</p>
+</div>
+</div>
+<!-- Target Size Input (Top Form) -->
+<div class="mt-5 p-4 rounded-2xl border border-violet-500/20 bg-violet-500/5">
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-compress text-violet-400 text-sm"></i>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-300">Target PDF Size Constraint (Optional)</span>
+<span class="text-xs text-slate-500">Converts pages to JPEG internally to hit target size</span>
+</div>
+</div>
+<div class="flex items-center gap-2 bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-2 self-start sm:self-auto">
+<label class="text-xs text-slate-400 whitespace-nowrap" for="targetSizeMB">Target size</label>
+<div class="flex items-center gap-1">
+<input class="bg-transparent text-slate-100 text-sm w-16 sm:w-20 outline-none placeholder-slate-600 text-right sm:text-left" id="targetSizeMB" min="0.1" placeholder="e.g. 1.5" step="0.1" type="number"/>
+<span class="text-xs text-slate-500 font-medium">MB</span>
+</div>
+</div>
+</div>
+<div class="hidden mt-4 space-y-1.5 border-t border-slate-700/60 pt-3" id="compressProgress">
+<div class="flex items-center justify-between">
+<span class="text-xs text-slate-400" id="compressStatus">Processing...</span>
+<span class="text-xs text-violet-400 font-mono" id="compressPercent">0%</span>
+</div>
+<div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-[width] duration-300" id="compressBar" style="width:0%"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 hidden" id="fileListContainer">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+<h3 class="font-semibold text-slate-300 flex items-center text-sm sm:text-base">
+<i class="fa-solid fa-file-pdf mr-2 text-indigo-400"></i> Selected Files
                     </h3>
-                    <span class="text-xs text-slate-500 flex items-center gap-1">
-                        <i class="fa-solid fa-grip-lines"></i> Drag rows to reorder
+<span class="text-xs text-slate-500 flex items-center gap-1">
+<i class="fa-solid fa-grip-lines"></i> Drag rows to reorder
                     </span>
-                </div>
-                <ul id="fileList" class="space-y-3 mb-8">
-                    </ul>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 border-t border-slate-700/60 pt-6 sm:pt-8">
-                    <button id="mergeBtn" onclick="mergePDFs()" class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all shadow-lg shadow-indigo-900/40 text-sm sm:text-base">
-                        <i class="fa-solid fa-layer-group mr-2"></i> Combine & Save PDF
+</div>
+<ul class="space-y-3 mb-8" id="fileList">
+</ul>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 border-t border-slate-700/60 pt-6 sm:pt-8">
+<button class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all shadow-lg shadow-indigo-900/40 text-sm sm:text-base" id="mergeBtn" onclick="mergePDFs()">
+<i class="fa-solid fa-layer-group mr-2"></i> Combine &amp; Save PDF
                     </button>
-                    <button id="splitBtn" onclick="splitPDFs()" class="btn-split flex items-center justify-center font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all border-2 border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10 text-sm sm:text-base">
-                        <i class="fa-solid fa-scissors mr-2"></i> Split Pages to ZIP
+<button class="btn-split flex items-center justify-center font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all border-2 border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10 text-sm sm:text-base" id="splitBtn" onclick="splitPDFs()">
+<i class="fa-solid fa-scissors mr-2"></i> Split Pages to ZIP
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <footer class="mt-8 text-center text-slate-600 text-sm">
+</div>
+</div>
+</div>
+<footer class="mt-8 text-center text-slate-600 text-sm">
             Made with <i class="fa-solid fa-heart text-red-500"></i> by Bikram
         </footer>
-    </div>
-
-    <!-- Toast Container -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-    <script>
+</div>
+<!-- Toast Container -->
+<div class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none" id="toastContainer"></div>
+<script>
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
@@ -627,5 +610,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               return bestResult;
           }
       </script>
-  </body>
-  </html>
+</body>
+</html>

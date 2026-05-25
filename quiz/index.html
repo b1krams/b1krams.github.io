@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
 
+<html lang="en">
 <head>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -9,385 +9,79 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 <!-- End Google Tag Manager -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Player</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Montserrat:wght@700;800&display=swap"
-        rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-    <style>
-        :root {
-            --primary: #6366f1; /* Electric Indigo */
-            --primary-hover: #4f46e5;
-            --success: #10b981;
-            --error: #ef4444;
-            --bg-gradient: radial-gradient(circle at top right, #161b22, #0b0e14);
-            --app-bg: rgba(22, 27, 34, 0.7); /* Glassmorphism */
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --option-bg: rgba(255, 255, 255, 0.03);
-            --option-hover-bg: rgba(255, 255, 255, 0.06);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-main);
-            padding: 40px 20px;
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #app {
-            max-width: 700px;
-            width: 100%;
-            margin: auto;
-            background: var(--app-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 40px;
-            border-radius: 24px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        h1,
-        .question-text {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 800;
-        }
-
-        .upload-area {
-            border: 2px dashed rgba(255,255,255,0.2);
-            padding: 60px 20px;
-            text-align: center;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .upload-area:hover {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.05);
-        }
-
-        .error-banner {
-            background: rgba(239, 68, 68, 0.1);
-            color: #fca5a5;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            backdrop-filter: blur(8px);
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .question-text {
-            font-size: 1.4rem;
-            margin-bottom: 25px;
-            line-height: 1.5;
-            color: #ffffff;
-        }
-
-        .options-grid {
-            display: grid;
-            gap: 12px;
-        }
-
-        .option-btn {
-            padding: 18px;
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            background: var(--option-bg);
-            color: var(--text-main);
-            cursor: pointer;
-            text-align: left;
-            font-size: 1.1rem;
-            transition: all 0.25s ease;
-            font-weight: 500;
-            backdrop-filter: blur(4px);
-        }
-
-        .option-btn:hover:not(:disabled) {
-            border-color: var(--primary);
-            background: var(--option-hover-bg);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .option-btn:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .option-btn.correct-choice {
-            border-color: var(--success);
-            background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
-        }
-
-        .option-btn.wrong-choice {
-            border-color: var(--error);
-            background: rgba(239, 68, 68, 0.15);
-            color: #f87171;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
-        }
-
-        .feedback-box {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            animation: fadeIn 0.4s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .feedback-box.is-correct {
-            background: rgba(16, 185, 129, 0.1);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-
-        .feedback-box.is-wrong {
-            background: rgba(239, 68, 68, 0.1);
-            border-color: rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-action {
-            margin-top: 20px;
-            width: 100%;
-            padding: 18px;
-            border: none;
-            border-radius: 14px;
-            background: var(--primary);
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-action:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
-        }
-        
-        .btn-action:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            margin-top: 12px;
-            width: auto;
-            padding: 12px 28px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(4px);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--primary);
-            color: white;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-secondary.copied {
-            border-color: var(--success);
-            color: var(--success);
-        }
-
-        /* Mobile-first touch targets */
-        .option-btn,
-        .btn-action {
-            min-height: 48px;
-        }
-
-        /* Tablets & small screens */
-        @media (max-width: 600px) {
-            body {
-                padding: 16px 8px;
-            }
-
-            #app {
-                padding: 24px 18px;
-                border-radius: 18px;
-            }
-
-            .question-text {
-                font-size: 1.15rem;
-            }
-
-            .option-btn {
-                font-size: 1rem;
-                padding: 14px;
-            }
-
-            .btn-action {
-                font-size: 1rem;
-                padding: 16px;
-            }
-
-            .upload-area {
-                padding: 40px 16px;
-            }
-
-            .upload-area .btn-action {
-                width: 100%;
-                padding: 16px;
-            }
-
-            .score-value {
-                font-size: 3rem !important;
-            }
-        }
-
-        /* Narrow phones */
-        @media (max-width: 400px) {
-            body {
-                padding: 8px 4px;
-            }
-
-            #app {
-                padding: 18px 12px;
-                border-radius: 14px;
-            }
-
-            h1 {
-                font-size: 1.4rem;
-            }
-
-            .question-text {
-                font-size: 1.05rem;
-                margin-bottom: 18px;
-            }
-
-            .option-btn {
-                font-size: 0.95rem;
-                padding: 12px;
-                border-radius: 12px;
-            }
-
-            .btn-action {
-                font-size: 0.95rem;
-                padding: 14px;
-                border-radius: 12px;
-            }
-
-            .feedback-box {
-                padding: 14px;
-            }
-
-            .score-value {
-                font-size: 2.5rem !important;
-            }
-        }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quiz Player</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Montserrat:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" rel="stylesheet"/>
+<script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/logo.png" rel="icon" type="image/png"/>
 </head>
-
 <body>
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+<nav class="global-nav">
+    <a href="/" class="global-nav-brand">
+        <img src="/logo.png" alt="Logo" class="global-nav-icon">
+        Swiss<span>Web</span>
+    </a>
+    <div class="global-nav-links">
+        <a href="/" class="global-nav-link">Home</a>
+    </div>
+</nav>
+<div id="app" class="app-container">
+<div class="error-banner" v-if="errorMessage">⚠️ {{ errorMessage }}</div>
+<div class="upload-area" v-if="!questions.length">
 
-    <div id="app">
-        <div v-if="errorMessage" class="error-banner">⚠️ {{ errorMessage }}</div>
 
-        <div v-if="!questions.length" class="upload-area">
-            <h1>Quiz Player</h1>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">Upload your .md file to start.</p>
-            <input type="file" @change="handleFileUpload" accept=".md" id="fileInput" style="display: none">
-            <button class="btn-action" style="width: auto; padding: 18px 40px;"
-                onclick="document.getElementById('fileInput').click()">Upload Markdown</button>
-            <br>
-            <button class="btn-secondary" :class="{ copied: templateCopied }" @click="copyTemplate">{{ templateCopied ?
+<input @change="handleFileUpload" accept=".md" id="fileInput" style="display: none" type="file"/>
+<button class="btn-action" onclick="document.getElementById('fileInput').click()" style="width: auto; padding: 18px 40px;">Upload Markdown</button>
+<br/>
+<button :class="{ copied: templateCopied }" @click="copyTemplate" class="btn-secondary">{{ templateCopied ?
                 '✓ Copied!' : '📋 Copy prompt for AI' }}</button>
-            <br>
-            <button class="btn-secondary" @click="downloadSample">⬇️ Download sample `questions.md`</button>
-        </div>
-
-        <div v-else-if="!quizCompleted">
-            <div
-                style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px;">
+<br/>
+<button @click="downloadSample" class="btn-secondary">⬇️ Download sample `questions.md`</button>
+</div>
+<div v-else-if="!quizCompleted">
+<div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px;">
                 QUESTION {{ currentIndex + 1 }} OF {{ questions.length }}</div>
-            <div class="progress-bar">
-                <div class="progress-fill" :style="{ width: ((currentIndex + 1) / questions.length) * 100 + '%' }">
-                </div>
-            </div>
-
-            <div class="question-text">{{ currentQuestion.questionText }}</div>
-
-            <div class="options-grid" :key="currentIndex">
-                <button v-for="opt in currentQuestion.options" :key="opt.id" @click="checkAnswer(opt.id)"
-                    :disabled="showFeedback" :class="['option-btn', getOptionClass(opt.id)]">
-                    <strong>{{ opt.id }}</strong> &nbsp; {{ opt.text }}
+<div class="progress-bar">
+<div :style="{ width: ((currentIndex + 1) / questions.length) * 100 + '%' }" class="progress-fill">
+</div>
+</div>
+<div class="question-text">{{ currentQuestion.questionText }}</div>
+<div :key="currentIndex" class="options-grid">
+<button :class="['option-btn', getOptionClass(opt.id)]" :disabled="showFeedback" :key="opt.id" @click="checkAnswer(opt.id)" v-for="opt in currentQuestion.options">
+<strong>{{ opt.id }}</strong>   {{ opt.text }}
                 </button>
-            </div>
-
-            <div v-if="showFeedback" :class="['feedback-box', isCorrect ? 'is-correct' : 'is-wrong']">
-                <h3 style="margin:0">{{ isCorrect ? '✓ Well Done!' : '✗ Not Quite' }}</h3>
-                <p>{{ currentQuestion.explanation }}</p>
-                <button class="btn-action" @click="nextQuestion">
+</div>
+<div :class="['feedback-box', isCorrect ? 'is-correct' : 'is-wrong']" v-if="showFeedback">
+<h3 style="margin:0">{{ isCorrect ? '✓ Well Done!' : '✗ Not Quite' }}</h3>
+<p>{{ currentQuestion.explanation }}</p>
+<button @click="nextQuestion" class="btn-action">
                     {{ currentIndex === questions.length - 1 ? 'Finish Quiz' : 'Continue' }}
                 </button>
-            </div>
-        </div>
-
-        <div v-else style="text-align: center;">
-            <h1>Assessment Complete</h1>
-            <div class="score-value" style="font-size: 4rem; font-weight: 800; color: var(--primary); margin: 20px 0;">
+</div>
+</div>
+<div style="text-align: center;" v-else="">
+<h1>Assessment Complete</h1>
+<div class="score-value" style="font-size: 4rem; font-weight: 800; color: var(--primary); margin: 20px 0;">
                 {{ Math.round((score/questions.length)*100) }}%</div>
-            <p style="font-size: 1.15rem; color: var(--text-muted); margin-bottom: 24px;">{{ score }} out of {{
+<p style="font-size: 1.15rem; color: var(--text-muted); margin-bottom: 24px;">{{ score }} out of {{
                 questions.length }} correct</p>
-            <button class="btn-action" @click="resetQuiz">Restart Quiz</button>
-        </div>
-    </div>
-
-    <footer style="margin-top: auto; text-align: center; color: var(--text-muted); font-size: 0.875rem; padding-bottom: 1rem; padding-top: 2rem;">
-        Made with <span style="color: var(--error);">&hearts;</span> by Bikram
+<button @click="resetQuiz" class="btn-action">Restart Quiz</button>
+</div>
+</div>
+<footer style="margin-top: auto; text-align: center; color: var(--text-muted); font-size: 0.875rem; padding-bottom: 1rem; padding-top: 2rem;">
+        Made with <span style="color: var(--error);">♥</span> by Bikram
     </footer>
-
-    <script>
+<script>
         const { createApp, ref, computed, nextTick } = Vue;
 
         createApp({
@@ -599,7 +293,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }).mount('#app');
     </script>
-
 </body>
-
 </html>
