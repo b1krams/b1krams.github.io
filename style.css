@@ -2979,11 +2979,13 @@ body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparen
         }
 
         /* ── Controls (inline in toolbar) ──────── */
-        .controls {
+        .toolbar .controls {
             display: flex;
+            flex-direction: row;
             align-items: center;
             gap: 0.4rem;
             flex-wrap: nowrap;
+            margin-bottom: 0;
         }
 
         .btn {
