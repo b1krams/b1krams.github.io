@@ -75,12 +75,56 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-[width] duration-300" id="compressBar" style="width:0%"></div>
 </div>
 </div>
+<div class="mt-4 flex flex-col border-t border-slate-700/40 pt-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-print text-violet-400 text-sm"></i>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-300">Pure Black & White (Save Ink)</span>
+<span class="text-xs text-slate-500">Converts scanned backgrounds to pure white and text to dark black</span>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="binarizeToggle" class="sr-only peer" onchange="toggleBinarize()"/>
+<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
+</label>
+</div>
+<div id="thresholdSliderContainer" class="hidden mt-3 pl-7 flex flex-col gap-3 border-t border-slate-700/20 pt-3">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<div class="flex flex-col">
+<span class="text-xs font-semibold text-slate-400">B&W Contrast Threshold</span>
+<span class="text-[10px] text-slate-500">Lower for lighter text/wider white background, higher for bolder text</span>
+</div>
+<div class="flex items-center gap-3">
+<input type="range" id="binarizeThreshold" min="50" max="220" value="140" class="w-32 accent-indigo-500 cursor-pointer h-1 bg-slate-800 rounded-lg appearance-none" oninput="updateThreshold(this.value)"/>
+<span id="thresholdValue" class="text-xs font-mono text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">140</span>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-700/10 pt-3">
+<div class="flex flex-col">
+<span class="text-xs font-semibold text-slate-400">Ink Saving Mode / Gray Levels</span>
+<span class="text-[10px] text-slate-500">Choose discrete steps or smooth grays to preserve detail</span>
+</div>
+<select id="binarizeLevels" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none text-slate-200 cursor-pointer focus:border-indigo-500 transition-colors" onchange="updateBinarizeLevels(this.value)">
+<option value="2">2 Levels (Pure B&W)</option>
+<option value="3">3 Levels (Tri-Tone)</option>
+<option value="4">4 Levels (Quad-Tone)</option>
+<option value="smooth" selected>Smooth Ink-Saver</option>
+</select>
+</div>
+</div>
+</div>
 </div>
 <div class="mt-8 hidden" id="fileListContainer">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+<div class="flex items-center gap-3">
 <h3 class="font-semibold text-slate-300 flex items-center text-sm sm:text-base">
 <i class="fa-solid fa-file-pdf mr-2 text-indigo-400"></i> Selected Files
                     </h3>
+<button id="sortByNameBtn" onclick="sortFilesByName()" class="text-xs font-medium text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 shadow-sm" title="Sort files alphabetically by name">
+<i class="fa-solid fa-arrow-down-a-z"></i> Sort A-Z
+</button>
+</div>
 <span class="text-xs text-slate-500 flex items-center gap-1">
 <i class="fa-solid fa-grip-lines"></i> Drag rows to reorder
                     </span>
@@ -209,6 +253,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         const fileListContainer = document.getElementById('fileListContainer');
         
         let selectedFiles = [];
+        let sortAsc = true;
+        let applyBinarize = false;
+        let binarizeThresholdValue = 140;
+        let binarizeLevelsMode = 'smooth';
 
         // UI Event Listeners
         dropZone.addEventListener('click', () => fileInput.click());
@@ -295,6 +343,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
           function removeFile(index) {
               selectedFiles.splice(index, 1);
+              renderFileList();
+          }
+
+          function sortFilesByName() {
+              if (selectedFiles.length === 0) return;
+              
+              selectedFiles.sort((a, b) => {
+                  const nameA = a.file.name.toLowerCase();
+                  const nameB = b.file.name.toLowerCase();
+                  return sortAsc ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+              });
+              
+              const sortBtn = document.getElementById('sortByNameBtn');
+              if (sortBtn) {
+                  sortBtn.innerHTML = sortAsc 
+                      ? '<i class="fa-solid fa-arrow-down-z-a"></i> Sort Z-A' 
+                      : '<i class="fa-solid fa-arrow-down-a-z"></i> Sort A-Z';
+                  sortBtn.title = sortAsc ? 'Sort files Z to A' : 'Sort files A to Z';
+              }
+              
+              showToast(`Sorted files alphabetically (${sortAsc ? 'A-Z' : 'Z-A'})`);
+              sortAsc = !sortAsc;
               renderFileList();
           }
 
@@ -455,6 +525,92 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                   }, 300);
               }, 3000);
           }
+           function toggleBinarize() {
+              applyBinarize = document.getElementById('binarizeToggle').checked;
+              const sliderContainer = document.getElementById('thresholdSliderContainer');
+              if (applyBinarize) {
+                  sliderContainer.classList.remove('hidden');
+              } else {
+                  sliderContainer.classList.add('hidden');
+              }
+              showToast(applyBinarize ? 'B&W Ink-Saver filter enabled' : 'B&W Ink-Saver filter disabled');
+              if (lightbox && !lightbox.classList.contains('hidden') && previewState.index !== null) {
+                  previewState.cachedPages.clear();
+                  if (previewState.item.isImage) {
+                      previewFile(previewState.index);
+                  } else {
+                      renderPreviewPage(previewState.pageNum);
+                  }
+              }
+          }
+
+          function updateThreshold(val) {
+              binarizeThresholdValue = parseInt(val, 10);
+              document.getElementById('thresholdValue').textContent = val;
+              refreshBinarizedPreview();
+          }
+
+          function updateBinarizeLevels(val) {
+              binarizeLevelsMode = val;
+              refreshBinarizedPreview();
+          }
+
+          function binarizeCanvas(canvas) {
+              const ctx = canvas.getContext('2d');
+              const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              const data = imgData.data;
+              const threshold = binarizeThresholdValue; 
+              for (let i = 0; i < data.length; i += 4) {
+                  const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                  let v;
+                  if (gray >= threshold) {
+                      v = 255; // Always drop background to pure white to save ink
+                  } else {
+                      if (binarizeLevelsMode === '2') {
+                          v = 0; // Pure B&W
+                      } else if (binarizeLevelsMode === '3') {
+                          const mid = threshold / 2;
+                          v = (gray >= mid) ? 140 : 0; // Black, Gray, White
+                      } else if (binarizeLevelsMode === '4') {
+                          const step = threshold / 3;
+                          if (gray >= step * 2) {
+                              v = 180; // Light Gray
+                          } else if (gray >= step) {
+                              v = 90;  // Dark Gray
+                          } else {
+                              v = 0;   // Black
+                          }
+                      } else if (binarizeLevelsMode === 'smooth') {
+                          v = Math.round((gray / threshold) * 220); // Smooth scaling
+                      }
+                  }
+                  data[i] = data[i + 1] = data[i + 2] = v;
+              }
+              ctx.putImageData(imgData, 0, 0);
+          }
+
+          async function binarizeImageBytes(bytes, mimeType) {
+              return new Promise((resolve) => {
+                  const blob = new Blob([bytes], { type: mimeType });
+                  const url = URL.createObjectURL(blob);
+                  const img = new Image();
+                  img.onload = () => {
+                      const canvas = document.createElement('canvas');
+                      canvas.width = img.naturalWidth;
+                      canvas.height = img.naturalHeight;
+                      const ctx = canvas.getContext('2d');
+                      ctx.drawImage(img, 0, 0);
+                      binarizeCanvas(canvas);
+                      
+                      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                      const b64 = dataUrl.split(',')[1];
+                      const binarizedBytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+                      URL.revokeObjectURL(url);
+                      resolve(binarizedBytes);
+                  };
+                  img.src = url;
+              });
+          }
 
           function getTimestampSuffix() {
               const now = new Date();
@@ -504,30 +660,58 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               
               try {
                   const mergedPdf = await PDFLib.PDFDocument.create();
-                  
-                  for (const item of selectedFiles) {
+                                 for (const item of selectedFiles) {
                       const bytes = await item.file.arrayBuffer();
                       if (item.isImage) {
-                          const img = await mergedPdf.embedJpg(bytes);
+                          let imgBytes = bytes;
+                          if (applyBinarize) {
+                              imgBytes = await binarizeImageBytes(bytes, item.file.type);
+                          }
+                          const img = await mergedPdf.embedJpg(imgBytes);
                           addImagePageToPdf(mergedPdf, img);
                       } else {
-                          const pdf = await PDFLib.PDFDocument.load(bytes);
-                          const pageCount = pdf.getPageCount();
-                          const pagesToRemove = parsePageNumbers(item.removePages, pageCount);
-                          
-                          const pagesToCopy = [];
-                          for (let i = 0; i < pageCount; i++) {
-                              if (!pagesToRemove.has(i)) {
-                                  pagesToCopy.push(i);
+                          if (applyBinarize) {
+                              const pdfJsDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+                              const pageCount = pdfJsDoc.numPages;
+                              const pagesToRemove = parsePageNumbers(item.removePages, pageCount);
+                              
+                              for (let i = 1; i <= pageCount; i++) {
+                                  if (pagesToRemove.has(i - 1)) continue;
+                                  const page = await pdfJsDoc.getPage(i);
+                                  const viewport = page.getViewport({ scale: 2.0 });
+                                  const canvas = document.createElement('canvas');
+                                  canvas.width = viewport.width;
+                                  canvas.height = viewport.height;
+                                  const ctx = canvas.getContext('2d');
+                                  await page.render({ canvasContext: ctx, viewport }).promise;
+                                  binarizeCanvas(canvas);
+                                  
+                                  const b64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+                                  const binarizedBytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+                                  const img = await mergedPdf.embedJpg(binarizedBytes);
+                                  
+                                  const newPg = mergedPdf.addPage([viewport.width, viewport.height]);
+                                  newPg.drawImage(img, { x: 0, y: 0, width: viewport.width, height: viewport.height });
+                              }
+                          } else {
+                              const pdf = await PDFLib.PDFDocument.load(bytes);
+                              const pageCount = pdf.getPageCount();
+                              const pagesToRemove = parsePageNumbers(item.removePages, pageCount);
+                              
+                              const pagesToCopy = [];
+                              for (let i = 0; i < pageCount; i++) {
+                                  if (!pagesToRemove.has(i)) {
+                                      pagesToCopy.push(i);
+                                  }
+                              }
+
+                              if (pagesToCopy.length > 0) {
+                                  const copiedPages = await mergedPdf.copyPages(pdf, pagesToCopy);
+                                  copiedPages.forEach((page) => mergedPdf.addPage(page));
                               }
                           }
-
-                          if (pagesToCopy.length > 0) {
-                              const copiedPages = await mergedPdf.copyPages(pdf, pagesToCopy);
-                              copiedPages.forEach((page) => mergedPdf.addPage(page));
-                          }
                       }
-                  }
+                  }     
 
                   let pdfBytes = await mergedPdf.save();
                   let actualMB = (pdfBytes.byteLength / 1024 / 1024).toFixed(2);
@@ -578,25 +762,61 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                       
                       if (item.isImage) {
                           const newPdf = await PDFLib.PDFDocument.create();
-                          const img = await newPdf.embedJpg(bytes);
+                          let finalBytes = bytes;
+                          if (applyBinarize) {
+                              finalBytes = await binarizeImageBytes(bytes, item.file.type);
+                          }
+                          const img = await newPdf.embedJpg(finalBytes);
                           addImagePageToPdf(newPdf, img);
                           const pageBytes = await newPdf.save();
                           zip.file(`${fileNameBase}.pdf`, pageBytes);
                       } else {
-                          const pdf = await PDFLib.PDFDocument.load(bytes);
-                          const pageCount = pdf.getPageCount();
-                          const pagesToRemove = parsePageNumbers(item.removePages, pageCount);
+                          if (applyBinarize) {
+                              const pdfJsDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+                              const pageCount = pdfJsDoc.numPages;
+                              const pagesToRemove = parsePageNumbers(item.removePages, pageCount);
 
-                          let outputPageIndex = 1;
-                          for (let i = 0; i < pageCount; i++) {
-                              if (pagesToRemove.has(i)) continue;
+                              let outputPageIndex = 1;
+                              for (let i = 1; i <= pageCount; i++) {
+                                  if (pagesToRemove.has(i - 1)) continue;
+                                  
+                                  const page = await pdfJsDoc.getPage(i);
+                                  const viewport = page.getViewport({ scale: 2.0 });
+                                  const canvas = document.createElement('canvas');
+                                  canvas.width = viewport.width;
+                                  canvas.height = viewport.height;
+                                  const ctx = canvas.getContext('2d');
+                                  await page.render({ canvasContext: ctx, viewport }).promise;
+                                  binarizeCanvas(canvas);
+                                  
+                                  const b64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+                                  const binarizedBytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+                                  
+                                  const newPdf = await PDFLib.PDFDocument.create();
+                                  const img = await newPdf.embedJpg(binarizedBytes);
+                                  const newPg = newPdf.addPage([viewport.width, viewport.height]);
+                                  newPg.drawImage(img, { x: 0, y: 0, width: viewport.width, height: viewport.height });
+                                  
+                                  const pageBytes = await newPdf.save();
+                                  zip.file(`${fileNameBase}_page_${outputPageIndex}.pdf`, pageBytes);
+                                  outputPageIndex++;
+                              }
+                          } else {
+                              const pdf = await PDFLib.PDFDocument.load(bytes);
+                              const pageCount = pdf.getPageCount();
+                              const pagesToRemove = parsePageNumbers(item.removePages, pageCount);
 
-                              const newPdf = await PDFLib.PDFDocument.create();
-                              const [page] = await newPdf.copyPages(pdf, [i]);
-                              newPdf.addPage(page);
-                              const pageBytes = await newPdf.save();
-                              zip.file(`${fileNameBase}_page_${outputPageIndex}.pdf`, pageBytes);
-                              outputPageIndex++;
+                              let outputPageIndex = 1;
+                              for (let i = 0; i < pageCount; i++) {
+                                  if (pagesToRemove.has(i)) continue;
+
+                                  const newPdf = await PDFLib.PDFDocument.create();
+                                  const [page] = await newPdf.copyPages(pdf, [i]);
+                                  newPdf.addPage(page);
+                                  const pageBytes = await newPdf.save();
+                                  zip.file(`${fileNameBase}_page_${outputPageIndex}.pdf`, pageBytes);
+                                  outputPageIndex++;
+                              }
                           }
                       }
                   }
@@ -734,7 +954,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               zoom: 1.0,
               panX: 0,
               panY: 0,
-              cachedPages: new Map() // pageNum -> dataURL
+              cachedPages: new Map(), // pageNum -> dataURL
+              originalPages: new Map(), // pageNum -> dataURL
+              originalImage: null       // Image object
           };
 
           async function previewFile(index) {
@@ -748,6 +970,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               previewState.panX = 0;
               previewState.panY = 0;
               previewState.cachedPages.clear();
+              previewState.originalPages.clear();
+              previewState.originalImage = null;
               previewState.pdfJsDoc = null;
               
               lightboxTitle.textContent = item.file.name;
@@ -762,101 +986,139 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                   lightbox.classList.add('opacity-100', 'pointer-events-auto');
               }, 10);
 
-              if (item.isImage) {
-                  previewState.totalPages = 1;
-                  lightboxPageIndicator.textContent = "Image File";
-                  lightboxCanvas.classList.add('hidden');
-                  
-                  const url = URL.createObjectURL(item.file);
-                  lightboxImage.src = url;
-                  lightboxImage.onload = () => {
-                      document.getElementById('lightboxImageWrapper').classList.remove('hidden');
-                      if (isCropMode) {
-                          updateCropOverlay();
-                      }
-                  };
-                  updateNavButtons();
-                  document.getElementById('lightboxCropBtn').classList.remove('hidden');
-              } else {
-                  document.getElementById('lightboxImageWrapper').classList.add('hidden');
-                  lightboxCanvas.classList.add('hidden');
-                  lightboxLoading.classList.remove('hidden');
-                  lightboxLoading.classList.add('flex');
-                  document.getElementById('lightboxCropBtn').classList.add('hidden');
-                  
-                  try {
-                      const arrayBuf = await item.file.arrayBuffer();
-                      const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
-                      previewState.pdfJsDoc = pdfJsDoc;
-                      previewState.totalPages = pdfJsDoc.numPages;
-                      
-                      generateThumbnails();
-                      await renderPreviewPage(1);
-                  } catch (e) {
-                      console.error(e);
-                      showToast("Failed to load PDF for preview.", "error");
-                      closeLightbox();
-                  }
-              }
-          }
+               if (item.isImage) {
+                   previewState.totalPages = 1;
+                   lightboxPageIndicator.textContent = "Image File";
+                   
+                   lightboxImage.classList.add('hidden');
+                   document.getElementById('lightboxImageWrapper').classList.add('hidden');
+                   lightboxCanvas.classList.remove('hidden');
+                   
+                   const img = new Image();
+                   img.onload = () => {
+                       previewState.originalImage = img;
+                       lightboxCanvas.width = img.naturalWidth;
+                       lightboxCanvas.height = img.naturalHeight;
+                       const ctx = lightboxCanvas.getContext('2d');
+                       ctx.drawImage(img, 0, 0);
+                       if (applyBinarize) {
+                           binarizeCanvas(lightboxCanvas);
+                       }
+                   };
+                   img.src = URL.createObjectURL(item.file);
+                   updateNavButtons();
+                   document.getElementById('lightboxCropBtn').classList.remove('hidden');
+               } else {
+                   document.getElementById('lightboxImageWrapper').classList.add('hidden');
+                   lightboxCanvas.classList.add('hidden');
+                   lightboxLoading.classList.remove('hidden');
+                   lightboxLoading.classList.add('flex');
+                   document.getElementById('lightboxCropBtn').classList.add('hidden');
+                   
+                   try {
+                       const arrayBuf = await item.file.arrayBuffer();
+                       const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
+                       previewState.pdfJsDoc = pdfJsDoc;
+                       previewState.totalPages = pdfJsDoc.numPages;
+                       
+                       generateThumbnails();
+                       await renderPreviewPage(1);
+                   } catch (e) {
+                       console.error(e);
+                       showToast("Failed to load PDF for preview.", "error");
+                       closeLightbox();
+                   }
+               }
+           }
 
-          function closeLightbox() {
-              if (isCropMode) toggleCropMode();
-              lightbox.classList.remove('opacity-100', 'pointer-events-auto');
-              lightbox.classList.add('opacity-0', 'pointer-events-none');
-              setTimeout(() => {
-                  lightbox.classList.add('hidden');
-                  document.getElementById('lightboxImageWrapper').classList.add('hidden');
-                  lightboxImage.src = '';
-                  const ctx = lightboxCanvas.getContext('2d');
-                  ctx.clearRect(0, 0, lightboxCanvas.width, lightboxCanvas.height);
-              }, 300);
-          }
+           function closeLightbox() {
+               if (isCropMode) toggleCropMode();
+               lightbox.classList.remove('opacity-100', 'pointer-events-auto');
+               lightbox.classList.add('opacity-0', 'pointer-events-none');
+               setTimeout(() => {
+                   lightbox.classList.add('hidden');
+                   document.getElementById('lightboxImageWrapper').classList.add('hidden');
+                   lightboxImage.src = '';
+                   const ctx = lightboxCanvas.getContext('2d');
+                   ctx.clearRect(0, 0, lightboxCanvas.width, lightboxCanvas.height);
+               }, 300);
+           }
 
-          async function renderPreviewPage(num) {
-              previewState.pageNum = num;
-              lightboxPageIndicator.textContent = `Page ${num} of ${previewState.totalPages}`;
-              updateNavButtons();
-              highlightThumbnail(num);
+           function refreshBinarizedPreview() {
+               if (!lightbox || lightbox.classList.contains('hidden') || previewState.index === null) return;
+               
+               if (previewState.item.isImage) {
+                   if (previewState.originalImage) {
+                       const img = previewState.originalImage;
+                       lightboxCanvas.width = img.naturalWidth;
+                       lightboxCanvas.height = img.naturalHeight;
+                       const ctx = lightboxCanvas.getContext('2d');
+                       ctx.drawImage(img, 0, 0);
+                       if (applyBinarize) {
+                           binarizeCanvas(lightboxCanvas);
+                       }
+                   }
+               } else {
+                   const num = previewState.pageNum;
+                   if (previewState.originalPages.has(num)) {
+                       const originalDataUrl = previewState.originalPages.get(num);
+                       const img = new Image();
+                       img.onload = () => {
+                           lightboxCanvas.width = img.width;
+                           lightboxCanvas.height = img.height;
+                           const ctx = lightboxCanvas.getContext('2d');
+                           ctx.drawImage(img, 0, 0);
+                           if (applyBinarize) {
+                               binarizeCanvas(lightboxCanvas);
+                           }
+                       };
+                       img.src = originalDataUrl;
+                   }
+               }
+           }
 
-              if (previewState.cachedPages.has(num)) {
-                  lightboxLoading.classList.add('hidden');
-                  lightboxLoading.classList.remove('flex');
-                  lightboxCanvas.classList.remove('hidden');
-                  
-                  const img = new Image();
-                  img.onload = () => {
-                      lightboxCanvas.width = img.width;
-                      lightboxCanvas.height = img.height;
-                      const ctx = lightboxCanvas.getContext('2d');
-                      ctx.drawImage(img, 0, 0);
-                  };
-                  img.src = previewState.cachedPages.get(num);
-                  return;
-              }
+           async function renderPreviewPage(num) {
+               previewState.pageNum = num;
+               lightboxPageIndicator.textContent = `Page ${num} of ${previewState.totalPages}`;
+               updateNavButtons();
+               highlightThumbnail(num);
 
-              lightboxCanvas.classList.add('hidden');
-              lightboxLoading.classList.remove('hidden');
-              lightboxLoading.classList.add('flex');
+               if (previewState.originalPages.has(num)) {
+                   lightboxLoading.classList.add('hidden');
+                   lightboxLoading.classList.remove('flex');
+                   lightboxCanvas.classList.remove('hidden');
+                   refreshBinarizedPreview();
+                   return;
+               }
 
-              try {
-                  const page = await previewState.pdfJsDoc.getPage(num);
-                  const viewport = page.getViewport({ scale: 2.0 }); // High res render, visual scale handled by css transform
-                  lightboxCanvas.width = viewport.width;
-                  lightboxCanvas.height = viewport.height;
-                  
-                  const ctx = lightboxCanvas.getContext('2d');
-                  const renderContext = { canvasContext: ctx, viewport: viewport };
-                  await page.render(renderContext).promise;
-                  
-                  previewState.cachedPages.set(num, lightboxCanvas.toDataURL('image/jpeg', 0.8));
-                  
-                  lightboxLoading.classList.add('hidden');
-                  lightboxLoading.classList.remove('flex');
-                  lightboxCanvas.classList.remove('hidden');
-              } catch(e) {
-                  console.error(e);
-              }
+               lightboxCanvas.classList.add('hidden');
+               lightboxLoading.classList.remove('hidden');
+               lightboxLoading.classList.add('flex');
+
+               try {
+                   const page = await previewState.pdfJsDoc.getPage(num);
+                   const viewport = page.getViewport({ scale: 2.0 }); // High res render, visual scale handled by css transform
+                   lightboxCanvas.width = viewport.width;
+                   lightboxCanvas.height = viewport.height;
+                   
+                   const ctx = lightboxCanvas.getContext('2d');
+                   const renderContext = { canvasContext: ctx, viewport: viewport };
+                   await page.render(renderContext).promise;
+                   
+                   // Store the clean original in originalPages map
+                   const originalDataUrl = lightboxCanvas.toDataURL('image/jpeg', 0.9);
+                   previewState.originalPages.set(num, originalDataUrl);
+                   
+                   if (applyBinarize) {
+                       binarizeCanvas(lightboxCanvas);
+                   }
+                   
+                   lightboxLoading.classList.add('hidden');
+                   lightboxLoading.classList.remove('flex');
+                   lightboxCanvas.classList.remove('hidden');
+               } catch (e) {
+                   console.error(e);
+               }
           }
 
           function navigateLightbox(dir) {
