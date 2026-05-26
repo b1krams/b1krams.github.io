@@ -100,6 +100,59 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             Made with <i class="fa-solid fa-heart text-red-500"></i> by Bikram
         </footer>
 </div>
+<!-- Lightbox Modal -->
+<div id="lightbox" class="fixed inset-0 z-[9999] flex flex-col bg-slate-950/95 backdrop-blur-xl transition-all duration-300 opacity-0 pointer-events-none hidden">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800 bg-slate-900/50">
+        <div class="flex flex-col">
+            <h2 id="lightboxTitle" class="text-slate-200 font-semibold text-base sm:text-lg truncate max-w-[200px] sm:max-w-md">Filename.pdf</h2>
+            <span id="lightboxPageIndicator" class="text-slate-400 text-xs sm:text-sm">Page 1 of 10</span>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-4">
+            <div class="flex items-center bg-slate-800/80 rounded-lg p-1 border border-slate-700/50">
+                <button onclick="changeZoom(-0.25)" class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" title="Zoom Out"><i class="fa-solid fa-minus text-sm"></i></button>
+                <span id="lightboxZoomText" class="text-slate-300 text-xs font-mono w-10 sm:w-12 text-center">100%</span>
+                <button onclick="changeZoom(0.25)" class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" title="Zoom In"><i class="fa-solid fa-plus text-sm"></i></button>
+                <div class="w-px h-4 bg-slate-600 mx-1"></div>
+                <button onclick="resetZoom()" class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" title="Fit to Screen"><i class="fa-solid fa-expand text-sm"></i></button>
+            </div>
+            <button onclick="closeLightbox()" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 flex items-center justify-center transition border border-slate-700 hover:border-rose-500/30">
+                <i class="fa-solid fa-xmark sm:text-xl"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="flex-1 relative overflow-hidden flex items-center justify-center">
+        <!-- Prev Button -->
+        <button id="lightboxPrev" onclick="navigateLightbox(-1)" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/80 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-400 flex items-center justify-center transition border border-slate-700 backdrop-blur-md opacity-0 pointer-events-none shadow-xl">
+            <i class="fa-solid fa-chevron-left text-lg sm:text-xl"></i>
+        </button>
+
+        <!-- Canvas/Image Container -->
+        <div id="lightboxScrollArea" class="w-full h-full overflow-hidden flex items-center justify-center p-4">
+            <div id="lightboxTransform" class="transition-transform duration-200 origin-center flex items-center justify-center">
+                <div id="lightboxLoading" class="absolute hidden flex-col items-center gap-3">
+                    <i class="fa-solid fa-spinner fa-spin text-3xl text-indigo-500"></i>
+                    <span class="text-slate-400 text-sm">Rendering...</span>
+                </div>
+                <canvas id="lightboxCanvas" class="shadow-2xl shadow-black max-w-none hidden bg-white"></canvas>
+                <img id="lightboxImage" class="shadow-2xl shadow-black max-w-none hidden rounded-md object-contain max-h-[80vh]" />
+            </div>
+        </div>
+
+        <!-- Next Button -->
+        <button id="lightboxNext" onclick="navigateLightbox(1)" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/80 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-400 flex items-center justify-center transition border border-slate-700 backdrop-blur-md opacity-0 pointer-events-none shadow-xl">
+            <i class="fa-solid fa-chevron-right text-lg sm:text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Thumbnail Strip -->
+    <div class="h-24 sm:h-28 border-t border-slate-800 bg-slate-900/80 p-2 sm:p-3 overflow-x-auto flex items-center gap-2 sm:gap-3 hide-scrollbar" id="lightboxThumbnails">
+        <!-- Thumbnails injected here -->
+    </div>
+</div>
+
 <!-- Toast Container -->
 <div class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none" id="toastContainer"></div>
 <script>
@@ -229,7 +282,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                           </div>
                           <div class="flex items-center gap-3 flex-shrink-0">
                               <span class="text-xs text-slate-500 text-nowrap sm:hidden">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                              <button onclick="removeFile(${index})" class="text-slate-600 hover:text-red-400 transition-colors">
+                              <button onclick="previewFile(${index})" class="text-slate-600 hover:text-indigo-400 transition-colors" title="Preview Pages">
+                                  <i class="fa-solid fa-eye"></i>
+                              </button>
+                              <button onclick="removeFile(${index})" class="text-slate-600 hover:text-red-400 transition-colors" title="Remove File">
                                   <i class="fa-solid fa-trash-can"></i>
                               </button>
                           </div>
@@ -609,6 +665,304 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
               return bestResult;
           }
+          // ─── Lightbox Preview Logic ──────────────────────────────────────────
+          const lightbox = document.getElementById('lightbox');
+          const lightboxTitle = document.getElementById('lightboxTitle');
+          const lightboxPageIndicator = document.getElementById('lightboxPageIndicator');
+          const lightboxZoomText = document.getElementById('lightboxZoomText');
+          const lightboxCanvas = document.getElementById('lightboxCanvas');
+          const lightboxImage = document.getElementById('lightboxImage');
+          const lightboxLoading = document.getElementById('lightboxLoading');
+          const lightboxTransform = document.getElementById('lightboxTransform');
+          const lightboxPrev = document.getElementById('lightboxPrev');
+          const lightboxNext = document.getElementById('lightboxNext');
+          const lightboxThumbnails = document.getElementById('lightboxThumbnails');
+          
+          let previewState = {
+              index: null,
+              item: null,
+              pdfJsDoc: null,
+              pageNum: 1,
+              totalPages: 1,
+              zoom: 1.0,
+              panX: 0,
+              panY: 0,
+              cachedPages: new Map() // pageNum -> dataURL
+          };
+
+          async function previewFile(index) {
+              const item = selectedFiles[index];
+              if (!item) return;
+
+              previewState.index = index;
+              previewState.item = item;
+              previewState.pageNum = 1;
+              previewState.zoom = 1.0;
+              previewState.panX = 0;
+              previewState.panY = 0;
+              previewState.cachedPages.clear();
+              previewState.pdfJsDoc = null;
+              
+              lightboxTitle.textContent = item.file.name;
+              updateZoomText();
+              lightboxTransform.style.transform = `translate(0px, 0px) scale(1)`;
+              lightboxThumbnails.innerHTML = '';
+
+              lightbox.classList.remove('hidden');
+              // small delay for transition
+              setTimeout(() => {
+                  lightbox.classList.remove('opacity-0', 'pointer-events-none');
+                  lightbox.classList.add('opacity-100', 'pointer-events-auto');
+              }, 10);
+
+              if (item.isImage) {
+                  previewState.totalPages = 1;
+                  lightboxPageIndicator.textContent = "Image File";
+                  lightboxCanvas.classList.add('hidden');
+                  
+                  const url = URL.createObjectURL(item.file);
+                  lightboxImage.src = url;
+                  lightboxImage.onload = () => {
+                      lightboxImage.classList.remove('hidden');
+                  };
+                  updateNavButtons();
+              } else {
+                  lightboxImage.classList.add('hidden');
+                  lightboxCanvas.classList.add('hidden');
+                  lightboxLoading.classList.remove('hidden');
+                  lightboxLoading.classList.add('flex');
+                  
+                  try {
+                      const arrayBuf = await item.file.arrayBuffer();
+                      const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
+                      previewState.pdfJsDoc = pdfJsDoc;
+                      previewState.totalPages = pdfJsDoc.numPages;
+                      
+                      generateThumbnails();
+                      await renderPreviewPage(1);
+                  } catch (e) {
+                      console.error(e);
+                      showToast("Failed to load PDF for preview.", "error");
+                      closeLightbox();
+                  }
+              }
+          }
+
+          function closeLightbox() {
+              lightbox.classList.remove('opacity-100', 'pointer-events-auto');
+              lightbox.classList.add('opacity-0', 'pointer-events-none');
+              setTimeout(() => {
+                  lightbox.classList.add('hidden');
+                  lightboxImage.src = '';
+                  const ctx = lightboxCanvas.getContext('2d');
+                  ctx.clearRect(0, 0, lightboxCanvas.width, lightboxCanvas.height);
+              }, 300);
+          }
+
+          async function renderPreviewPage(num) {
+              previewState.pageNum = num;
+              lightboxPageIndicator.textContent = `Page ${num} of ${previewState.totalPages}`;
+              updateNavButtons();
+              highlightThumbnail(num);
+
+              if (previewState.cachedPages.has(num)) {
+                  lightboxLoading.classList.add('hidden');
+                  lightboxLoading.classList.remove('flex');
+                  lightboxCanvas.classList.remove('hidden');
+                  
+                  const img = new Image();
+                  img.onload = () => {
+                      lightboxCanvas.width = img.width;
+                      lightboxCanvas.height = img.height;
+                      const ctx = lightboxCanvas.getContext('2d');
+                      ctx.drawImage(img, 0, 0);
+                  };
+                  img.src = previewState.cachedPages.get(num);
+                  return;
+              }
+
+              lightboxCanvas.classList.add('hidden');
+              lightboxLoading.classList.remove('hidden');
+              lightboxLoading.classList.add('flex');
+
+              try {
+                  const page = await previewState.pdfJsDoc.getPage(num);
+                  const viewport = page.getViewport({ scale: 2.0 }); // High res render, visual scale handled by css transform
+                  lightboxCanvas.width = viewport.width;
+                  lightboxCanvas.height = viewport.height;
+                  
+                  const ctx = lightboxCanvas.getContext('2d');
+                  const renderContext = { canvasContext: ctx, viewport: viewport };
+                  await page.render(renderContext).promise;
+                  
+                  previewState.cachedPages.set(num, lightboxCanvas.toDataURL('image/jpeg', 0.8));
+                  
+                  lightboxLoading.classList.add('hidden');
+                  lightboxLoading.classList.remove('flex');
+                  lightboxCanvas.classList.remove('hidden');
+              } catch(e) {
+                  console.error(e);
+              }
+          }
+
+          function navigateLightbox(dir) {
+              let next = previewState.pageNum + dir;
+              if (next >= 1 && next <= previewState.totalPages) {
+                  renderPreviewPage(next);
+              }
+          }
+
+          function updateNavButtons() {
+              if (previewState.totalPages <= 1) {
+                  lightboxPrev.classList.add('opacity-0', 'pointer-events-none');
+                  lightboxNext.classList.add('opacity-0', 'pointer-events-none');
+              } else {
+                  if (previewState.pageNum > 1) {
+                      lightboxPrev.classList.remove('opacity-0', 'pointer-events-none');
+                  } else {
+                      lightboxPrev.classList.add('opacity-0', 'pointer-events-none');
+                  }
+                  
+                  if (previewState.pageNum < previewState.totalPages) {
+                      lightboxNext.classList.remove('opacity-0', 'pointer-events-none');
+                  } else {
+                      lightboxNext.classList.add('opacity-0', 'pointer-events-none');
+                  }
+              }
+          }
+
+          function changeZoom(delta) {
+              previewState.zoom = Math.max(0.25, Math.min(previewState.zoom + delta, 4.0));
+              applyZoom();
+          }
+
+          function resetZoom() {
+              previewState.zoom = 1.0;
+              previewState.panX = 0;
+              previewState.panY = 0;
+              applyZoom();
+          }
+
+          function applyZoom() {
+              lightboxTransform.style.transform = `translate(${previewState.panX}px, ${previewState.panY}px) scale(${previewState.zoom})`;
+              updateZoomText();
+          }
+
+          function updateZoomText() {
+              lightboxZoomText.textContent = Math.round(previewState.zoom * 100) + '%';
+          }
+
+          async function generateThumbnails() {
+              lightboxThumbnails.innerHTML = '';
+              if (!previewState.pdfJsDoc || previewState.totalPages <= 1) return;
+              
+              for (let i = 1; i <= previewState.totalPages; i++) {
+                  const thumbDiv = document.createElement('div');
+                  thumbDiv.className = 'thumbnail-item flex-shrink-0 w-12 h-16 sm:w-16 sm:h-20 bg-slate-800 rounded-md overflow-hidden cursor-pointer border-2 border-transparent transition hover:border-slate-500 flex items-center justify-center relative';
+                  thumbDiv.dataset.page = i;
+                  thumbDiv.onclick = () => renderPreviewPage(i);
+                  
+                  const span = document.createElement('span');
+                  span.className = 'absolute text-[10px] text-slate-400 bg-black/60 px-1 rounded';
+                  span.textContent = i;
+                  thumbDiv.appendChild(span);
+                  
+                  lightboxThumbnails.appendChild(thumbDiv);
+                  
+                  // Lazy render the thumb inside
+                  renderThumbLazy(i, thumbDiv);
+              }
+          }
+
+          async function renderThumbLazy(num, container) {
+              try {
+                  const page = await previewState.pdfJsDoc.getPage(num);
+                  const viewport = page.getViewport({ scale: 0.2 }); // tiny scale for thumb
+                  const canvas = document.createElement('canvas');
+                  canvas.width = viewport.width;
+                  canvas.height = viewport.height;
+                  await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+                  
+                  canvas.className = 'w-full h-full object-cover';
+                  
+                  // Keep the span number on top
+                  const span = container.querySelector('span');
+                  container.innerHTML = '';
+                  container.appendChild(canvas);
+                  if (span) container.appendChild(span);
+              } catch(e) { }
+          }
+
+          function highlightThumbnail(num) {
+              const thumbs = lightboxThumbnails.querySelectorAll('.thumbnail-item');
+              thumbs.forEach(t => {
+                  if (parseInt(t.dataset.page) === num) {
+                      t.classList.add('border-indigo-500');
+                      t.classList.remove('border-transparent', 'hover:border-slate-500');
+                      t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                  } else {
+                      t.classList.remove('border-indigo-500');
+                      t.classList.add('border-transparent', 'hover:border-slate-500');
+                  }
+              });
+          }
+
+          // Keyboard nav
+          window.addEventListener('keydown', (e) => {
+              if (!lightbox.classList.contains('hidden')) {
+                  if (e.key === 'Escape') closeLightbox();
+                  if (e.key === 'ArrowRight') navigateLightbox(1);
+                  if (e.key === 'ArrowLeft') navigateLightbox(-1);
+              }
+          });
+
+          // Drag to pan
+          const lightboxScrollArea = document.getElementById('lightboxScrollArea');
+          let isDragging = false;
+          let startX, startY, startPanX, startPanY;
+
+          lightboxScrollArea.addEventListener('mousedown', (e) => {
+              if (e.target.closest('button')) return; // Don't drag if clicking buttons
+              isDragging = true;
+              lightboxScrollArea.classList.add('cursor-grabbing');
+              lightboxScrollArea.classList.remove('cursor-grab');
+              lightboxTransform.classList.remove('duration-200');
+              startX = e.pageX;
+              startY = e.pageY;
+              startPanX = previewState.panX;
+              startPanY = previewState.panY;
+          });
+
+          lightboxScrollArea.addEventListener('mouseleave', () => {
+              if (isDragging) {
+                  isDragging = false;
+                  lightboxScrollArea.classList.remove('cursor-grabbing');
+                  lightboxScrollArea.classList.add('cursor-grab');
+                  lightboxTransform.classList.add('duration-200');
+              }
+          });
+
+          lightboxScrollArea.addEventListener('mouseup', () => {
+              if (isDragging) {
+                  isDragging = false;
+                  lightboxScrollArea.classList.remove('cursor-grabbing');
+                  lightboxScrollArea.classList.add('cursor-grab');
+                  lightboxTransform.classList.add('duration-200');
+              }
+          });
+
+          lightboxScrollArea.addEventListener('mousemove', (e) => {
+              if (!isDragging) return;
+              e.preventDefault();
+              const walkX = e.pageX - startX;
+              const walkY = e.pageY - startY;
+              previewState.panX = startPanX + walkX;
+              previewState.panY = startPanY + walkY;
+              applyZoom();
+          });
+          
+          // Initial cursor class
+          lightboxScrollArea.classList.add('cursor-grab');
       </script>
 </body>
 </html>
