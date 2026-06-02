@@ -8,7 +8,7 @@
     
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Pacifico&family=Shadows+Into+Light&family=Satisfy&family=Great+Vibes&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat+Brush&family=Shadows+Into+Light+Two&family=Coming+Soon&family=Caveat:wght@400;700&family=Gochi+Hand&family=Gloria+Hallelujah&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Cedarville+Cursive&display=swap" rel="stylesheet" />
     
     <!-- Vue 3 and Tailwind CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -299,7 +299,7 @@
                                 fontSize: captionFontSize + 'px', 
                                 color: captionColor,
                                 fontFamily: captionFont,
-                                fontWeight: ['Dancing Script', 'Caveat', 'Pacifico', 'Shadows Into Light', 'Satisfy', 'Great Vibes'].includes(captionFont) ? 'bold' : 'normal',
+                                fontWeight: ['Caveat Brush', 'Shadows Into Light Two', 'Coming Soon', 'Caveat', 'Gochi Hand', 'Gloria Hallelujah', 'Shantell Sans'].includes(captionFont) ? 'bold' : 'normal',
                                 lineHeight: '1.2',
                                 fieldSizing: 'content',
                                 minHeight: '1.5em',
@@ -375,7 +375,7 @@
                                 fontSize: captionFontSize + 'px', 
                                 color: captionColor,
                                 fontFamily: captionFont,
-                                fontWeight: ['Dancing Script', 'Caveat', 'Pacifico', 'Shadows Into Light', 'Satisfy', 'Great Vibes'].includes(captionFont) ? 'bold' : 'normal',
+                                fontWeight: ['Caveat Brush', 'Shadows Into Light Two', 'Coming Soon', 'Caveat', 'Gochi Hand', 'Gloria Hallelujah', 'Shantell Sans'].includes(captionFont) ? 'bold' : 'normal',
                                 lineHeight: '1.2',
                                 fieldSizing: 'content',
                                 minHeight: '1.5em',
@@ -612,14 +612,14 @@
                                 v-model="captionFont"
                                 class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 py-2"
                             >
-                                <option value="Caveat">Caveat (Scribbly)</option>
-                                <option value="Dancing Script">Dancing Script (Elegant)</option>
-                                <option value="Pacifico">Pacifico (Retro Brush)</option>
-                                <option value="Shadows Into Light">Shadows Into Light (Clean Ink)</option>
-                                <option value="Satisfy">Satisfy (Classic Script)</option>
-                                <option value="Great Vibes">Great Vibes (Formal Cursive)</option>
-                                <option value="Courier Prime">Courier Prime (Retro Typewriter)</option>
-                                <option value="Playfair Display">Playfair Display (Chic Serif)</option>
+                                <option value="Caveat Brush">Caveat Brush</option>
+                                <option value="Shadows Into Light Two">Shadows Into Light Two</option>
+                                <option value="Coming Soon">Coming Soon</option>
+                                <option value="Caveat">Caveat</option>
+                                <option value="Gochi Hand">Gochi Hand</option>
+                                <option value="Gloria Hallelujah">Gloria Hallelujah</option>
+                                <option value="Shantell Sans">Shantell Sans</option>
+                                <option value="Cedarville Cursive">Cedarville Cursive</option>
                             </select>
                         </div>
 
@@ -1157,7 +1157,7 @@
                             ctx.fillStyle = captionColor.value;
                             
                             const finalSize = captionFontSize.value * scaleFactor;
-                            const isBold = ['Dancing Script', 'Caveat', 'Pacifico', 'Shadows Into Light', 'Satisfy', 'Great Vibes'].includes(captionFont.value);
+                            const isBold = ['Caveat Brush', 'Shadows Into Light Two', 'Coming Soon', 'Caveat', 'Gochi Hand', 'Gloria Hallelujah', 'Shantell Sans'].includes(captionFont.value);
                             ctx.font = `${isBold ? 'bold' : 'normal'} ${finalSize}px "${captionFont.value}", cursive, sans-serif`;
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
