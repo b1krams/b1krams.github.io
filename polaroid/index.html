@@ -241,16 +241,16 @@
                 >
                     <!-- Cutout Container (Perfect centered square: 324px x 324px, Y margin 20px) -->
                     <div 
-                        class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden bg-slate-900 border border-black/35 transition-all duration-200 cursor-pointer select-none"
-                        :class="frameThemeColor === 'dark' ? 'bg-slate-950 border-white/5' : 'bg-slate-900'"
+                        class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden transition-all duration-200 cursor-pointer select-none"
+                        :class="[
+                            frameThemeColor === 'dark' ? 'bg-slate-950' : 'bg-slate-900',
+                            !imgA.src ? 'border border-dashed border-slate-400/30' : 'border-0'
+                        ]"
                         @dragover.prevent
                         @drop.prevent="handleFileDrop('A', $event)"
                         @click="selectImage('A')"
                         @dblclick="resetImageTransforms"
                     >
-                        <!-- Recessed inner shadow overlay -->
-                        <div class="absolute inset-0 pointer-events-none z-10 cutout-inner-shadow"></div>
-
                         <!-- Image Preview wrapper -->
                         <div 
                             v-if="imgA.src" 
@@ -267,7 +267,7 @@
                                 alt="Image A"
                             />
                         </div>
-
+ 
                         <!-- Empty State Uploader -->
                         <div 
                             v-else 
@@ -280,7 +280,7 @@
                             <input type="file" ref="uploadA" class="hidden" accept="image/*" @change="handleFileChange('A', $event)" />
                         </div>
                     </div>
-
+ 
                     <!-- Custom Handwritten Caption Overlay (A) -->
                     <!-- Sized inside the bottom 92px margin space -->
                     <div class="absolute bottom-[24px] left-5 right-5 text-center">
@@ -299,7 +299,7 @@
                         />
                     </div>
                 </div>
-
+ 
                 <!-- POLAROID RIGHT (Polaroid B - Exact 364x436 Classic 5:6 proportions) -->
                 <!-- Placed at X: 390px (touches left Polaroid at X=390px!) -->
                 <div 
@@ -314,16 +314,16 @@
                 >
                     <!-- Cutout Container (Perfect centered square: 324px x 324px, Y margin 20px) -->
                     <div 
-                        class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden bg-slate-900 border border-black/35 transition-all duration-200 cursor-pointer select-none"
-                        :class="frameThemeColor === 'dark' ? 'bg-slate-950 border-white/5' : 'bg-slate-900'"
+                        class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden transition-all duration-200 cursor-pointer select-none"
+                        :class="[
+                            frameThemeColor === 'dark' ? 'bg-slate-950' : 'bg-slate-900',
+                            !imgB.src ? 'border border-dashed border-slate-400/30' : 'border-0'
+                        ]"
                         @dragover.prevent
                         @drop.prevent="handleFileDrop('B', $event)"
                         @click="selectImage('B')"
                         @dblclick="resetImageTransforms"
                     >
-                        <!-- Recessed inner shadow overlay -->
-                        <div class="absolute inset-0 pointer-events-none z-10 cutout-inner-shadow"></div>
-
                         <!-- Image Preview wrapper -->
                         <div 
                             v-if="imgB.src" 
@@ -340,7 +340,7 @@
                                 alt="Image B"
                             />
                         </div>
-
+ 
                         <!-- Empty State Uploader -->
                         <div 
                             v-else 
@@ -353,7 +353,7 @@
                             <input type="file" ref="uploadB" class="hidden" accept="image/*" @change="handleFileChange('B', $event)" />
                         </div>
                     </div>
-
+ 
                     <!-- Custom Handwritten Caption Overlay (B) -->
                     <div class="absolute bottom-[24px] left-5 right-5 text-center">
                         <input 
@@ -711,7 +711,7 @@
                 const captionTextA = ref('');
                 const captionTextB = ref('');
                 const captionFont = ref('Caveat');
-                const captionFontSize = ref(20); // Normalized baseline font-size for auto-scaling
+                const captionFontSize = ref(26); // Normalized baseline font-size for auto-scaling
                 const captionColor = ref('#1e293b');
                 const exporting = ref(false);
 
@@ -842,7 +842,7 @@
                     captionTextB.value = '';
                     frameThemeColor.value = 'white';
                     captionColor.value = '#1e293b';
-                    captionFontSize.value = 20;
+                    captionFontSize.value = 26;
                     activeImage.value = 'A';
                 };
 
@@ -1129,15 +1129,6 @@
                         } else {
                             ctx.fillStyle = 'rgba(255,255,255,0.03)';
                             ctx.fillRect(cutX + 20, cutY + 20, cutW - 40, cutH - 40);
-                        }
-
-                        // Inner border shadows for cutout recessed depth
-                        ctx.shadowColor = 'rgba(0,0,0,0.65)';
-                        ctx.shadowBlur = 10 * scaleFactor;
-                        ctx.strokeStyle = frameThemeColor.value === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)';
-                        ctx.lineWidth = 3 * scaleFactor;
-                        ctx.strokeRect(cutX, cutY, cutW, cutH);
-
                         ctx.restore(); // Restore cutout clip
 
                         // Draw caption inside bottom margin
