@@ -8,7 +8,7 @@
     
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Pacifico&family=Shadows+Into+Light&family=Satisfy&family=Great+Vibes&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
     
     <!-- Vue 3 and Tailwind CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -182,7 +182,7 @@
     </nav>
 
     <!-- ═══════════════ Main Workstation ═══════════════ -->
-    <main class="flex-1 flex min-h-0 w-full h-[calc(100vh-4.5rem)]">
+    <main class="flex-1 flex min-h-0 w-full h-[calc(100vh-3.5rem)]">
 
         <!-- ─── Center Display Board (Auto-scaling Grid Canvas) ─── -->
         <div class="flex-1 relative grid-board flex items-center justify-center p-6 md:p-12 overflow-hidden">
@@ -222,11 +222,6 @@
                     <line x1="390" y1="478" x2="390" y2="498" stroke="black" stroke-width="1.2" />
                 </svg>
 
-                <div v-show="showCutLineInExport" class="absolute left-1/2 top-4 -translate-x-1/2 bg-slate-900/90 text-slate-300 border border-slate-700/60 rounded-full px-2 py-0.5 text-[8px] flex items-center gap-1 font-mono z-40 pointer-events-none">
-                    <span class="material-symbols-outlined text-[9px]">crop_free</span>
-                    <span>CORNER CROP MARKS (BLACK INK)</span>
-                </div>
-
                 <!-- POLAROID LEFT (Polaroid A - Exact 364x436 Classic 5:6 proportions) -->
                 <!-- Placed at X: 26px (touches center X=390px!) -->
                 <div 
@@ -243,9 +238,9 @@
                     <div 
                         class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden transition-all duration-200 cursor-pointer select-none"
                         :class="[
-                            frameThemeColor === 'dark' ? 'bg-slate-950' : 'bg-slate-900',
                             !imgA.src ? 'border border-dashed border-slate-400/30' : 'border-0'
                         ]"
+                        :style="{ backgroundColor: imgA.bgColor }"
                         @dragover.prevent
                         @drop.prevent="handleFileDrop('A', $event)"
                         @click="selectImage('A')"
@@ -283,17 +278,20 @@
  
                     <!-- Custom Handwritten Caption Overlay (A) -->
                     <!-- Sized inside the bottom 92px margin space -->
-                    <div class="absolute bottom-[16px] left-5 right-5 text-center h-[54px] flex items-center justify-center">
+                    <div class="absolute top-[344px] bottom-0 left-5 right-5 flex items-center justify-center text-center">
                         <textarea 
                             v-model="captionTextA"
                             rows="2"
                             class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text resize-none overflow-hidden"
-                            :class="captionFontClass"
                             :style="{ 
                                 fontSize: captionFontSize + 'px', 
                                 color: captionColor,
-                                fontWeight: captionFont === 'Dancing Script' || captionFont === 'Caveat' ? 'bold' : 'normal',
-                                lineHeight: '1.2'
+                                fontFamily: captionFont,
+                                fontWeight: ['Dancing Script', 'Caveat', 'Pacifico', 'Shadows Into Light', 'Satisfy', 'Great Vibes'].includes(captionFont) ? 'bold' : 'normal',
+                                lineHeight: '1.2',
+                                fieldSizing: 'content',
+                                minHeight: '1.5em',
+                                maxHeight: '3.5em'
                             }"
                             placeholder="Write left caption..."
                             maxlength="60"
@@ -317,9 +315,9 @@
                     <div 
                         class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden transition-all duration-200 cursor-pointer select-none"
                         :class="[
-                            frameThemeColor === 'dark' ? 'bg-slate-950' : 'bg-slate-900',
                             !imgB.src ? 'border border-dashed border-slate-400/30' : 'border-0'
                         ]"
+                        :style="{ backgroundColor: imgB.bgColor }"
                         @dragover.prevent
                         @drop.prevent="handleFileDrop('B', $event)"
                         @click="selectImage('B')"
@@ -356,17 +354,20 @@
                     </div>
  
                     <!-- Custom Handwritten Caption Overlay (B) -->
-                    <div class="absolute bottom-[16px] left-5 right-5 text-center h-[54px] flex items-center justify-center">
+                    <div class="absolute top-[344px] bottom-0 left-5 right-5 flex items-center justify-center text-center">
                         <textarea 
                             v-model="captionTextB"
                             rows="2"
                             class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text resize-none overflow-hidden"
-                            :class="captionFontClass"
                             :style="{ 
                                 fontSize: captionFontSize + 'px', 
                                 color: captionColor,
-                                fontWeight: captionFont === 'Dancing Script' || captionFont === 'Caveat' ? 'bold' : 'normal',
-                                lineHeight: '1.2'
+                                fontFamily: captionFont,
+                                fontWeight: ['Dancing Script', 'Caveat', 'Pacifico', 'Shadows Into Light', 'Satisfy', 'Great Vibes'].includes(captionFont) ? 'bold' : 'normal',
+                                lineHeight: '1.2',
+                                fieldSizing: 'content',
+                                minHeight: '1.5em',
+                                maxHeight: '3.5em'
                             }"
                             placeholder="Write right caption..."
                             maxlength="60"
@@ -444,41 +445,7 @@
                     </div>
                 </div>
 
-                <!-- ═══ Accordion 2: Photo Slot Uploaders ═══ -->
-                <div class="border-b border-white/5 group">
-                    <button 
-                        class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors" 
-                        @click="togglePanel('uploads')"
-                    >
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">cloud_upload</span>
-                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">2. Photo Uploads</span>
-                        </div>
-                        <span class="material-symbols-outlined text-slate-400 text-sm transition duration-200" :class="{'rotate-180': panels.uploads}" style="font-size: 18px;">expand_more</span>
-                    </button>
-                    <div class="px-5 pb-5 space-y-4 accordion-body" :class="{'collapsed': !panels.uploads}">
-                        
-                        <!-- Side by side upload containers -->
-                        <div class="grid grid-cols-2 gap-3 mt-1">
-                            <!-- Uploader A -->
-                            <div @click="$refs.uploadA.click()" class="border border-dashed border-white/10 hover:border-purple-500/40 rounded-xl p-3 bg-slate-900/40 hover:bg-purple-500/5 text-center cursor-pointer transition">
-                                <span class="material-symbols-outlined text-slate-500 text-xl block mb-1">add_photo_alternate</span>
-                                <span class="text-[10px] text-slate-300 block font-medium">Slot A (Left)</span>
-                                <span class="text-[8px] text-slate-500 mt-0.5 block" v-if="imgA.src">Uploaded ✓</span>
-                                <span class="text-[8px] text-slate-500 mt-0.5 block" v-else>Choose File</span>
-                            </div>
-                            <!-- Uploader B -->
-                            <div @click="$refs.uploadB.click()" class="border border-dashed border-white/10 hover:border-purple-500/40 rounded-xl p-3 bg-slate-900/40 hover:bg-purple-500/5 text-center cursor-pointer transition">
-                                <span class="material-symbols-outlined text-slate-500 text-xl block mb-1">add_photo_alternate</span>
-                                <span class="text-[10px] text-slate-300 block font-medium">Slot B (Right)</span>
-                                <span class="text-[8px] text-slate-500 mt-0.5 block" v-if="imgB.src">Uploaded ✓</span>
-                                <span class="text-[8px] text-slate-500 mt-0.5 block" v-else>Choose File</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ═══ Accordion 3: Interactive Position Tuning ═══ -->
+                <!-- ═══ Accordion 2: Interactive Position Tuning ═══ -->
                 <div class="border-b border-white/5 group">
                     <button 
                         class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors" 
@@ -486,7 +453,7 @@
                     >
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">tune</span>
-                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">3. Photo Tuning</span>
+                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">2. Photo Tuning</span>
                         </div>
                         <span class="material-symbols-outlined text-slate-400 text-sm transition duration-200" :class="{'rotate-180': panels.adjust}" style="font-size: 18px;">expand_more</span>
                     </button>
@@ -529,7 +496,7 @@
                                     <span class="text-slate-400 group-hover:text-purple-300 transition">Scale / Zoom</span>
                                     <span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.scale * 100) }}%</span>
                                 </div>
-                                <input type="range" v-model.number="activeImageObject.scale" min="0.2" max="4.0" step="0.05" />
+                                <input type="range" v-model.number="activeImageObject.scale" min="0.05" max="10.0" step="0.01" />
                             </div>
 
                             <!-- Rotation Slider -->
@@ -574,17 +541,33 @@
                                     </button>
                                 </div>
                             </div>
+
+                            <!-- Photo Background Color -->
+                            <div class="space-y-1">
+                                <label class="text-[9px] uppercase font-bold text-slate-500">Photo Background Color</label>
+                                <div class="flex items-center gap-2 bg-slate-900 border border-white/5 px-2 py-1.5 rounded-lg">
+                                    <input type="color" v-model="activeImageObject.bgColor" class="w-6 h-6 border-0 bg-transparent cursor-pointer rounded" />
+                                    <span class="text-[10px] font-mono uppercase text-slate-400">{{ activeImageObject.bgColor }}</span>
+                                    <button 
+                                        @click="activeImageObject.bgColor = '#07090d'" 
+                                        class="ml-auto text-[9px] text-purple-400 hover:underline"
+                                        title="Reset to default dark background"
+                                    >
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- No Image warning -->
                         <div v-else class="text-center bg-slate-950/40 p-4 rounded-xl border border-dashed border-white/5 mt-1">
                             <span class="material-symbols-outlined text-slate-600 text-xl block mb-1">photo_library</span>
-                            <p class="text-[10px] text-slate-500">No image loaded in slot {{ activeImage }}. Check Section 2 to upload.</p>
+                            <p class="text-[10px] text-slate-500">No image loaded in slot {{ activeImage }}. Click on the Polaroid frame above to upload.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- ═══ Accordion 4: Captions & Typography ═══ -->
+                <!-- ═══ Accordion 3: Captions & Typography ═══ -->
                 <div class="border-b border-white/5 group">
                     <button 
                         class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors" 
@@ -592,7 +575,7 @@
                     >
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">edit_note</span>
-                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">4. Typography & Ink</span>
+                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">3. Typography & Ink</span>
                         </div>
                         <span class="material-symbols-outlined text-slate-400 text-sm transition duration-200" :class="{'rotate-180': panels.captions}" style="font-size: 18px;">expand_more</span>
                     </button>
@@ -619,6 +602,10 @@
                             >
                                 <option value="Caveat">Caveat (Scribbly)</option>
                                 <option value="Dancing Script">Dancing Script (Elegant)</option>
+                                <option value="Pacifico">Pacifico (Retro Brush)</option>
+                                <option value="Shadows Into Light">Shadows Into Light (Clean Ink)</option>
+                                <option value="Satisfy">Satisfy (Classic Script)</option>
+                                <option value="Great Vibes">Great Vibes (Formal Cursive)</option>
                                 <option value="Courier Prime">Courier Prime (Retro Typewriter)</option>
                                 <option value="Playfair Display">Playfair Display (Chic Serif)</option>
                             </select>
@@ -725,6 +712,7 @@
                     scale: 1.0,
                     rotation: 0,
                     filter: 'none',
+                    bgColor: '#07090d',
                     width: 0,
                     height: 0
                 });
@@ -919,7 +907,7 @@
                     selectImage(slot);
                     const img = slot === 'A' ? imgA : imgB;
                     const factor = event.deltaY < 0 ? 1.05 : 0.95;
-                    img.scale = Math.max(0.2, Math.min(4.0, img.scale * factor));
+                    img.scale = Math.max(0.05, Math.min(10.0, img.scale * factor));
                 };
 
                 /* ─── Keyboard Hotkeys listener ─── */
@@ -956,12 +944,12 @@
                         case '+':
                         case '=':
                             event.preventDefault();
-                            target.scale = Math.min(4.0, target.scale + scaleStep);
+                            target.scale = Math.min(10.0, target.scale + scaleStep);
                             break;
                         case '-':
                         case '_':
                             event.preventDefault();
-                            target.scale = Math.max(0.2, target.scale - scaleStep);
+                            target.scale = Math.max(0.05, target.scale - scaleStep);
                             break;
                         case 'r':
                         case 'R':
@@ -1101,7 +1089,7 @@
                         ctx.clip();
 
                         // Hole background
-                        ctx.fillStyle = frameThemeColor.value === 'dark' ? '#0d0d10' : '#07090d';
+                        ctx.fillStyle = imgData.bgColor || '#07090d';
                         ctx.fillRect(cutX, cutY, cutW, cutH);
 
                         if (imgData.src) {
@@ -1140,7 +1128,8 @@
                             ctx.fillStyle = captionColor.value;
                             
                             const finalSize = captionFontSize.value * scaleFactor;
-                            ctx.font = `${captionFont.value === 'Dancing Script' || captionFont.value === 'Caveat' ? 'bold' : 'normal'} ${finalSize}px "${captionFont.value}", cursive, sans-serif`;
+                            const isBold = ['Dancing Script', 'Caveat', 'Pacifico', 'Shadows Into Light', 'Satisfy', 'Great Vibes'].includes(captionFont.value);
+                            ctx.font = `${isBold ? 'bold' : 'normal'} ${finalSize}px "${captionFont.value}", cursive, sans-serif`;
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
 
