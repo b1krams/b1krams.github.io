@@ -143,6 +143,12 @@
             background: #4b5563;
         }
 
+        /* Ensure dropdown option items have dark background and light text for readability */
+        select option {
+            background-color: #0f172a; /* bg-slate-900 equivalent */
+            color: #cbd5e1; /* text-slate-300 equivalent */
+        }
+
         /* Accordion Collapsing animation */
         .accordion-body {
             overflow: hidden;
@@ -220,6 +226,12 @@
                     <!-- Center Cut Marks (Top & Bottom) -->
                     <line x1="390" y1="22" x2="390" y2="42" stroke="black" stroke-width="1.2" />
                     <line x1="390" y1="478" x2="390" y2="498" stroke="black" stroke-width="1.2" />
+
+                    <!-- CMYK Color Calibration Squares (Outside Cards, close to top-left cut mark, no borders) -->
+                    <rect x="28" y="34" width="6" height="6" fill="#00ffff" />
+                    <rect x="35" y="34" width="6" height="6" fill="#ff00ff" />
+                    <rect x="42" y="34" width="6" height="6" fill="#ffff00" />
+                    <rect x="49" y="34" width="6" height="6" fill="#000000" />
                 </svg>
 
                 <!-- POLAROID LEFT (Polaroid A - Exact 364x436 Classic 5:6 proportions) -->
@@ -927,9 +939,14 @@
                     const target = activeImage.value === 'A' ? imgA : imgB;
                     if (!target.src) return;
 
-                    // Check if input forms are focused to avoid blocking typing caption
-                    if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text') {
-                        return; 
+                    // Check if input forms or textareas are focused to avoid blocking typing caption or text values
+                    const activeEl = document.activeElement;
+                    if (activeEl) {
+                        const isInput = activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA';
+                        const isContentEditable = activeEl.isContentEditable;
+                        if (isInput || isContentEditable) {
+                            return;
+                        }
                     }
 
                     const step = event.shiftKey ? 10 : 2;
@@ -1227,6 +1244,16 @@
                         // Center Slice ticks (Top and Bottom)
                         drawTick(390, 22, 390, 42);
                         drawTick(390, 478, 390, 498);
+
+                        // Draw CMYK Color Calibration Squares (Outside Cards, close to top-left cut mark, no borders)
+                        const cmykColors = ['#00ffff', '#ff00ff', '#ffff00', '#000000'];
+                        const squareSize = 6;
+                        const startX = 28;
+                        const startY = 34;
+                        cmykColors.forEach((color, index) => {
+                            ctx.fillStyle = color;
+                            ctx.fillRect((startX + index * 7) * scaleFactor, startY * scaleFactor, squareSize * scaleFactor, squareSize * scaleFactor);
+                        });
 
                         ctx.restore();
                     }
