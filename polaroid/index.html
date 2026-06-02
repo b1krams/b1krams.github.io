@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Polaroid Studio | 4x6 Print Generator</title>
+    <meta name="description" content="Create two distinct classic 5:6 Polaroids side-by-side on a standard 4x6 landscape print canvas with cut guidelines. Adjust scale, rotation, and custom captions separately, print, and cut." />
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+    
+    <!-- Vue 3 and Tailwind CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "bg-main": "#0b0e14",
+                        "surface-dark": "#161b22",
+                        "surface-light": "#1e293b",
+                        "accent": "#7c3aed",
+                        "accent-hover": "#6d28d9"
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        handwritten: ["Caveat", "cursive"]
+                    }
+                }
+            }
+        };
+    </script>
+    
+    <link href="/style.css" rel="stylesheet">
+    <link rel="icon" href="/logo.png" type="image/png">
+    
+    <style>
+        /* Retro grid board background */
+        .grid-board {
+            background-color: #0b0e14;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Polaroid Paper Texturing */
+        .polaroid-paper {
+            background-image: 
+                radial-gradient(rgba(0,0,0,0.015) 1px, transparent 0),
+                radial-gradient(rgba(255,255,255,1) 0, rgba(255,255,255,1) 100%);
+            background-size: 4px 4px, 100% 100%;
+        }
+        
+        .polaroid-paper-vintage {
+            background-image: 
+                radial-gradient(rgba(0,0,0,0.03) 1px, transparent 0),
+                radial-gradient(rgba(255,255,255,0.75) 0, rgba(238,230,210,1) 100%);
+            background-size: 4px 4px, 100% 100%;
+        }
+
+        .polaroid-paper-dark {
+            background-image: 
+                radial-gradient(rgba(255,255,255,0.02) 1px, transparent 0),
+                radial-gradient(rgba(45,45,50,1) 0, rgba(28,28,32,1) 100%);
+            background-size: 4px 4px, 100% 100%;
+        }
+
+        .polaroid-paper-mint {
+            background-image: 
+                radial-gradient(rgba(0,0,0,0.02) 1px, transparent 0),
+                radial-gradient(rgba(255,255,255,0.65) 0, rgba(212,236,228,1) 100%);
+            background-size: 4px 4px, 100% 100%;
+        }
+
+        /* Inner Shadows for cutouts */
+        .cutout-inner-shadow {
+            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Filter Preview Maps */
+        .filter-normal { filter: none; }
+        .filter-silver { filter: grayscale(100%) contrast(125%) brightness(95%); }
+        .filter-vintage { filter: sepia(35%) contrast(110%) brightness(98%) saturate(115%) hue-rotate(-5deg); }
+        .filter-golden { filter: sepia(18%) saturate(135%) contrast(108%) brightness(103%); }
+        .filter-fade { filter: contrast(88%) brightness(104%) saturate(85%) sepia(15%); }
+        .filter-cyber { filter: hue-rotate(145deg) saturate(160%) contrast(115%); }
+        .filter-mint { filter: hue-rotate(-50deg) saturate(115%) contrast(105%); }
+
+        /* Sliders styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #a78bfa;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.7);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+            box-shadow: 0 0 14px rgba(124, 58, 237, 0.9);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 2px;
+            cursor: pointer;
+            background: #374151;
+            border-radius: 1px;
+        }
+        
+        /* Glass styling */
+        .glass-panel {
+            background-color: rgba(22, 27, 34, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+
+        /* Accordion Collapsing animation */
+        .accordion-body {
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, padding 0.3s ease;
+        }
+        .accordion-body.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+    </style>
+</head>
+
+<body class="bg-bg-main text-slate-100 h-screen flex flex-col overflow-hidden font-sans select-none" id="app" v-cloak>
+
+    <!-- ═══════════════ Global Header ═══════════════ -->
+    <nav class="global-nav">
+        <div class="flex items-center">
+            <a href="/" class="global-nav-brand">
+                <img src="/logo.png" alt="Logo" class="global-nav-icon">
+                Swiss<span>Web</span>
+            </a>
+            <div class="hidden sm:block border-l border-slate-700/60 pl-4 ml-4 py-1">
+                <h1 class="text-sm font-bold text-slate-200 m-0 leading-none">Polaroid<span class="text-purple-400">Studio</span></h1>
+            </div>
+        </div>
+        <div class="global-nav-links flex items-center gap-4">
+            <button @click="resetAll" class="text-xs text-slate-400 hover:text-white transition flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/5 hover:border-purple-500/30 hover:bg-purple-500/5">
+                <span class="material-symbols-outlined text-[16px]">restart_alt</span>
+                Reset Print
+            </button>
+            <a href="/" class="global-nav-link">Home</a>
+        </div>
+    </nav>
+
+    <!-- ═══════════════ Main Workstation ═══════════════ -->
+    <main class="flex-1 flex min-h-0 w-full h-[calc(100vh-4.5rem)]">
+
+        <!-- ─── Center Display Board (Auto-scaling Grid Canvas) ─── -->
+        <div class="flex-1 relative grid-board flex items-center justify-center p-6 md:p-12 overflow-hidden">
+            
+            <!-- Quick Helper Note -->
+            <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-5 py-2 rounded-full border border-white/10 text-[11px] text-slate-400 flex items-center gap-2 select-none pointer-events-none z-10 shadow-xl">
+                <span class="material-symbols-outlined text-purple-400 text-sm">fullscreen</span>
+                <span><b>Classic SX-70/600 (5:6 Ratio)</b> side-by-side on 4x6 Landscape Sheet.</span>
+            </div>
+
+            <!-- 4x6 Landscape Photo Print Sheet Container (780px wide by 520px tall is exactly 6:4 aspect ratio) -->
+            <div 
+                id="polaroid-print"
+                class="relative bg-white shadow-2xl transition-all duration-300 select-none flex flex-row shrink-0 w-[780px] h-[520px] border border-white/10"
+                style="border-radius: 4px;"
+            >
+                <!-- MINIMAL BLACK CROP MARKS (Only at the outer corners and center cut points) -->
+                <svg v-show="showCutLineInExport" class="absolute inset-0 w-full h-full pointer-events-none z-30" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Top-Left Crop Marks -->
+                    <line x1="26" y1="22" x2="26" y2="42" stroke="black" stroke-width="1.2" />
+                    <line x1="6" y1="42" x2="26" y2="42" stroke="black" stroke-width="1.2" />
+                    
+                    <!-- Top-Right Crop Marks -->
+                    <line x1="754" y1="22" x2="754" y2="42" stroke="black" stroke-width="1.2" />
+                    <line x1="754" y1="42" x2="774" y2="42" stroke="black" stroke-width="1.2" />
+                    
+                    <!-- Bottom-Left Crop Marks -->
+                    <line x1="26" y1="478" x2="26" y2="498" stroke="black" stroke-width="1.2" />
+                    <line x1="6" y1="478" x2="26" y2="478" stroke="black" stroke-width="1.2" />
+                    
+                    <!-- Bottom-Right Crop Marks -->
+                    <line x1="754" y1="478" x2="754" y2="498" stroke="black" stroke-width="1.2" />
+                    <line x1="754" y1="478" x2="774" y2="478" stroke="black" stroke-width="1.2" />
+                    
+                    <!-- Center Cut Marks (Top & Bottom) -->
+                    <line x1="390" y1="22" x2="390" y2="42" stroke="black" stroke-width="1.2" />
+                    <line x1="390" y1="478" x2="390" y2="498" stroke="black" stroke-width="1.2" />
+                </svg>
+
+                <div v-show="showCutLineInExport" class="absolute left-1/2 top-4 -translate-x-1/2 bg-slate-900/90 text-slate-300 border border-slate-700/60 rounded-full px-2 py-0.5 text-[8px] flex items-center gap-1 font-mono z-40 pointer-events-none">
+                    <span class="material-symbols-outlined text-[9px]">crop_free</span>
+                    <span>CORNER CROP MARKS (BLACK INK)</span>
+                </div>
+
+                <!-- POLAROID LEFT (Polaroid A - Exact 364x436 Classic 5:6 proportions) -->
+                <!-- Placed at X: 26px (touches center X=390px!) -->
+                <div 
+                    class="absolute left-[26px] top-[42px] w-[364px] height-[436px] flex flex-col items-center justify-start transition-all duration-200"
+                    :class="[
+                        framePaperClass,
+                        activeImage === 'A' ? 'border-slate-400' : 'border-black/5'
+                    ]"
+                    style="height: 436px; border-radius: 2px;"
+                    @mousedown="selectImage('A')"
+                    @touchstart="selectImage('A')"
+                >
+                    <!-- Cutout Container (Perfect centered square: 324px x 324px, Y margin 20px) -->
+                    <div 
+                        class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden bg-slate-900 border border-black/35 transition-all duration-200 cursor-pointer select-none"
+                        :class="frameThemeColor === 'dark' ? 'bg-slate-950 border-white/5' : 'bg-slate-900'"
+                        @dragover.prevent
+                        @drop.prevent="handleFileDrop('A', $event)"
+                        @click="selectImage('A')"
+                        @dblclick="resetImageTransforms"
+                    >
+                        <!-- Recessed inner shadow overlay -->
+                        <div class="absolute inset-0 pointer-events-none z-10 cutout-inner-shadow"></div>
+
+                        <!-- Image Preview wrapper -->
+                        <div 
+                            v-if="imgA.src" 
+                            class="w-full h-full relative"
+                            @mousedown.stop="startDrag('A', $event)"
+                            @touchstart.stop="startDrag('A', $event)"
+                            @wheel.prevent="handleWheel('A', $event)"
+                        >
+                            <img 
+                                :src="imgA.src" 
+                                class="absolute top-1/2 left-1/2 origin-center pointer-events-none max-w-none max-h-none select-none"
+                                :class="getFilterClass(imgA.filter)"
+                                :style="getImageStyle(imgA)"
+                                alt="Image A"
+                            />
+                        </div>
+
+                        <!-- Empty State Uploader -->
+                        <div 
+                            v-else 
+                            @click="$refs.uploadA.click()" 
+                            class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 hover:bg-black/20 transition"
+                        >
+                            <span class="material-symbols-outlined text-4xl text-slate-500 mb-1.5">add_photo_alternate</span>
+                            <span class="text-xs text-slate-400 font-medium">Upload Photo A</span>
+                            <span class="text-[9px] text-slate-500 mt-1">Click or drag here</span>
+                            <input type="file" ref="uploadA" class="hidden" accept="image/*" @change="handleFileChange('A', $event)" />
+                        </div>
+                    </div>
+
+                    <!-- Custom Handwritten Caption Overlay (A) -->
+                    <!-- Sized inside the bottom 92px margin space -->
+                    <div class="absolute bottom-[24px] left-5 right-5 text-center">
+                        <input 
+                            type="text" 
+                            v-model="captionTextA"
+                            class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text"
+                            :class="captionFontClass"
+                            :style="{ 
+                                fontSize: captionFontSize + 'px', 
+                                color: captionColor,
+                                fontWeight: captionFont === 'Dancing Script' || captionFont === 'Caveat' ? 'bold' : 'normal'
+                            }"
+                            placeholder="Write left caption..."
+                            maxlength="28"
+                        />
+                    </div>
+                </div>
+
+                <!-- POLAROID RIGHT (Polaroid B - Exact 364x436 Classic 5:6 proportions) -->
+                <!-- Placed at X: 390px (touches left Polaroid at X=390px!) -->
+                <div 
+                    class="absolute left-[390px] top-[42px] w-[364px] height-[436px] flex flex-col items-center justify-start transition-all duration-200"
+                    :class="[
+                        framePaperClass,
+                        activeImage === 'B' ? 'border-slate-400' : 'border-black/5'
+                    ]"
+                    style="height: 436px; border-radius: 2px;"
+                    @mousedown="selectImage('B')"
+                    @touchstart="selectImage('B')"
+                >
+                    <!-- Cutout Container (Perfect centered square: 324px x 324px, Y margin 20px) -->
+                    <div 
+                        class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden bg-slate-900 border border-black/35 transition-all duration-200 cursor-pointer select-none"
+                        :class="frameThemeColor === 'dark' ? 'bg-slate-950 border-white/5' : 'bg-slate-900'"
+                        @dragover.prevent
+                        @drop.prevent="handleFileDrop('B', $event)"
+                        @click="selectImage('B')"
+                        @dblclick="resetImageTransforms"
+                    >
+                        <!-- Recessed inner shadow overlay -->
+                        <div class="absolute inset-0 pointer-events-none z-10 cutout-inner-shadow"></div>
+
+                        <!-- Image Preview wrapper -->
+                        <div 
+                            v-if="imgB.src" 
+                            class="w-full h-full relative"
+                            @mousedown.stop="startDrag('B', $event)"
+                            @touchstart.stop="startDrag('B', $event)"
+                            @wheel.prevent="handleWheel('B', $event)"
+                        >
+                            <img 
+                                :src="imgB.src" 
+                                class="absolute top-1/2 left-1/2 origin-center pointer-events-none max-w-none max-h-none select-none"
+                                :class="getFilterClass(imgB.filter)"
+                                :style="getImageStyle(imgB)"
+                                alt="Image B"
+                            />
+                        </div>
+
+                        <!-- Empty State Uploader -->
+                        <div 
+                            v-else 
+                            @click="$refs.uploadB.click()" 
+                            class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 hover:bg-black/20 transition"
+                        >
+                            <span class="material-symbols-outlined text-4xl text-slate-500 mb-1.5">add_photo_alternate</span>
+                            <span class="text-xs text-slate-400 font-medium">Upload Photo B</span>
+                            <span class="text-[9px] text-slate-500 mt-1">Click or drag here</span>
+                            <input type="file" ref="uploadB" class="hidden" accept="image/*" @change="handleFileChange('B', $event)" />
+                        </div>
+                    </div>
+
+                    <!-- Custom Handwritten Caption Overlay (B) -->
+                    <div class="absolute bottom-[24px] left-5 right-5 text-center">
+                        <input 
+                            type="text" 
+                            v-model="captionTextB"
+                            class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text"
+                            :class="captionFontClass"
+                            :style="{ 
+                                fontSize: captionFontSize + 'px', 
+                                color: captionColor,
+                                fontWeight: captionFont === 'Dancing Script' || captionFont === 'Caveat' ? 'bold' : 'normal'
+                            }"
+                            placeholder="Write right caption..."
+                            maxlength="28"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Right Inspector Panel (Static Frame, internal scrollable settings!) ─── -->
+        <aside class="w-80 glass-panel border-l shadow-2xl flex flex-col h-full shrink-0 overflow-hidden">
+            
+            <!-- Panel Title -->
+            <div class="p-5 border-b border-white/5 flex items-center justify-between">
+                <div>
+                    <h2 class="text-sm font-bold tracking-wider text-purple-400 uppercase">SX-70 Print Inspector</h2>
+                    <p class="text-xs text-slate-400">Configure 4x6 Printable</p>
+                </div>
+                <span class="material-symbols-outlined text-slate-500">grid_view</span>
+            </div>
+
+            <!-- Scrollable Accordions Container -->
+            <div class="flex-1 overflow-y-auto scrollbar-custom flex flex-col min-h-0">
+
+                <!-- ═══ Accordion 1: Paper & Guidelines ═══ -->
+                <div class="border-b border-white/5 group">
+                    <button 
+                        class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors" 
+                        @click="togglePanel('layout')"
+                    >
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">settings</span>
+                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">1. Canvas & Print Setup</span>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400 text-sm transition duration-200" :class="{'rotate-180': panels.layout}" style="font-size: 18px;">expand_more</span>
+                    </button>
+                    <div class="px-5 pb-5 space-y-4 accordion-body" :class="{'collapsed': !panels.layout}">
+                        
+                        <!-- Frame Color Selector -->
+                        <div class="space-y-2 mt-1">
+                            <label class="text-[9px] uppercase font-bold text-slate-500">Cardboard Texture Color</label>
+                            <div class="flex gap-2">
+                                <button 
+                                    v-for="theme in themes" 
+                                    :key="theme.id"
+                                    @click="frameThemeColor = theme.id"
+                                    class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center relative"
+                                    :class="[
+                                        theme.class,
+                                        frameThemeColor === theme.id ? 'border-purple-500 scale-110 shadow-lg' : 'border-white/10 hover:border-slate-400'
+                                    ]"
+                                    :title="theme.name"
+                                >
+                                    <span v-if="frameThemeColor === theme.id" class="material-symbols-outlined text-xs" :class="theme.id === 'white' || theme.id === 'vintage' ? 'text-black' : 'text-white'">check</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Guidelines toggles -->
+                        <div class="space-y-2 pt-1">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[10px] uppercase font-bold text-slate-400">Show Card Cut Markers</label>
+                                <button 
+                                    @click="showCutLineInExport = !showCutLineInExport" 
+                                    class="w-9 h-5 rounded-full p-0.5 transition duration-200 focus:outline-none"
+                                    :class="showCutLineInExport ? 'bg-purple-600' : 'bg-slate-800'"
+                                >
+                                    <div class="w-4 h-4 rounded-full bg-white transition" :class="{'translate-x-4': showCutLineInExport}"></div>
+                                </button>
+                            </div>
+                            <p class="text-[9px] text-slate-500 leading-normal">
+                                Enclosing dotted outlines will be rendered around each classic SX-70 card boundary to guide precise scissor cuts from your 4x6 print.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Accordion 2: Photo Slot Uploaders ═══ -->
+                <div class="border-b border-white/5 group">
+                    <button 
+                        class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors" 
+                        @click="togglePanel('uploads')"
+                    >
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">cloud_upload</span>
+                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">2. Photo Uploads</span>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400 text-sm transition duration-200" :class="{'rotate-180': panels.uploads}" style="font-size: 18px;">expand_more</span>
+                    </button>
+                    <div class="px-5 pb-5 space-y-4 accordion-body" :class="{'collapsed': !panels.uploads}">
+                        
+                        <!-- Side by side upload containers -->
+                        <div class="grid grid-cols-2 gap-3 mt-1">
+                            <!-- Uploader A -->
+                            <div @click="$refs.uploadA.click()" class="border border-dashed border-white/10 hover:border-purple-500/40 rounded-xl p-3 bg-slate-900/40 hover:bg-purple-500/5 text-center cursor-pointer transition">
+                                <span class="material-symbols-outlined text-slate-500 text-xl block mb-1">add_photo_alternate</span>
+                                <span class="text-[10px] text-slate-300 block font-medium">Slot A (Left)</span>
+                                <span class="text-[8px] text-slate-500 mt-0.5 block" v-if="imgA.src">Uploaded ✓</span>
+                                <span class="text-[8px] text-slate-500 mt-0.5 block" v-else>Choose File</span>
+                            </div>
+                            <!-- Uploader B -->
+                            <div @click="$refs.uploadB.click()" class="border border-dashed border-white/10 hover:border-purple-500/40 rounded-xl p-3 bg-slate-900/40 hover:bg-purple-500/5 text-center cursor-pointer transition">
+                                <span class="material-symbols-outlined text-slate-500 text-xl block mb-1">add_photo_alternate</span>
+                                <span class="text-[10px] text-slate-300 block font-medium">Slot B (Right)</span>
+                                <span class="text-[8px] text-slate-500 mt-0.5 block" v-if="imgB.src">Uploaded ✓</span>
+                                <span class="text-[8px] text-slate-500 mt-0.5 block" v-else>Choose File</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Accordion 3: Interactive Position Tuning ═══ -->
+                <div class="border-b border-white/5 group">
+                    <button 
+                        class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors" 
+                        @click="togglePanel('adjust')"
+                    >
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">tune</span>
+                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">3. Photo Tuning</span>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400 text-sm transition duration-200" :class="{'rotate-180': panels.adjust}" style="font-size: 18px;">expand_more</span>
+                    </button>
+                    <div class="px-5 pb-5 space-y-4 accordion-body" :class="{'collapsed': !panels.adjust}">
+                        
+                        <!-- Toggle target photo -->
+                        <div class="flex gap-2 mt-1">
+                            <button 
+                                @click="selectImage('A')" 
+                                class="flex-1 py-1 rounded text-[10px] font-bold border transition"
+                                :class="activeImage === 'A' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-500'"
+                            >
+                                Polaroid A (Left)
+                            </button>
+                            <button 
+                                @click="selectImage('B')" 
+                                class="flex-1 py-1 rounded text-[10px] font-bold border transition"
+                                :class="activeImage === 'B' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-500'"
+                            >
+                                Polaroid B (Right)
+                            </button>
+                        </div>
+
+                        <!-- Sliders (If target image loaded) -->
+                        <div v-if="activeImageObject.src" class="space-y-4">
+                            
+                            <!-- Action reset/remove -->
+                            <div class="flex justify-between items-center bg-slate-900/50 p-2 rounded-lg border border-white/5">
+                                <span class="text-[10px] text-slate-400">Slot {{ activeImage }} Target</span>
+                                <div class="flex gap-2">
+                                    <button @click="resetImageTransforms" class="text-[10px] text-purple-400 hover:underline">Reset</button>
+                                    <span class="text-slate-600">|</span>
+                                    <button @click="clearImage" class="text-[10px] text-red-400 hover:underline">Remove</button>
+                                </div>
+                            </div>
+
+                            <!-- Scale Slider -->
+                            <div class="space-y-1 group cursor-pointer" @dblclick="resetScale" title="Double-click to reset scale to 100%">
+                                <div class="flex justify-between text-[11px] font-medium">
+                                    <span class="text-slate-400 group-hover:text-purple-300 transition">Scale / Zoom</span>
+                                    <span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.scale * 100) }}%</span>
+                                </div>
+                                <input type="range" v-model.number="activeImageObject.scale" min="0.2" max="4.0" step="0.05" />
+                            </div>
+
+                            <!-- Rotation Slider -->
+                            <div class="space-y-1 group cursor-pointer" @dblclick="resetRotation" title="Double-click to reset rotation to 0°">
+                                <div class="flex justify-between text-[11px] font-medium">
+                                    <span class="text-slate-400 group-hover:text-purple-300 transition">Rotation</span>
+                                    <span class="text-purple-400 font-mono">{{ activeImageObject.rotation }}°</span>
+                                </div>
+                                <input type="range" v-model.number="activeImageObject.rotation" min="-180" max="180" step="1" />
+                            </div>
+
+                            <!-- Alignment X Slider -->
+                            <div class="space-y-1 group cursor-pointer" @dblclick="resetX" title="Double-click to center horizontally">
+                                <div class="flex justify-between text-[11px] font-medium">
+                                    <span class="text-slate-400 group-hover:text-purple-300 transition">Nudge Horiz (X)</span>
+                                    <span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.x) }}px</span>
+                                </div>
+                                <input type="range" v-model.number="activeImageObject.x" min="-200" max="200" step="1" />
+                            </div>
+
+                            <!-- Alignment Y Slider -->
+                            <div class="space-y-1 group cursor-pointer" @dblclick="resetY" title="Double-click to center vertically">
+                                <div class="flex justify-between text-[11px] font-medium">
+                                    <span class="text-slate-400 group-hover:text-purple-300 transition">Nudge Vert (Y)</span>
+                                    <span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.y) }}px</span>
+                                </div>
+                                <input type="range" v-model.number="activeImageObject.y" min="-200" max="200" step="1" />
+                            </div>
+
+                            <!-- Retro Filters -->
+                            <div class="space-y-2">
+                                <label class="text-[9px] uppercase font-bold text-slate-500">Filter Preset</label>
+                                <div class="grid grid-cols-3 gap-1.5">
+                                    <button 
+                                        v-for="filt in filters" 
+                                        :key="filt.id"
+                                        @click="activeImageObject.filter = filt.id"
+                                        class="py-1 rounded text-[10px] font-bold border transition capitalize"
+                                        :class="activeImageObject.filter === filt.id ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-400 hover:bg-slate-800'"
+                                    >
+                                        {{ filt.name }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No Image warning -->
+                        <div v-else class="text-center bg-slate-950/40 p-4 rounded-xl border border-dashed border-white/5 mt-1">
+                            <span class="material-symbols-outlined text-slate-600 text-xl block mb-1">photo_library</span>
+                            <p class="text-[10px] text-slate-500">No image loaded in slot {{ activeImage }}. Check Section 2 to upload.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Accordion 4: Captions & Typography ═══ -->
+                <div class="border-b border-white/5 group">
+                    <button 
+                        class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors" 
+                        @click="togglePanel('captions')"
+                    >
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">edit_note</span>
+                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">4. Typography & Ink</span>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400 text-sm transition duration-200" :class="{'rotate-180': panels.captions}" style="font-size: 18px;">expand_more</span>
+                    </button>
+                    <div class="px-5 pb-5 space-y-4 accordion-body" :class="{'collapsed': !panels.captions}">
+                        
+                        <!-- Text inputs -->
+                        <div class="space-y-2 mt-1">
+                            <div>
+                                <label class="text-[9px] uppercase font-bold text-slate-500">Polaroid A (Left) Caption</label>
+                                <input type="text" v-model="captionTextA" class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5" placeholder="Memory left side..." />
+                            </div>
+                            <div>
+                                <label class="text-[9px] uppercase font-bold text-slate-500">Polaroid B (Right) Caption</label>
+                                <input type="text" v-model="captionTextB" class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5" placeholder="Memory right side..." />
+                            </div>
+                        </div>
+
+                        <!-- Font Family -->
+                        <div class="space-y-1">
+                            <label class="text-[9px] uppercase font-bold text-slate-500">Ink Font Family</label>
+                            <select 
+                                v-model="captionFont"
+                                class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 py-2"
+                            >
+                                <option value="Caveat">Caveat (Scribbly)</option>
+                                <option value="Dancing Script">Dancing Script (Elegant)</option>
+                                <option value="Courier Prime">Courier Prime (Retro Typewriter)</option>
+                                <option value="Playfair Display">Playfair Display (Chic Serif)</option>
+                            </select>
+                        </div>
+
+                        <!-- Font Size & Color Row -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-[9px] uppercase font-bold text-slate-500">Font Size (px)</label>
+                                <input type="number" v-model.number="captionFontSize" class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[9px] uppercase font-bold text-slate-500">Ink Color</label>
+                                <div class="flex items-center gap-2 bg-slate-900 border border-white/5 px-2 py-1 rounded-lg">
+                                    <input type="color" v-model="captionColor" class="w-5 h-5 border-0 bg-transparent cursor-pointer rounded" />
+                                    <span class="text-[9px] font-mono uppercase text-slate-400">{{ captionColor }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Export Buttons (Always fixed at bottom of sidebar for easy accessibility) -->
+            <div class="p-5 pt-4 space-y-4 border-t border-white/5 bg-slate-900/50 backdrop-blur-md shrink-0">
+                <button 
+                    @click="exportPolaroid"
+                    id="exportBtn"
+                    class="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs tracking-wider uppercase transition shadow-xl shadow-purple-950/20 flex items-center justify-center gap-2"
+                    :disabled="exporting"
+                >
+                    <span class="material-symbols-outlined text-[18px]">download</span>
+                    <span>{{ exporting ? 'Rendering SX-70...' : 'Export High-Res 4x6' }}</span>
+                </button>
+                <p class="text-[9px] text-slate-500 text-center leading-relaxed">
+                    Compiles a 4x6 inch landscape photo print at 300 DPI high resolution (2400 x 1600 pixels) for printing at home or at standard pharmacy/photo kiosks.
+                </p>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Hidden high-res rendering canvas -->
+    <canvas id="exportCanvas" class="hidden"></canvas>
+
+    <!-- ═══════════════ Application Core ═══════════════ -->
+    <script>
+        const { createApp, ref, reactive, computed, onMounted, onBeforeUnmount } = Vue;
+
+        createApp({
+            setup() {
+                /* ─── Paper Frame Themes ─── */
+                const themes = [
+                    { id: 'white', name: 'Classic White', class: 'bg-[#ffffff] text-black border-slate-200/40' },
+                    { id: 'vintage', name: 'Aged Retro', class: 'bg-[#eee6d2] text-black border-[#ddd5c2]' },
+                    { id: 'dark', name: 'Obsidian Black', class: 'bg-[#1c1c20] text-white border-[#2d2d32]' },
+                    { id: 'mint', name: 'Chic Mint', class: 'bg-[#d2ece0] text-black border-[#c2dcd0]' }
+                ];
+
+                /* ─── Image Filter Presets ─── */
+                const filters = [
+                    { id: 'none', name: 'Normal' },
+                    { id: 'silver', name: 'Silver' },
+                    { id: 'vintage', name: 'Vintage' },
+                    { id: 'golden', name: 'Golden' },
+                    { id: 'fade', name: 'Fade' },
+                    { id: 'cyber', name: 'Cyber' },
+                    { id: 'mint', name: 'Mint' }
+                ];
+
+                /* ─── Accordion Sidebar Reactive States ─── */
+                const panels = reactive({
+                    layout: true,
+                    uploads: true,
+                    adjust: true,
+                    captions: true
+                });
+                const togglePanel = (key) => { panels[key] = !panels[key]; };
+
+                /* ─── Main States ─── */
+                const frameThemeColor = ref('white');
+                const showCutLineInExport = ref(true);
+                const captionTextA = ref('');
+                const captionTextB = ref('');
+                const captionFont = ref('Caveat');
+                const captionFontSize = ref(20); // Normalized baseline font-size for auto-scaling
+                const captionColor = ref('#1e293b');
+                const exporting = ref(false);
+
+                // Default individual image transform values
+                const createEmptyImageState = () => ({
+                    src: null,
+                    x: 0,
+                    y: 0,
+                    scale: 1.0,
+                    rotation: 0,
+                    filter: 'none',
+                    width: 0,
+                    height: 0
+                });
+
+                const imgA = reactive(createEmptyImageState());
+                const imgB = reactive(createEmptyImageState());
+                const activeImage = ref('A'); // 'A' or 'B'
+
+                // Compute references to focused image active parameters
+                const activeImageObject = computed(() => activeImage.value === 'A' ? imgA : imgB);
+
+                const framePaperClass = computed(() => {
+                    if (frameThemeColor.value === 'vintage') return 'polaroid-paper-vintage';
+                    if (frameThemeColor.value === 'dark') return 'polaroid-paper-dark';
+                    if (frameThemeColor.value === 'mint') return 'polaroid-paper-mint';
+                    return 'polaroid-paper';
+                });
+
+                const captionFontClass = computed(() => {
+                    if (captionFont.value === 'Dancing Script') return 'font-handwritten font-bold';
+                    if (captionFont.value === 'Courier Prime') return 'font-mono';
+                    if (captionFont.value === 'Playfair Display') return 'font-serif';
+                    return 'font-handwritten';
+                });
+
+                /* ─── Action Functions ─── */
+                const selectImage = (slot) => {
+                    activeImage.value = slot;
+                };
+
+                const getFilterClass = (filterId) => {
+                    return `filter-${filterId}`;
+                };
+
+                // Formulate styles to transform preview images inside percentage wrappers
+                const getImageStyle = (img) => {
+                    return {
+                        transform: `translate(-50%, -50%) translate(${img.x}px, ${img.y}px) scale(${img.scale}) rotate(${img.rotation}deg)`
+                    };
+                };
+
+                /* ─── Upload / File Methods ─── */
+                const handleFileChange = (slot, event) => {
+                    const file = event.target.files[0];
+                    if (file) loadImage(slot, file);
+                };
+
+                const handleFileDrop = (slot, event) => {
+                    const file = event.dataTransfer.files[0];
+                    if (file) loadImage(slot, file);
+                };
+
+                const loadImage = (slot, file) => {
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please select a valid image file.');
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const target = slot === 'A' ? imgA : imgB;
+                        
+                        // Load image dimension to help center scaling
+                        const tempImg = new Image();
+                        tempImg.onload = () => {
+                            target.src = e.target.result;
+                            target.width = tempImg.width;
+                            target.height = tempImg.height;
+                            target.x = 0;
+                            target.y = 0;
+                            target.scale = 1.0;
+                            target.rotation = 0;
+                        };
+                        tempImg.src = e.target.result;
+                        
+                        activeImage.value = slot; // Switch focus
+                    };
+                    reader.readAsDataURL(file);
+                };
+
+                const clearImage = () => {
+                    const target = activeImage.value === 'A' ? imgA : imgB;
+                    Object.assign(target, createEmptyImageState());
+                };
+
+                const resetImageTransforms = () => {
+                    const target = activeImage.value === 'A' ? imgA : imgB;
+                    target.x = 0;
+                    target.y = 0;
+                    target.scale = 1.0;
+                    target.rotation = 0;
+                };
+
+                const resetScale = () => {
+                    const target = activeImage.value === 'A' ? imgA : imgB;
+                    target.scale = 1.0;
+                };
+
+                const resetRotation = () => {
+                    const target = activeImage.value === 'A' ? imgA : imgB;
+                    target.rotation = 0;
+                };
+
+                const resetX = () => {
+                    const target = activeImage.value === 'A' ? imgA : imgB;
+                    target.x = 0;
+                };
+
+                const resetY = () => {
+                    const target = activeImage.value === 'A' ? imgA : imgB;
+                    target.y = 0;
+                };
+
+                const resetAll = () => {
+                    Object.assign(imgA, createEmptyImageState());
+                    Object.assign(imgB, createEmptyImageState());
+                    captionTextA.value = '';
+                    captionTextB.value = '';
+                    frameThemeColor.value = 'white';
+                    captionColor.value = '#1e293b';
+                    captionFontSize.value = 20;
+                    activeImage.value = 'A';
+                };
+
+                /* ─── Drag Manipulation Logic (Normalized dynamically to maintain natural mouse speeds) ─── */
+                let isDragging = false;
+                let startX = 0;
+                let startY = 0;
+                let startImgX = 0;
+                let startImgY = 0;
+
+                const startDrag = (slot, event) => {
+                    selectImage(slot);
+                    isDragging = true;
+                    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+                    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+                    startX = clientX;
+                    startY = clientY;
+                    
+                    const img = slot === 'A' ? imgA : imgB;
+                    startImgX = img.x;
+                    startImgY = img.y;
+
+                    // Bind listeners to document to handle panning everywhere smoothly
+                    if (event.touches) {
+                        document.addEventListener('touchmove', handleDragMove, { passive: false });
+                        document.addEventListener('touchend', endDrag);
+                    } else {
+                        document.addEventListener('mousemove', handleDragMove);
+                        document.addEventListener('mouseup', endDrag);
+                    }
+                };
+
+                const handleDragMove = (event) => {
+                    if (!isDragging) return;
+                    if (event.cancelable) event.preventDefault();
+                    
+                    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+                    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+
+                    const dx = clientX - startX;
+                    const dy = clientY - startY;
+
+                    const img = activeImage.value === 'A' ? imgA : imgB;
+                    
+                    // NORMALIZE drag offsets relative to our 780px coordinate system baseline.
+                    // This guarantees that mouse movement matches the image pan exactly, 
+                    // regardless of how large the Polaroid preview is scaled on screen.
+                    const printEl = document.getElementById('polaroid-print');
+                    if (printEl) {
+                        const actualWidth = printEl.getBoundingClientRect().width;
+                        const baselineWidth = 780; // Scale dragging offsets from actual px to baseline px
+                        const scaleRatio = baselineWidth / actualWidth;
+
+                        img.x = startImgX + dx * scaleRatio;
+                        img.y = startImgY + dy * scaleRatio;
+                    } else {
+                        img.x = startImgX + dx;
+                        img.y = startImgY + dy;
+                    }
+                };
+
+                const endDrag = () => {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', handleDragMove);
+                    document.removeEventListener('mouseup', endDrag);
+                    document.removeEventListener('touchmove', handleDragMove);
+                    document.removeEventListener('touchend', endDrag);
+                };
+
+                /* ─── Wheel Scaling ─── */
+                const handleWheel = (slot, event) => {
+                    selectImage(slot);
+                    const img = slot === 'A' ? imgA : imgB;
+                    const factor = event.deltaY < 0 ? 1.05 : 0.95;
+                    img.scale = Math.max(0.2, Math.min(4.0, img.scale * factor));
+                };
+
+                /* ─── Keyboard Hotkeys listener ─── */
+                const handleKeyDown = (event) => {
+                    const target = activeImage.value === 'A' ? imgA : imgB;
+                    if (!target.src) return;
+
+                    // Check if input forms are focused to avoid blocking typing caption
+                    if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text') {
+                        return; 
+                    }
+
+                    const step = event.shiftKey ? 10 : 2;
+                    const scaleStep = 0.05;
+                    const rotateStep = event.shiftKey ? 15 : 2;
+
+                    switch (event.key) {
+                        case 'ArrowLeft':
+                            event.preventDefault();
+                            target.x -= step;
+                            break;
+                        case 'ArrowRight':
+                            event.preventDefault();
+                            target.x += step;
+                            break;
+                        case 'ArrowUp':
+                            event.preventDefault();
+                            target.y -= step;
+                            break;
+                        case 'ArrowDown':
+                            event.preventDefault();
+                            target.y += step;
+                            break;
+                        case '+':
+                        case '=':
+                            event.preventDefault();
+                            target.scale = Math.min(4.0, target.scale + scaleStep);
+                            break;
+                        case '-':
+                        case '_':
+                            event.preventDefault();
+                            target.scale = Math.max(0.2, target.scale - scaleStep);
+                            break;
+                        case 'r':
+                        case 'R':
+                            event.preventDefault();
+                            if (event.shiftKey) {
+                                target.rotation = (target.rotation - rotateStep) % 360;
+                            } else {
+                                target.rotation = (target.rotation + rotateStep) % 360;
+                            }
+                            break;
+                        case '[':
+                        case '<':
+                            event.preventDefault();
+                            target.rotation = (target.rotation - rotateStep) % 360;
+                            break;
+                        case ']':
+                        case '>':
+                            event.preventDefault();
+                            target.rotation = (target.rotation + rotateStep) % 360;
+                            break;
+                    }
+                };
+
+                onMounted(() => {
+                    window.addEventListener('keydown', handleKeyDown);
+                    
+                    // Set default caption text as today's date
+                    const todayStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                    captionTextA.value = todayStr;
+                    captionTextB.value = todayStr;
+                });
+
+                onBeforeUnmount(() => {
+                    window.removeEventListener('keydown', handleKeyDown);
+                });
+
+                /* ─── High Resolution Canvas Rendering ─── */
+                const getCanvasCSSFilter = (filterId) => {
+                    switch (filterId) {
+                        case 'silver': return 'grayscale(100%) contrast(125%) brightness(95%)';
+                        case 'vintage': return 'sepia(35%) contrast(110%) brightness(98%) saturate(115%) hue-rotate(-5deg)';
+                        case 'golden': return 'sepia(18%) saturate(135%) contrast(108%) brightness(103%)';
+                        case 'fade': return 'contrast(88%) brightness(104%) saturate(85%) sepia(15%)';
+                        case 'cyber': return 'hue-rotate(145deg) saturate(160%) contrast(115%)';
+                        case 'mint': return 'hue-rotate(-50deg) saturate(115%) contrast(105%)';
+                        default: return 'none';
+                    }
+                };
+
+                const drawPaperTexture = (ctx, w, h, theme) => {
+                    let baseColor = '#ffffff';
+                    let noiseColor = 'rgba(0,0,0,0.012)';
+                    if (theme === 'vintage') { baseColor = '#eee6d2'; noiseColor = 'rgba(0,0,0,0.015)'; }
+                    else if (theme === 'dark') { baseColor = '#1c1c20'; noiseColor = 'rgba(255,255,255,0.01)'; }
+                    else if (theme === 'mint') { baseColor = '#d2ece0'; noiseColor = 'rgba(0,0,0,0.012)'; }
+
+                    ctx.fillStyle = baseColor;
+                    ctx.fillRect(0, 0, w, h);
+
+                    // Skip vignettes and grain for pristine Classic White to ensure zero gray tone
+                    if (theme === 'white') {
+                        return;
+                    }
+
+                    // Ambient depth shading
+                    let gradient = ctx.createRadialGradient(w/2, h/2, 10, w/2, h/2, Math.max(w, h));
+                    if (theme === 'dark') {
+                        gradient.addColorStop(0, 'rgba(255,255,255,0.02)');
+                        gradient.addColorStop(1, 'rgba(0,0,0,0.3)');
+                    } else {
+                        gradient.addColorStop(0, 'rgba(255,255,255,0.6)');
+                        gradient.addColorStop(1, 'rgba(0,0,0,0.03)');
+                    }
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, w, h);
+
+                    // Fine grain noise simulation
+                    for (let x = 0; x < w; x += 4) {
+                        for (let y = 0; y < h; y += 4) {
+                            if (Math.random() > 0.5) {
+                                ctx.fillStyle = noiseColor;
+                                ctx.fillRect(x + Math.floor(Math.random()*2), y + Math.floor(Math.random()*2), 2, 2);
+                            }
+                        }
+                    }
+                };
+
+                const exportPolaroid = async () => {
+                    if (exporting.value) return;
+                    exporting.value = true;
+
+                    // A standard 4x6 print at 300 DPI high resolution is exactly 1800 x 1200 or 2400 x 1600.
+                    // Let's print at 2400 x 1600!
+                    const targetWidth = 2400;
+                    const targetHeight = 1600;
+                    const baselineWidth = 780; // Virtual design baseline
+                    const scaleFactor = targetWidth / baselineWidth;
+
+                    const canvas = document.getElementById('exportCanvas');
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+
+                    // 1. Draw 4x6 sheet canvas background (transparent print sheet, so standard canvas base is filled transparent or clean white)
+                    ctx.fillStyle = '#ffffff'; // Pure white background to save ink
+                    ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+                    // 2. Draw both floating cards with exact 5:6 classic aspect ratios inside 4x6 canvas
+                    const drawCardAndContents = async (imgData, cardX, cardY, cardW, cardH, captionTextValue, slot) => {
+                        const sCardX = cardX * scaleFactor;
+                        const sCardY = cardY * scaleFactor;
+                        const sCardW = cardW * scaleFactor;
+                        const sCardH = cardH * scaleFactor;
+
+                        ctx.save();
+                        
+                        // Create paper texture base strictly clipped to card boundaries
+                        ctx.beginPath();
+                        ctx.rect(sCardX, sCardY, sCardW, sCardH);
+
+                        ctx.clip();
+                        drawPaperTexture(ctx, targetWidth, targetHeight, frameThemeColor.value);
+
+                        // Draw cutout square inside this card:
+                        // Cutout dimensions: width=324px, height=324px. X margin inside = 20px. Y margin inside = 20px
+                        const cutX = (cardX + 20) * scaleFactor;
+                        const cutY = (cardY + 20) * scaleFactor;
+                        const cutW = 324 * scaleFactor;
+                        const cutH = 324 * scaleFactor;
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.rect(cutX, cutY, cutW, cutH);
+                        ctx.clip();
+
+                        // Hole background
+                        ctx.fillStyle = frameThemeColor.value === 'dark' ? '#0d0d10' : '#07090d';
+                        ctx.fillRect(cutX, cutY, cutW, cutH);
+
+                        if (imgData.src) {
+                            const imgEl = new Image();
+                            await new Promise((resolve) => {
+                                imgEl.onload = resolve;
+                                imgEl.src = imgData.src;
+                            });
+
+                            ctx.save();
+                            ctx.translate(cutX + cutW / 2, cutY + cutH / 2);
+                            ctx.translate(imgData.x * scaleFactor, imgData.y * scaleFactor);
+                            ctx.scale(imgData.scale, imgData.scale);
+                            ctx.rotate(imgData.rotation * Math.PI / 180);
+
+                            ctx.filter = getCanvasCSSFilter(imgData.filter);
+
+                            const aspect = imgData.width / imgData.height;
+                            let drawW = cutW;
+                            let drawH = cutW / aspect;
+                            if (drawH < cutH) {
+                                drawH = cutH;
+                                drawW = cutH * aspect;
+                            }
+                            ctx.drawImage(imgEl, -drawW / 2, -drawH / 2, drawW, drawH);
+                            ctx.restore();
+                        } else {
+                            ctx.fillStyle = 'rgba(255,255,255,0.03)';
+                            ctx.fillRect(cutX + 20, cutY + 20, cutW - 40, cutH - 40);
+                        }
+
+                        // Inner border shadows for cutout recessed depth
+                        ctx.shadowColor = 'rgba(0,0,0,0.65)';
+                        ctx.shadowBlur = 10 * scaleFactor;
+                        ctx.strokeStyle = frameThemeColor.value === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)';
+                        ctx.lineWidth = 3 * scaleFactor;
+                        ctx.strokeRect(cutX, cutY, cutW, cutH);
+
+                        ctx.restore(); // Restore cutout clip
+
+                        // Draw caption inside bottom margin
+                        if (captionTextValue.trim()) {
+                            ctx.save();
+                            ctx.fillStyle = captionColor.value;
+                            
+                            const finalSize = captionFontSize.value * scaleFactor;
+                            ctx.font = `${captionFont.value === 'Dancing Script' || captionFont.value === 'Caveat' ? 'bold' : 'normal'} ${finalSize}px "${captionFont.value}", cursive, sans-serif`;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+
+                            // Text centered relative to card width. Y positioning is bottom margin center (Yoffset = cardY + 20 + 324 + 46 = cardY + 390px)
+                            const textX = sCardX + sCardW / 2;
+                            const textY = sCardY + (390 * scaleFactor);
+                            ctx.fillText(captionTextValue, textX, textY);
+                            ctx.restore();
+                        }
+
+                        ctx.restore(); // Restore card clip
+                    };
+
+                    // Draw both portrait Polaroids (Width: 364px, Height: 436px)
+                    // Polaroid A (Left): X = 26px, Y = 42px (touches center X=390px!)
+                    // Polaroid B (Right): X = 390px, Y = 42px (touches center X=390px!)
+                    await drawCardAndContents(imgA, 26, 42, 364, 436, captionTextA.value, 'A');
+                    await drawCardAndContents(imgB, 390, 42, 364, 436, captionTextB.value, 'B');
+
+                    // 3. Draw Solid Black Corner Crop Marks (Minimal, only at card corners to save ink)
+                    if (showCutLineInExport.value) {
+                        ctx.save();
+                        ctx.strokeStyle = '#000000'; // Black ink crop marks
+                        ctx.lineWidth = 1.2 * scaleFactor;
+                        ctx.setLineDash([]); // Solid lines
+
+                        const drawTick = (x1, y1, x2, y2) => {
+                            ctx.beginPath();
+                            ctx.moveTo(x1 * scaleFactor, y1 * scaleFactor);
+                            ctx.lineTo(x2 * scaleFactor, y2 * scaleFactor);
+                            ctx.stroke();
+                        };
+
+                        // Top-Left crop corner
+                        drawTick(26, 22, 26, 42);
+                        drawTick(6, 42, 26, 42);
+
+                        // Top-Right crop corner
+                        drawTick(754, 22, 754, 42);
+                        drawTick(754, 42, 774, 42);
+
+                        // Bottom-Left crop corner
+                        drawTick(26, 478, 26, 498);
+                        drawTick(6, 478, 26, 478);
+
+                        // Bottom-Right crop corner
+                        drawTick(754, 478, 754, 498);
+                        drawTick(754, 478, 774, 478);
+
+                        // Center Slice ticks (Top and Bottom)
+                        drawTick(390, 22, 390, 42);
+                        drawTick(390, 478, 390, 498);
+
+                        ctx.restore();
+                    }
+
+                    // 4. Trigger download
+                    try {
+                        const link = document.createElement('a');
+                        link.download = `classic-polaroids-4x6-${Date.now()}.jpg`;
+                        link.href = canvas.toDataURL('image/jpeg', 0.96);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } catch (err) {
+                        console.error('Failed to trigger high-res export', err);
+                        alert('An error occurred during print compiling. Details written to console.');
+                    } finally {
+                        exporting.value = false;
+                    }
+                };
+
+                return {
+                    themes,
+                    filters,
+                    panels,
+                    togglePanel,
+                    frameThemeColor,
+                    showCutLineInExport,
+                    captionTextA,
+                    captionTextB,
+                    captionFont,
+                    captionFontSize,
+                    captionColor,
+                    exporting,
+                    imgA,
+                    imgB,
+                    activeImage,
+                    activeImageObject,
+                    framePaperClass,
+                    captionFontClass,
+                    selectImage,
+                    getFilterClass,
+                    getImageStyle,
+                    handleFileChange,
+                    handleFileDrop,
+                    clearImage,
+                    resetImageTransforms,
+                    resetScale,
+                    resetRotation,
+                    resetX,
+                    resetY,
+                    resetAll,
+                    startDrag,
+                    handleWheel,
+                    exportPolaroid
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
