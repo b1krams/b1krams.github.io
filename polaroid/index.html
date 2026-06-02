@@ -749,7 +749,19 @@
 
                 // Formulate styles to transform preview images inside percentage wrappers
                 const getImageStyle = (img) => {
+                    if (!img.width || !img.height) return {};
+                    
+                    const aspect = img.width / img.height;
+                    let width = 324;
+                    let height = 324 / aspect;
+                    if (height < 324) {
+                        height = 324;
+                        width = 324 * aspect;
+                    }
+                    
                     return {
+                        width: `${width}px`,
+                        height: `${height}px`,
                         transform: `translate(-50%, -50%) translate(${img.x}px, ${img.y}px) scale(${img.scale}) rotate(${img.rotation}deg)`
                     };
                 };
