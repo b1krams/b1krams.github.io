@@ -283,20 +283,21 @@
  
                     <!-- Custom Handwritten Caption Overlay (A) -->
                     <!-- Sized inside the bottom 92px margin space -->
-                    <div class="absolute bottom-[24px] left-5 right-5 text-center">
-                        <input 
-                            type="text" 
+                    <div class="absolute bottom-[16px] left-5 right-5 text-center h-[54px] flex items-center justify-center">
+                        <textarea 
                             v-model="captionTextA"
-                            class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text"
+                            rows="2"
+                            class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text resize-none overflow-hidden"
                             :class="captionFontClass"
                             :style="{ 
                                 fontSize: captionFontSize + 'px', 
                                 color: captionColor,
-                                fontWeight: captionFont === 'Dancing Script' || captionFont === 'Caveat' ? 'bold' : 'normal'
+                                fontWeight: captionFont === 'Dancing Script' || captionFont === 'Caveat' ? 'bold' : 'normal',
+                                lineHeight: '1.2'
                             }"
                             placeholder="Write left caption..."
-                            maxlength="28"
-                        />
+                            maxlength="60"
+                        ></textarea>
                     </div>
                 </div>
  
@@ -355,20 +356,21 @@
                     </div>
  
                     <!-- Custom Handwritten Caption Overlay (B) -->
-                    <div class="absolute bottom-[24px] left-5 right-5 text-center">
-                        <input 
-                            type="text" 
+                    <div class="absolute bottom-[16px] left-5 right-5 text-center h-[54px] flex items-center justify-center">
+                        <textarea 
                             v-model="captionTextB"
-                            class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text"
+                            rows="2"
+                            class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text resize-none overflow-hidden"
                             :class="captionFontClass"
                             :style="{ 
                                 fontSize: captionFontSize + 'px', 
                                 color: captionColor,
-                                fontWeight: captionFont === 'Dancing Script' || captionFont === 'Caveat' ? 'bold' : 'normal'
+                                fontWeight: captionFont === 'Dancing Script' || captionFont === 'Caveat' ? 'bold' : 'normal',
+                                lineHeight: '1.2'
                             }"
                             placeholder="Write right caption..."
-                            maxlength="28"
-                        />
+                            maxlength="60"
+                        ></textarea>
                     </div>
                 </div>
             </div>
@@ -600,11 +602,11 @@
                         <div class="space-y-2 mt-1">
                             <div>
                                 <label class="text-[9px] uppercase font-bold text-slate-500">Polaroid A (Left) Caption</label>
-                                <input type="text" v-model="captionTextA" class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5" placeholder="Memory left side..." />
+                                <textarea v-model="captionTextA" rows="2" class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5 resize-none overflow-hidden" placeholder="Memory left side..." maxlength="60"></textarea>
                             </div>
                             <div>
                                 <label class="text-[9px] uppercase font-bold text-slate-500">Polaroid B (Right) Caption</label>
-                                <input type="text" v-model="captionTextB" class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5" placeholder="Memory right side..." />
+                                <textarea v-model="captionTextB" rows="2" class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5 resize-none overflow-hidden" placeholder="Memory right side..." maxlength="60"></textarea>
                             </div>
                         </div>
 
@@ -1144,7 +1146,40 @@
                             // Text centered relative to card width. Y positioning is bottom margin center (Yoffset = cardY + 20 + 324 + 46 = cardY + 390px)
                             const textX = sCardX + sCardW / 2;
                             const textY = sCardY + (390 * scaleFactor);
-                            ctx.fillText(captionTextValue, textX, textY);
+
+                            // Calculate available width inside card: Card Width is 364px. Symmetrical padding is 20px left/right. 
+                            // 364 - 40 = 324px virtual width. Sized with scaleFactor: 324 * scaleFactor.
+                            const maxTextWidth = 324 * scaleFactor;
+                            const lineHeight = finalSize * 1.25;
+
+                            // Wrap text by split-word sizing metrics
+                            const paragraphs = captionTextValue.split('\n');
+                            const lines = [];
+
+                            for (let p of paragraphs) {
+                                const words = p.split(' ');
+                                let currentLine = '';
+
+                                for (let n = 0; n < words.length; n++) {
+                                    let testLine = currentLine + words[n] + ' ';
+                                    let testWidth = ctx.measureText(testLine.trim()).width;
+                                    if (testWidth > maxTextWidth && n > 0) {
+                                        lines.push(currentLine.trim());
+                                        currentLine = words[n] + ' ';
+                                    } else {
+                                        currentLine = testLine;
+                                    }
+                                }
+                                lines.push(currentLine.trim());
+                            }
+
+                            // Vertically center lines around textY
+                            const totalHeight = lines.length * lineHeight;
+                            const startY = textY - (totalHeight / 2) + (lineHeight / 2);
+
+                            for (let i = 0; i < lines.length; i++) {
+                                ctx.fillText(lines[i], textX, startY + (i * lineHeight));
+                            }
                             ctx.restore();
                         }
 
