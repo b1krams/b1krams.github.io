@@ -319,7 +319,10 @@ Here is a claim that needs a reference.[^1]
             renderer(token) { return `<span class="issue text-emerald-600 font-semibold text-[0.9em]">#${token.id}</span>`; }
         };
 
-        marked.use({ extensions: [highlightExtension, subSupExtension, mentionExtension, issueExtension] });
+        marked.use({
+            breaks: true,
+            extensions: [highlightExtension, subSupExtension, mentionExtension, issueExtension]
+        });
 
         // Definition List Extension
         const definitionListExtension = {
