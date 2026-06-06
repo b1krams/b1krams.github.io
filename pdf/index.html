@@ -113,6 +113,36 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </select>
 </div>
 </div>
+<div class="mt-4 flex flex-col border-t border-slate-700/40 pt-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-border-none text-violet-400 text-sm"></i>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-300">Exclude Image Border</span>
+<span class="text-xs text-slate-500">Removes the 0.5-inch white margin around image pages</span>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="excludeBorderToggle" class="sr-only peer" onchange="showToast(this.checked ? 'Border exclusion enabled' : 'Border exclusion disabled')"/>
+<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
+</label>
+</div>
+</div>
+<div class="mt-4 flex flex-col border-t border-slate-700/40 pt-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-expand text-violet-400 text-sm"></i>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-300">Original Image Size (No A4 Canvas)</span>
+<span class="text-xs text-slate-500">Includes images as-is without fitting onto an A4 background</span>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="originalSizeToggle" class="sr-only peer" onchange="toggleOriginalSize()"/>
+<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
+</label>
+</div>
+</div>
 </div>
 </div>
 <div class="mt-8 hidden" id="fileListContainer">
@@ -542,7 +572,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                       renderPreviewPage(previewState.pageNum);
                   }
               }
-          }
+           }
+
+           function toggleOriginalSize() {
+               const originalSize = document.getElementById('originalSizeToggle').checked;
+               const excludeBorderToggle = document.getElementById('excludeBorderToggle');
+               const excludeBorderWrapper = excludeBorderToggle.closest('label').parentElement.parentElement;
+               if (originalSize) {
+                   excludeBorderToggle.disabled = true;
+                   excludeBorderWrapper.classList.add('opacity-40', 'pointer-events-none');
+               } else {
+                   excludeBorderToggle.disabled = false;
+                   excludeBorderWrapper.classList.remove('opacity-40', 'pointer-events-none');
+               }
+               showToast(originalSize ? 'Using original image sizes' : 'Fitting images to A4 canvas');
+           }
 
           function updateThreshold(val) {
               binarizeThresholdValue = parseInt(val, 10);
@@ -623,9 +667,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               return `${yy}${mm}${dd}${hh}${min}${ss}`;
           }
           function addImagePageToPdf(pdfDoc, img) {
+              const excludeBorder = document.getElementById('excludeBorderToggle')?.checked || false;
+              const originalSize = document.getElementById('originalSizeToggle')?.checked || false;
+              
+              if (originalSize) {
+                  const page = pdfDoc.addPage([img.width, img.height]);
+                  page.drawImage(img, {
+                      x: 0,
+                      y: 0,
+                      width: img.width,
+                      height: img.height
+                  });
+                  return page;
+              }
+              
               const A4_WIDTH = 595.28;
               const A4_HEIGHT = 841.89;
-              const MARGIN = 36; // 0.5 inch in points (72 points/inch)
+              const MARGIN = excludeBorder ? 0 : 36; // 0.5 inch in points (72 points/inch)
               
               const maxW = A4_WIDTH - 2 * MARGIN;
               const maxH = A4_HEIGHT - 2 * MARGIN;
