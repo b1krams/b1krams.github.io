@@ -382,7 +382,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               selectedFiles.sort((a, b) => {
                   const nameA = a.file.name.toLowerCase();
                   const nameB = b.file.name.toLowerCase();
-                  return sortAsc ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+                  return sortAsc 
+                      ? nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' }) 
+                      : nameB.localeCompare(nameA, undefined, { numeric: true, sensitivity: 'base' });
               });
               
               const sortBtn = document.getElementById('sortByNameBtn');
