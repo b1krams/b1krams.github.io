@@ -30,13 +30,40 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
-<nav class="global-nav">
-    <a href="/" class="global-nav-brand">
-        <img src="/logo.png" alt="Logo" class="global-nav-icon">
-        Swiss<span>Web</span>
-    </a>
-    <div class="global-nav-links">
-        <a href="/" class="global-nav-link">Home</a>
+<nav class="global-nav" style="display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <a href="/" class="global-nav-brand">
+            <img src="/logo.png" alt="Logo" class="global-nav-icon">
+            Swiss<span>Web</span>
+        </a>
+        <div style="width: 1px; height: 1.5rem; background-color: #333;"></div>
+        <div class="brand" style="margin: 0;">
+            <span class="brand-name"><span>News</span> NOW</span>
+        </div>
+    </div>
+
+    <div class="header-right" style="margin: 0; display: flex; align-items: center; gap: 1rem;">
+        <button class="nav-mobile-toggle" onclick="document.getElementById('nav').classList.toggle('open')">
+            Categories <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <nav id="nav">
+            <button onclick="switchCategory('national')" id="btn-national" class="active">National</button>
+            <button onclick="switchCategory('business')" id="btn-business">Business</button>
+            <button onclick="switchCategory('tech')" id="btn-tech">Technology</button>
+            <button onclick="switchCategory('world')" id="btn-world">World</button>
+            <button onclick="switchCategory('kids')" id="btn-kids">🧒 Kids</button>
+            <button class="btn-refresh" onclick="fetchAll()">↻ All</button>
+        </nav>
+        <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+            <button class="btn-settings" id="btn-settings-toggle" onclick="openSettings()" aria-label="Open settings" title="Source settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+            <div style="width: 1px; height: 1.5rem; background-color: #333;"></div>
+            <a href="/" class="global-nav-link">Home</a>
+        </div>
     </div>
 </nav>
 
@@ -93,35 +120,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </div>
 
-    <!-- ── HEADER ── -->
-    <header>
-        <div class="header-inner">
-            <div class="brand">
-                <span class="brand-name"><span>News</span> NOW</span>
-            </div>
-            <div class="header-right">
-                <button class="nav-mobile-toggle" onclick="document.getElementById('nav').classList.toggle('open')">
-                    Categories <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
-                <nav id="nav">
-                    <button onclick="switchCategory('national')" id="btn-national" class="active">National</button>
-                    <button onclick="switchCategory('business')" id="btn-business">Business</button>
-                    <button onclick="switchCategory('tech')" id="btn-tech">Technology</button>
-                    <button onclick="switchCategory('world')" id="btn-world">World</button>
-                    <button onclick="switchCategory('kids')" id="btn-kids">🧒 Kids</button>
-                    <button class="btn-refresh" onclick="fetchAll()">↻ All</button>
-                </nav>
-                <div class="header-actions">
-                    <button class="btn-settings" id="btn-settings-toggle" onclick="openSettings()" aria-label="Open settings" title="Source settings">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"/>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
+
 
     <main class="news-main">
         <div id="loading">

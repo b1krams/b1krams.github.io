@@ -7,45 +7,55 @@
     <meta name="description" content="Real-time USB serial terminal. Connect any device, choose baud rate, send and receive data.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
     <link href="/style.css" rel="stylesheet">
     <link rel="icon" href="/logo.png" type="image/png">
+    <style>
+        body {
+            padding-top: 0 !important;
+        }
+        header {
+            margin-bottom: 0 !important;
+        }
+    </style>
 </head>
 <body>
-
-<nav class="global-nav">
-    <a href="/" class="global-nav-brand">
-        <img src="/logo.png" alt="Logo" class="global-nav-icon">
-        Swiss<span>Web</span>
-    </a>
-    <div class="global-nav-links">
-        <a href="/" class="global-nav-link">Home</a>
-    </div>
-</nav>
 
 <div id="app" class="serial-app-container" v-cloak>
 
     <!-- ═══════════ HEADER ═══════════ -->
     <header class="header">
-        <div class="brand">
-            <div class="brand-logo">📡</div>
-            <div class="brand-copy">
-                <span class="brand-name">Serial Monitor</span>
-                <span class="brand-tagline">Real-time USB terminal</span>
+        <div class="header-left" style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+            <a href="/" class="global-nav-brand">
+                <img src="/logo.png" alt="Logo" class="global-nav-icon">
+                Swiss<span>Web</span>
+            </a>
+            
+            <div class="h-sep"></div>
+
+            <div class="brand">
+                <div class="brand-logo">📡</div>
+                <div class="brand-copy">
+                    <span class="brand-name">Serial Monitor</span>
+                    <span class="brand-tagline">Real-time USB terminal</span>
+                </div>
+            </div>
+
+            <div class="h-sep"></div>
+
+            <div class="status-pill" :class="{ connected, error: hasError }">
+                <span class="pill-dot"></span>
+                {{ statusText }}
+            </div>
+
+            <div class="no-serial" v-if="!serialSupported">
+                ⚠ Web Serial not supported —
+                use <a href="https://www.google.com/chrome/" target="_blank">Chrome</a> /
+                <a href="https://www.microsoft.com/edge" target="_blank">Edge</a> 89+
             </div>
         </div>
 
-        <div class="h-sep"></div>
-
-        <div class="status-pill" :class="{ connected, error: hasError }">
-            <span class="pill-dot"></span>
-            {{ statusText }}
-        </div>
-
-        <div class="no-serial" v-if="!serialSupported">
-            ⚠ Web Serial not supported —
-            use <a href="https://www.google.com/chrome/" target="_blank">Chrome</a> /
-            <a href="https://www.microsoft.com/edge" target="_blank">Edge</a> 89+
+        <div class="global-nav-links">
+            <a href="/" class="global-nav-link">Home</a>
         </div>
     </header>
 
