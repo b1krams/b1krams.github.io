@@ -53,6 +53,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             content: none !important;
         }
 
+        /* Override leaked dark background styles to keep page background white */
+        html, body {
+            background: #ffffff !important;
+            color: #1e293b !important;
+        }
+
         @media print {
             html, body {
                 height: auto !important;
