@@ -14,8 +14,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <title>Scribe | Modern Markdown Editor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
+
 
     <!-- KaTeX CSS & JS, Marked Extension for LaTeX support -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -128,10 +127,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="h-4 w-[1px] bg-slate-200 mx-2"></div>
             <button onclick="downloadFile()"
                 class="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md border border-indigo-200 transition-all active:scale-95">HTML</button>
-            <button onclick="downloadPDF()"
-                class="px-4 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-md shadow-indigo-100 transition-all active:scale-95">PDF</button>
-            <button onclick="downloadDocx()"
-                class="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md shadow-blue-100 transition-all active:scale-95">Word</button>
         </div>
     </nav>
 
@@ -477,34 +472,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
             }, 100);
-        }
-
-        function downloadPDF() {
-            window.print();
-        }
-
-        function downloadDocx() {
-            const html = `<!DOCTYPE html><html><body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-
-<nav class="global-nav">
-    <a href="/" class="global-nav-brand">
-        <img src="/logo.png" alt="Logo" class="global-nav-icon">
-        Swiss<span>Web</span>
-    </a>
-    <div class="global-nav-links">
-        <a href="/" class="global-nav-link">Home</a>
-    </div>
-</nav>
-${previewContent.innerHTML}</body></html>`;
-            const converted = htmlDocx.asBlob(html);
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(converted);
-            a.download = 'document.docx';
-            a.click();
         }
     </script>
 </body>
