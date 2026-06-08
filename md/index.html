@@ -436,7 +436,10 @@ Here is a claim that needs a reference.[^1]
         }
 
         function downloadFile() {
-            const headContent = document.head.innerHTML;
+            const origin = window.location.origin;
+            const headContent = document.head.innerHTML
+                .replace(/href="\/style\.css"/g, `href="${origin}/style.css"`)
+                .replace(/href="\/logo\.png"/g, `href="${origin}/logo.png"`);
             const fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -449,8 +452,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     ${headContent}
-    <link href="/style.css" rel="stylesheet">
-    <link rel="icon" href="/logo.png" type="image/png">
 </head>
 <body class="bg-gray-50 p-8">
     <div id="preview-content" class="max-w-4xl mx-auto bg-white p-12 rounded-xl shadow-sm border border-gray-100">
