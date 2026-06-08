@@ -846,10 +846,16 @@ body {
         .mermaid {
             display: flex;
             justify-content: center;
-            margin: 2rem 0;
+            margin: 1rem auto;
             background: #fff;
-            padding: 1rem;
+            padding: 0.5rem;
             border-radius: 8px;
+            max-width: 80%;
+        }
+        
+        .mermaid svg {
+            max-height: 220px !important;
+            width: auto !important;
         }
 
         #preview-content dt {
