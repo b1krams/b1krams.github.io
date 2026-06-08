@@ -440,7 +440,8 @@ Here is a claim that needs a reference.[^1]
             const origin = window.location.origin;
             const headContent = document.head.innerHTML
                 .replace(/href="\/style\.css"/g, `href="${origin}/style.css"`)
-                .replace(/href="\/logo\.png"/g, `href="${origin}/logo.png"`);
+                .replace(/href="\/logo\.png"/g, `href="${origin}/logo.png"`)
+                .replace(/<title>[^<]*<\/title>/gi, '<title> </title>');
             const fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
