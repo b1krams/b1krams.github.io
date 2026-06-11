@@ -143,6 +143,31 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </label>
 </div>
 </div>
+<div class="mt-4 flex flex-col border-t border-slate-700/40 pt-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-book-open text-violet-400 text-sm"></i>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-300">Booklet Layout (2-Up A4 Landscape)</span>
+<span class="text-xs text-slate-500">Creates a folded middle booklet. Pages are arranged 2 per landscape sheet.</span>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="bookletToggle" class="sr-only peer" onchange="toggleBooklet()"/>
+<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
+</label>
+</div>
+<div id="bookletPrintHint" class="hidden mt-3 pl-7 flex flex-col gap-2 border-t border-slate-700/20 pt-3">
+<div class="flex items-start gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3 text-xs text-indigo-300">
+<i class="fa-solid fa-circle-info mt-0.5 text-indigo-400 flex-shrink-0"></i>
+<div>
+<span class="font-semibold block mb-0.5">Printing Instructions:</span>
+Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose <strong class="text-slate-100">"Flip on Short Edge"</strong> (Landscape flip) in printer settings. Then fold the printed pages from the middle.
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="mt-8 hidden" id="fileListContainer">
@@ -590,6 +615,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                showToast(originalSize ? 'Using original image sizes' : 'Fitting images to A4 canvas');
            }
 
+           function toggleBooklet() {
+                const bookletEnabled = document.getElementById('bookletToggle').checked;
+                const hintEl = document.getElementById('bookletPrintHint');
+                if (bookletEnabled) {
+                    hintEl.classList.remove('hidden');
+                } else {
+                    hintEl.classList.add('hidden');
+                }
+                showToast(bookletEnabled ? 'Booklet layout enabled' : 'Booklet layout disabled');
+            }
+
           function updateThreshold(val) {
               binarizeThresholdValue = parseInt(val, 10);
               document.getElementById('thresholdValue').textContent = val;
@@ -774,6 +810,60 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                   }     
 
                   let pdfBytes = await mergedPdf.save();
+                  
+                  const bookletEnabled = document.getElementById('bookletToggle').checked;
+                  if (bookletEnabled) {
+                      const tempPdf = await PDFLib.PDFDocument.load(pdfBytes);
+                      const bookletPdf = await PDFLib.PDFDocument.create();
+                      
+                      const M = tempPdf.getPageCount();
+                      if (M > 0) {
+                          const N = M % 4 === 0 ? M : M + (4 - (M % 4));
+                          const embeddedPages = await bookletPdf.embedPages(tempPdf.getPages());
+                          
+                          const A4_WIDTH = 595.28;
+                          const A4_HEIGHT = 841.89;
+                          const HALF_WIDTH = A4_HEIGHT / 2; // 420.945
+                          const HALF_HEIGHT = A4_WIDTH;     // 595.28
+                          
+                          const numSheets = N / 4;
+                          for (let i = 0; i < numSheets; i++) {
+                              const drawHalf = (page, idx, isLeft) => {
+                                  if (idx >= M) return; // Pad page, leave blank
+                                  const embPage = embeddedPages[idx];
+                                  const srcW = embPage.width;
+                                  const srcH = embPage.height;
+                                  
+                                  const scale = Math.min(HALF_WIDTH / srcW, HALF_HEIGHT / srcH);
+                                  const wScaled = srcW * scale;
+                                  const hScaled = srcH * scale;
+                                  
+                                  const xOffset = isLeft ? 0 : HALF_WIDTH;
+                                  const x = xOffset + (HALF_WIDTH - wScaled) / 2;
+                                  const y = (HALF_HEIGHT - hScaled) / 2;
+                                  
+                                  page.drawPage(embPage, {
+                                      x: x,
+                                      y: y,
+                                      width: wScaled,
+                                      height: hScaled
+                                  });
+                              };
+                              
+                              // Sheet Front
+                              const frontPage = bookletPdf.addPage([A4_HEIGHT, A4_WIDTH]);
+                              drawHalf(frontPage, N - 2 * i - 1, true);
+                              drawHalf(frontPage, 2 * i, false);
+                              
+                              // Sheet Back
+                              const backPage = bookletPdf.addPage([A4_HEIGHT, A4_WIDTH]);
+                              drawHalf(backPage, 2 * i + 1, true);
+                              drawHalf(backPage, N - 2 * i - 2, false);
+                          }
+                          pdfBytes = await bookletPdf.save();
+                      }
+                  }
+                  
                   let actualMB = (pdfBytes.byteLength / 1024 / 1024).toFixed(2);
                   
                   if (shouldCompress) {
