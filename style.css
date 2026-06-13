@@ -492,8 +492,10 @@ body {
     input[type=range] {
       -webkit-appearance: none;
       width: 100%;
+      height: 24px; /* Increase clickable vertical target area */
       background: transparent;
       cursor: pointer;
+      margin: 0;
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;

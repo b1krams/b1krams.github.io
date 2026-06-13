@@ -6,7 +6,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>ImageFlow - Local Image Processing</title>
 <meta content="ImageFlow — a privacy-first, client-side image processor with tonal adjustments, tone curves, crop, scale, and export. All processing happens locally in your browser." name="description"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
@@ -104,6 +104,40 @@
   </script>
 <link href="/style.css" rel="stylesheet"/>
 <link href="/logo.png" rel="icon" type="image/png"/>
+<style>
+  .cropper-view-box::after, .cropper-canvas::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle, transparent 40%, #000000 100%);
+    opacity: var(--vignette-strength, 0);
+    mix-blend-mode: multiply;
+    z-index: 10;
+  }
+
+  /* Modern scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(192, 193, 255, 0.15);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(192, 193, 255, 0.35);
+  }
+  
+  /* Firefox Scrollbar support */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(192, 193, 255, 0.15) transparent;
+  }
+</style>
 </head>
 <body class="bg-background text-on-background min-h-screen flex flex-col overflow-hidden selection:bg-primary-container selection:text-on-primary-container font-sans" id="app">
 <nav class="global-nav">
@@ -112,6 +146,10 @@
             Swiss<span>Web</span>
 </a><div class="global-nav-divider"><h1 class="global-nav-tool-title">ImageFlow</h1></div></div>
 <div class="global-nav-links flex items-center gap-4">
+<button @click="resetEdits" class="text-body-md text-on-surface-variant hover:text-primary transition-colors hover:scale-95 duration-150 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-primary/50 hover:bg-primary/5" id="resetEditsBtn" v-show="imageLoaded">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0; font-size: 18px;">restore</span>
+            Reset Edits
+        </button>
 <button @click="resetAll" class="text-body-md text-on-surface-variant hover:text-primary transition-colors hover:scale-95 duration-150 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-primary/50 hover:bg-primary/5" id="resetBtn" v-show="imageLoaded">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0; font-size: 18px;">restart_alt</span>
             Start Over
@@ -119,8 +157,6 @@
 <a class="global-nav-link" href="/">Home</a>
 </div>
 </nav>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0];var j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 <!-- SVG filter for curves (hidden) -->
 <svg aria-hidden="true" focusable="false" style="width:0;height:0;position:absolute;">
 <filter id="curveFilter">
@@ -129,10 +165,14 @@
 <fefuncg tablevalues="0 1" type="table"></fefuncg>
 <fefuncb tablevalues="0 1" type="table"></fefuncb>
 </fecomponenttransfer>
+<feconvolvematrix id="sharpnessFilter" order="3" kernelmatrix="0 0 0  0 1 0  0 0 0" edgemode="duplicate"></feconvolvematrix>
+</filter>
+<filter id="sharpnessFilterOnly">
+<feconvolvematrix id="sharpnessFilterExport" order="3" kernelmatrix="0 0 0  0 1 0  0 0 0" edgemode="duplicate"></feconvolvematrix>
 </filter>
 </svg>
 <!-- ═══════════════ Main Layout ═══════════════ -->
-<main class="flex-1 flex min-h-0 w-full">
+<main class="flex-1 flex min-h-0 w-full relative">
 <!-- ─── Center Workspace ─── -->
 <div class="flex-1 relative bg-surface-dim overflow-hidden flex items-center justify-center checkerboard border-r border-white/10">
 <!-- Expand Toolbar Button (visible when sidebar is closed) -->
@@ -161,89 +201,135 @@
 </div>
 </div>
 <!-- ─── Right Inspector Panel ─── -->
-<aside :class="[sidebarOpen ? 'mr-0 opacity-100' : 'mr-[-340px] opacity-0 pointer-events-none', {'opacity-40 pointer-events-none': !imageLoaded}]" class="w-sidebar-width bg-surface-container-low/80 backdrop-blur-2xl border-l border-white/10 shadow-2xl flex flex-col h-full overflow-y-auto shrink-0 pb-20 transition-all duration-300">
+<aside :class="[sidebarOpen ? 'translate-x-0' : 'translate-x-full', {'pointer-events-none': !imageLoaded}]" class="absolute right-0 top-0 z-30 w-sidebar-width bg-surface-container-low border-l border-white/10 shadow-2xl flex flex-col h-full overflow-y-auto shrink-0 pb-20 transition-transform duration-300">
 <!-- Panel Header -->
-<div class="p-panel-padding border-b border-white/5 sticky top-0 bg-surface-container-low/95 z-10 backdrop-blur-md flex justify-between items-center">
-<div>
-<h2 class="text-headline-sm text-primary mb-0.5">Inspector</h2>
-<p class="text-body-md text-on-surface-variant">Editing Tools</p>
-</div>
-<button @click="sidebarOpen = false" class="relative p-2.5 rounded-md hover:bg-white/10 text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center after:absolute after:-inset-3 after:content-['']" title="Collapse Toolbar">
-<span class="material-symbols-outlined" style="font-size: 22px;">keyboard_double_arrow_right</span>
-</button>
+<div class="p-panel-padding border-b border-white/5 sticky top-0 bg-surface-container-low z-10 flex flex-col gap-3">
+  <div class="flex items-center justify-between w-full">
+    <div class="flex items-center gap-2">
+      <span class="text-mono-label text-on-surface-variant font-medium">Target Size (KB):</span>
+      <input class="w-24 bg-[#0d1117] border border-white/10 rounded-md px-2 py-1 text-on-surface text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none placeholder-on-surface-variant/30" placeholder="Max" type="number" v-model.number="targetKB"/>
+    </div>
+    <button @click="sidebarOpen = false" class="relative p-2 rounded-md hover:bg-white/10 text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center after:absolute after:-inset-3 after:content-['']" title="Collapse Toolbar">
+      <span class="material-symbols-outlined" style="font-size: 22px;">keyboard_double_arrow_right</span>
+    </button>
+  </div>
+  <div class="flex items-center justify-between w-full" v-show="!targetKB">
+    <div class="flex items-center gap-2 w-full">
+      <span class="text-mono-label text-on-surface-variant font-medium">Quality (%):</span>
+      <input class="flex-1 accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="100" min="10" step="5" type="range" v-model.number="exportQuality"/>
+      <span class="text-mono-label text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20 w-12 text-center text-xs font-semibold">{{ exportQuality }}%</span>
+    </div>
+  </div>
+  <button @click="exportImage" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-[#6366f1] to-[#a855f7] hover:from-[#5053e3] hover:to-[#9333ea] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 active:scale-98 transition-all" id="exportBtn">
+    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 18px;">download</span>
+    <span id="exportBtnText">Export JPG</span>
+  </button>
+  <div class="text-xs text-center text-green-400 font-medium" v-show="exportMessage">{{ exportMessage }}</div>
 </div>
 <!-- Accordions Container -->
 <div class="flex flex-col">
 <!-- ═══ Accordion 1: Tonal Adjustments ═══ -->
 <div class="border-b border-white/5 group">
-<button @click="togglePanel('tonal')" class="w-full px-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-colors">
+<button @click="togglePanel('tonal')" :class="{'bg-primary/10 text-primary border-l-primary': panels.tonal}" class="w-full pr-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-all duration-300 border-l-2 border-transparent pl-[18px]">
 <div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">tune</span>
-<span class="text-label-caps text-on-surface uppercase tracking-wider">Tonal Adjustments</span>
+<span :class="panels.tonal ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary'" class="material-symbols-outlined transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">tune</span>
+<span :class="panels.tonal ? 'text-primary' : 'text-on-surface'" class="text-label-caps uppercase tracking-wider transition-colors font-medium">Tonal Adjustments</span>
 </div>
-<span :class="{'rotate-180': panels.tonal}" class="material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200" style="font-size: 18px;">expand_more</span>
+<span :class="{'rotate-180 text-primary': panels.tonal, 'text-on-surface-variant': !panels.tonal}" class="material-symbols-outlined text-sm transition-transform duration-200" style="font-size: 18px;">expand_more</span>
 </button>
-<div :class="{'collapsed': !panels.tonal}" class="px-panel-padding pb-4 space-y-5 accordion-body">
+<div :class="{'collapsed': !panels.tonal}" class="px-panel-padding pt-5 pb-4 space-y-5 accordion-body">
+<!-- Exposure -->
+<div class="space-y-2 cursor-pointer select-none" @dblclick="exposure = 0" title="Double-click to reset">
+<div class="flex justify-between items-center">
+<label class="text-mono-label text-on-surface-variant">Exposure</label>
+<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ exposure > 0 ? '+' : '' }}{{ exposure.toFixed(1) }} EV</span>
+</div>
+<input max="4" min="-4" step="0.1" type="range" v-model.number="exposure"/>
+</div>
 <!-- Brightness -->
-<div class="space-y-2">
+<div class="space-y-2 cursor-pointer select-none" @dblclick="brightness = 0" title="Double-click to reset">
 <div class="flex justify-between items-center">
 <label class="text-mono-label text-on-surface-variant">Brightness</label>
-<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ brightness }}%</span>
+<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ brightness > 0 ? '+' : '' }}{{ brightness }}</span>
 </div>
-<input max="200" min="0" type="range" v-model.number="brightness"/>
+<input max="100" min="-100" type="range" v-model.number="brightness"/>
 </div>
 <!-- Contrast -->
-<div class="space-y-2">
+<div class="space-y-2 cursor-pointer select-none" @dblclick="contrast = 0" title="Double-click to reset">
 <div class="flex justify-between items-center">
 <label class="text-mono-label text-on-surface-variant">Contrast</label>
-<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ contrast }}%</span>
+<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ contrast > 0 ? '+' : '' }}{{ contrast }}</span>
 </div>
-<input max="200" min="0" type="range" v-model.number="contrast"/>
+<input max="100" min="-100" type="range" v-model.number="contrast"/>
 </div>
 <!-- Clarity -->
-<div class="space-y-2">
+<div class="space-y-2 cursor-pointer select-none" @dblclick="clarity = 0" title="Double-click to reset">
 <div class="flex justify-between items-center">
 <label class="text-mono-label text-on-surface-variant">Clarity</label>
-<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ clarity }}%</span>
+<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ clarity > 0 ? '+' : '' }}{{ clarity }}</span>
 </div>
-<input max="200" min="0" type="range" v-model.number="clarity"/>
+<input max="100" min="-100" type="range" v-model.number="clarity"/>
 </div>
 <!-- Shadows -->
-<div class="space-y-2">
+<div class="space-y-2 cursor-pointer select-none" @dblclick="shadows = 0" title="Double-click to reset">
 <div class="flex justify-between items-center">
 <label class="text-mono-label text-on-surface-variant">Shadows</label>
-<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ shadows }}%</span>
+<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ shadows > 0 ? '+' : '' }}{{ shadows }}</span>
 </div>
-<input max="200" min="0" type="range" v-model.number="shadows"/>
+<input max="100" min="-100" type="range" v-model.number="shadows"/>
 </div>
 <!-- Highlights -->
-<div class="space-y-2">
+<div class="space-y-2 cursor-pointer select-none" @dblclick="highlights = 0" title="Double-click to reset">
 <div class="flex justify-between items-center">
 <label class="text-mono-label text-on-surface-variant">Highlights</label>
-<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ highlights }}%</span>
+<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ highlights > 0 ? '+' : '' }}{{ highlights }}</span>
 </div>
-<input max="200" min="0" type="range" v-model.number="highlights"/>
+<input max="100" min="-100" type="range" v-model.number="highlights"/>
 </div>
 <!-- Saturation -->
-<div class="space-y-2">
+<div class="space-y-2 cursor-pointer select-none" @dblclick="saturation = 0" title="Double-click to reset">
 <div class="flex justify-between items-center">
 <label class="text-mono-label text-on-surface-variant">Saturation</label>
-<span class="text-mono-label text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded border border-white/5">{{ saturation }}%</span>
+<span class="text-mono-label text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded border border-white/5">{{ saturation > 0 ? '+' : '' }}{{ saturation }}</span>
 </div>
-<input max="200" min="0" type="range" v-model.number="saturation"/>
+<input max="100" min="-100" type="range" v-model.number="saturation"/>
+</div>
+<!-- Sharpness -->
+<div class="space-y-2 cursor-pointer select-none" @dblclick="sharpness = 0" title="Double-click to reset">
+<div class="flex justify-between items-center">
+<label class="text-mono-label text-on-surface-variant">Sharpness</label>
+<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ sharpness > 0 ? '+' : '' }}{{ sharpness }}</span>
+</div>
+<input max="100" min="0" type="range" v-model.number="sharpness"/>
+</div>
+<!-- Dehaze -->
+<div class="space-y-2 cursor-pointer select-none" @dblclick="dehaze = 0" title="Double-click to reset">
+<div class="flex justify-between items-center">
+<label class="text-mono-label text-on-surface-variant">Dehaze</label>
+<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ dehaze > 0 ? '+' : '' }}{{ dehaze }}</span>
+</div>
+<input max="100" min="0" type="range" v-model.number="dehaze"/>
+</div>
+<!-- Vignette -->
+<div class="space-y-2 cursor-pointer select-none" @dblclick="vignette = 0" title="Double-click to reset">
+<div class="flex justify-between items-center">
+<label class="text-mono-label text-on-surface-variant">Vignette</label>
+<span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ vignette > 0 ? '+' : '' }}{{ vignette }}</span>
+</div>
+<input max="100" min="0" type="range" v-model.number="vignette"/>
 </div>
 </div>
 </div>
 <!-- ═══ Accordion 2: Histogram & Curves ═══ -->
 <div class="border-b border-white/5 group">
-<button @click="togglePanel('histogram')" class="w-full px-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-colors">
+<button @click="togglePanel('histogram')" :class="{'bg-primary/10 text-primary border-l-primary': panels.histogram}" class="w-full pr-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-all duration-300 border-l-2 border-transparent pl-[18px]">
 <div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">show_chart</span>
-<span class="text-label-caps text-on-surface uppercase tracking-wider">Histogram &amp; Curves</span>
+<span :class="panels.histogram ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary'" class="material-symbols-outlined transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">show_chart</span>
+<span :class="panels.histogram ? 'text-primary' : 'text-on-surface'" class="text-label-caps uppercase tracking-wider transition-colors font-medium">Histogram &amp; Curves</span>
 </div>
-<span :class="{'rotate-180': panels.histogram}" class="material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200" style="font-size: 18px;">expand_more</span>
+<span :class="{'rotate-180 text-primary': panels.histogram, 'text-on-surface-variant': !panels.histogram}" class="material-symbols-outlined text-sm transition-transform duration-200" style="font-size: 18px;">expand_more</span>
 </button>
-<div :class="{'collapsed': !panels.histogram}" class="px-panel-padding pb-4 space-y-4 accordion-body">
+<div :class="{'collapsed': !panels.histogram}" class="px-panel-padding pt-4 pb-4 space-y-4 accordion-body">
 <!-- Dominant Colors -->
 <div>
 <span class="text-[10px] text-on-surface-variant uppercase font-semibold tracking-wider block mb-2">Dominant Colors</span>
@@ -258,14 +344,14 @@
 </div>
 <!-- ═══ Accordion 3: Scale & Crop ═══ -->
 <div class="border-b border-white/5 group">
-<button @click="togglePanel('scale')" class="w-full px-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-colors">
+<button @click="togglePanel('scale')" :class="{'bg-primary/10 text-primary border-l-primary': panels.scale}" class="w-full pr-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-all duration-300 border-l-2 border-transparent pl-[18px]">
 <div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">crop</span>
-<span class="text-label-caps text-on-surface uppercase tracking-wider">Scale &amp; Crop</span>
+<span :class="panels.scale ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary'" class="material-symbols-outlined transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">crop</span>
+<span :class="panels.scale ? 'text-primary' : 'text-on-surface'" class="text-label-caps uppercase tracking-wider transition-colors font-medium">Scale &amp; Crop</span>
 </div>
-<span :class="{'rotate-180': panels.scale}" class="material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200" style="font-size: 18px;">expand_more</span>
+<span :class="{'rotate-180 text-primary': panels.scale, 'text-on-surface-variant': !panels.scale}" class="material-symbols-outlined text-sm transition-transform duration-200" style="font-size: 18px;">expand_more</span>
 </button>
-<div :class="{'collapsed': !panels.scale}" class="px-panel-padding pb-4 space-y-4 accordion-body">
+<div :class="{'collapsed': !panels.scale}" class="px-panel-padding pt-4 pb-4 space-y-4 accordion-body">
 <!-- Output Scale -->
 <div class="space-y-2">
 <div class="flex justify-between items-center">
@@ -278,61 +364,27 @@
 <div class="grid grid-cols-2 gap-3">
 <div>
 <label class="text-mono-label text-on-surface-variant block mb-1.5">Width (px)</label>
-<input class="w-full bg-[#0d1117] border border-white/10 rounded-md px-3 py-2 text-on-surface text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none" type="number" v-model.number="outWidth"/>
+<input @focus="isTyping = true" @blur="isTyping = false" class="w-full bg-[#0d1117] border border-white/10 rounded-md px-3 py-2 text-on-surface text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none" type="number" v-model.number="outWidth"/>
 </div>
 <div>
 <label class="text-mono-label text-on-surface-variant block mb-1.5">Height (px)</label>
-<input class="w-full bg-[#0d1117] border border-white/10 rounded-md px-3 py-2 text-on-surface text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none" type="number" v-model.number="outHeight"/>
+<input @focus="isTyping = true" @blur="isTyping = false" class="w-full bg-[#0d1117] border border-white/10 rounded-md px-3 py-2 text-on-surface text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none" type="number" v-model.number="outHeight"/>
 </div>
 </div>
 <!-- Crop Buttons -->
 <div class="flex gap-2">
-<button @click="setFreeCrop" class="flex-1 py-2 rounded-md bg-surface-container text-on-surface-variant border border-white/5 hover:bg-white/5 hover:border-primary/30 hover:text-primary text-body-md transition-all flex items-center justify-center gap-1.5" id="setFreeCrop">
+<button @click="setFreeCrop" :class="cropMode === 'free' ? 'bg-primary/20 text-primary border-primary/30' : 'bg-surface-container text-on-surface-variant border-white/5'" class="flex-1 py-2 rounded-md border hover:bg-white/5 hover:border-primary/30 hover:text-primary text-body-md transition-all flex items-center justify-center gap-1.5" id="setFreeCrop">
 <span class="material-symbols-outlined" style="font-size: 16px;">crop_free</span>
                 Free
               </button>
-<button @click="setSquareCrop" class="flex-1 py-2 rounded-md bg-surface-container text-on-surface-variant border border-white/5 hover:bg-white/5 hover:border-primary/30 hover:text-primary text-body-md transition-all flex items-center justify-center gap-1.5" id="setSquareCrop">
+<button @click="setSquareCrop" :class="cropMode === 'square' ? 'bg-primary/20 text-primary border-primary/30' : 'bg-surface-container text-on-surface-variant border-white/5'" class="flex-1 py-2 rounded-md border hover:bg-white/5 hover:border-primary/30 hover:text-primary text-body-md transition-all flex items-center justify-center gap-1.5" id="setSquareCrop">
 <span class="material-symbols-outlined" style="font-size: 16px;">crop_square</span>
                 1:1
               </button>
 </div>
 </div>
 </div>
-<!-- ═══ Accordion 4: Export Options ═══ -->
-<div class="border-b border-white/5 group">
-<button @click="togglePanel('export')" class="w-full px-panel-padding py-3.5 flex items-center justify-between hover:bg-white/5 transition-colors">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0; font-size: 18px;">ios_share</span>
-<span class="text-label-caps text-on-surface uppercase tracking-wider">Export Options</span>
-</div>
-<span :class="{'rotate-180': panels.export}" class="material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200" style="font-size: 18px;">expand_more</span>
-</button>
-<div :class="{'collapsed': !panels.export}" class="px-panel-padding pb-6 space-y-4 accordion-body">
-<!-- Format Selector (Toggle Buttons) -->
-<div class="space-y-1.5">
-<label class="text-mono-label text-on-surface-variant">Format</label>
-<div class="grid grid-cols-3 gap-2">
-<button :class="exportFormat === 'image/jpeg' ? 'active' : 'bg-surface-container text-on-surface-variant border-white/5 hover:bg-white/5'" @click="exportFormat = 'image/jpeg'" class="fmt-btn py-1.5 rounded-md border text-body-md text-sm">JPEG</button>
-<button :class="exportFormat === 'image/png' ? 'active' : 'bg-surface-container text-on-surface-variant border-white/5 hover:bg-white/5'" @click="exportFormat = 'image/png'" class="fmt-btn py-1.5 rounded-md border text-body-md text-sm">PNG</button>
-<button :class="exportFormat === 'image/webp' ? 'active' : 'bg-surface-container text-on-surface-variant border-white/5 hover:bg-white/5'" @click="exportFormat = 'image/webp'" class="fmt-btn py-1.5 rounded-md border text-body-md text-sm">WebP</button>
-</div>
-</div>
-<!-- Target File Size -->
-<div class="space-y-1.5" v-show="exportFormat !== 'image/png'">
-<label class="text-mono-label text-on-surface-variant">Target Size (KB)</label>
-<input class="w-full bg-[#0d1117] border border-white/10 rounded-md px-3 py-2 text-on-surface text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none placeholder-on-surface-variant/30" placeholder="e.g. 500" type="number" v-model.number="targetKB"/>
-<p class="text-[10px] text-on-surface-variant mt-1 opacity-70">Leave empty for max quality. Binary search is used to match target size.</p>
-</div>
-<!-- CTA -->
-<div class="pt-2">
-<button @click="exportImage" class="w-full py-3 rounded-lg bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white text-headline-sm cta-glow flex items-center justify-center gap-2" id="exportBtn">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">download</span>
-<span id="exportBtnText">Process &amp; Download</span>
-</button>
-</div>
-<div class="text-xs text-center mt-1 text-green-400" v-show="exportMessage">{{ exportMessage }}</div>
-</div>
-</div>
+
 </div>
 </aside>
 </main>
@@ -349,22 +401,30 @@
       setup() {
         /* ─── Reactive State ─── */
         const state = reactive({
-          brightness: 100,
-          contrast: 100,
-          saturation: 100,
-          clarity: 100,
-          shadows: 100,
-          highlights: 100,
+          brightness: 0,
+          contrast: 0,
+          saturation: 0,
+          clarity: 0,
+          shadows: 0,
+          highlights: 0,
+          exposure: 0,
+          sharpness: 0,
+          dehaze: 0,
+          vignette: 0,
           outputScale: 100,
           outWidth: 0,
           outHeight: 0,
           exportFormat: 'image/jpeg',
           targetKB: null,
+          exportQuality: 90,
           exportMessage: '',
           imageSrc: '',
           originalFileName: 'image',
           imageLoaded: false,
           sidebarOpen: true,
+          isTyping: false,
+          cropMode: 'none',
+          isComparing: false,
         });
 
         const panels = reactive({ tonal: true, histogram: false, scale: false, export: false });
@@ -385,10 +445,17 @@
         let lastHistData = null;
         let draggingPoint = null;
         let histTimeout = null;
+        let cachedCroppedImageData = null;
+        let needsRecrop = true;
+        let baseLutCached = null;
 
         /* ─── Filter Application ─── */
-        const applyFiltersToPreview = () => {
-          const filterString = `url(#curveFilter) brightness(${state.brightness}%) saturate(${state.saturation}%)`;
+        let filterTimeout = null;
+        const applyFiltersToPreview = (simplified = false) => {
+          const isComp = state.isComparing;
+          const filterString = (simplified || isComp)
+            ? 'none'
+            : `url(#curveFilter) brightness(${state.brightness + 100}%) saturate(${state.saturation + 100 + (state.dehaze * 0.3)}%)`;
           const canvasEl = document.querySelector('.cropper-canvas');
           const viewBox = document.querySelector('.cropper-view-box');
           if (canvasEl) canvasEl.style.filter = filterString;
@@ -464,7 +531,10 @@
         };
 
         const updateLutMap = () => {
-          const baseLut = getSpline(curvePoints);
+          if (!baseLutCached) {
+            baseLutCached = getSpline(curvePoints);
+          }
+          const baseLut = baseLutCached;
           const contrast = state.contrast;
           const clarity = state.clarity;
           const shadows = state.shadows;
@@ -473,9 +543,15 @@
           for (let i = 0; i < 256; i++) {
             let val = baseLut[i] / 255;
             
+            // 0. Apply Exposure
+            if (state.exposure !== 0) {
+              val = val * Math.pow(2, state.exposure);
+            }
+            
             // 1. Apply Contrast
-            if (contrast >= 100) {
-              const g = (contrast - 100) / 15;
+            const contrastVal = contrast + 100;
+            if (contrastVal >= 100) {
+              const g = (contrastVal - 100) / 15;
               if (g > 0.001) {
                 const sigmoid = (v) => 1 / (1 + Math.exp(-v));
                 const a = sigmoid(-0.5 * g);
@@ -483,26 +559,35 @@
                 val = (sigmoid(g * (val - 0.5)) - a) / (b - a);
               }
             } else {
-              const factor = contrast / 100;
+              const factor = contrastVal / 100;
               val = (val - 0.5) * factor + 0.5;
             }
             
             // 2. Apply Clarity (Midtone Contrast Cubic Polynomial)
-            if (clarity !== 100) {
-              const c = (clarity - 100) / 100; // range [-1, 1]
+            if (clarity !== 0) {
+              const c = clarity / 100; // range [-1, 1]
               val = val - c * val * (val - 0.5) * (val - 1);
             }
 
             // 3. Apply Shadows recovery/darkening (x * (1-x)^2)
-            if (shadows !== 100) {
-              const s = (shadows - 100) / 100; // range [-1, 1]
+            if (shadows !== 0) {
+              const s = shadows / 100; // range [-1, 1]
               val = val + s * 0.8 * val * Math.pow(1 - val, 2);
             }
 
             // 4. Apply Highlights recovery/boosting (x^2 * (1-x))
-            if (highlights !== 100) {
-              const h = (highlights - 100) / 100; // range [-1, 1]
+            if (highlights !== 0) {
+              const h = highlights / 100; // range [-1, 1]
               val = val + h * 0.8 * Math.pow(val, 2) * (1 - val);
+            }
+
+            // 5. Apply Dehaze
+            if (state.dehaze > 0) {
+              const d = state.dehaze / 100;
+              if (val < 0.5) {
+                val = val * (1 - d * 0.3);
+              }
+              val = val - d * 0.25 * val * (val - 0.5) * (val - 1);
             }
 
             lutMap[i] = Math.max(0, Math.min(255, Math.round(val * 255)));
@@ -548,7 +633,7 @@
           ctx.beginPath();
           for (let i = 0; i < 256; i++) {
             const x = (i / 255) * w;
-            const y = h - (lutMap[i] / 255) * h;
+            const y = h - (baseLutCached[i] / 255) * h;
             if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
           }
           ctx.stroke();
@@ -570,6 +655,23 @@
           const funcEls = document.querySelectorAll('#curveTransfer feFuncR, #curveTransfer feFuncG, #curveTransfer feFuncB');
           const tableStr = Array.from(lutMap).map(v => (v / 255).toFixed(3)).join(' ');
           funcEls.forEach(el => el.setAttribute('tableValues', tableStr));
+
+          // Update Sharpness Convolve Matrix
+          const sharpEl = document.getElementById('sharpnessFilter');
+          if (sharpEl) {
+            const k = (state.sharpness / 100) * 1.2;
+            const center = 1 + 4 * k;
+            const edge = -k;
+            sharpEl.setAttribute('kernelMatrix', `0 ${edge} 0  ${edge} ${center} ${edge}  0 ${edge} 0`);
+          }
+          const sharpExportEl = document.getElementById('sharpnessFilterExport');
+          if (sharpExportEl) {
+            const k = (state.sharpness / 100) * 1.2;
+            const center = 1 + 4 * k;
+            const edge = -k;
+            sharpExportEl.setAttribute('kernelMatrix', `0 ${edge} 0  ${edge} ${center} ${edge}  0 ${edge} 0`);
+          }
+
           applyFiltersToPreview();
         };
 
@@ -592,6 +694,7 @@
           const np = { x: m.x, y: m.y };
           curvePoints.push(np);
           draggingPoint = np;
+          baseLutCached = null;
           drawCurve();
         };
         const attachDragMove = (e) => {
@@ -600,6 +703,7 @@
           const m = getMousePos(e);
           draggingPoint.x = m.x;
           draggingPoint.y = m.y;
+          baseLutCached = null;
           drawCurve();
         };
         const attachDragEnd = () => { draggingPoint = null; };
@@ -607,7 +711,7 @@
           const m = getMousePos(e);
           for (let i = 0; i < curvePoints.length; i++) {
             if (Math.hypot(curvePoints[i].x - m.x, curvePoints[i].y - m.y) < 0.1) {
-              if (curvePoints.length > 2) { curvePoints.splice(i, 1); drawCurve(); }
+              if (curvePoints.length > 2) { curvePoints.splice(i, 1); baseLutCached = null; drawCurve(); }
               break;
             }
           }
@@ -627,13 +731,22 @@
         const calculateHistogram = () => {
           if (!cropper) return;
           updateLutMap(); // Ensure LUT is fresh with latest contrast and curves
-          const cvs = cropper.getCroppedCanvas({ width: 150 });
-          if (!cvs) return;
-          const ctx = cvs.getContext('2d', { willReadFrequently: true });
-          const imgData = ctx.getImageData(0, 0, cvs.width, cvs.height);
+          
+          let imgData;
+          if (needsRecrop || !cachedCroppedImageData) {
+            const cvs = cropper.getCroppedCanvas({ width: 150 });
+            if (!cvs) return;
+            const ctx = cvs.getContext('2d', { willReadFrequently: true });
+            imgData = ctx.getImageData(0, 0, cvs.width, cvs.height);
+            cachedCroppedImageData = imgData;
+            needsRecrop = false;
+          } else {
+            imgData = cachedCroppedImageData;
+          }
+
           const data = imgData.data;
-          const b = state.brightness / 100;
-          const s = state.saturation / 100;
+          const b = (state.brightness + 100) / 100;
+          const s = (state.saturation + 100) / 100;
           const rFreq = new Int32Array(256);
           const gFreq = new Int32Array(256);
           const bFreq = new Int32Array(256);
@@ -656,36 +769,96 @@
             colorBuckets[key].r += cR; colorBuckets[key].g += cG; colorBuckets[key].b += cB; colorBuckets[key].count++;
           }
           lastHistData = { r: rFreq, g: gFreq, b: bFreq };
-          const sorted = Object.values(colorBuckets).sort((a, b) => b.count - a.count).slice(0, 6);
+
+          const buckets = Object.values(colorBuckets)
+            .filter(bkt => bkt.count > 10)
+            .map(bkt => {
+              const r = Math.round(bkt.r / bkt.count);
+              const g = Math.round(bkt.g / bkt.count);
+              const b = Math.round(bkt.b / bkt.count);
+              const maxC = Math.max(r, g, b);
+              const minC = Math.min(r, g, b);
+              const chroma = maxC - minC;
+              const lightness = (maxC + minC) / 2;
+              let score = chroma;
+              if (lightness < 50) score *= (lightness / 50); // penalize dark colors
+              if (lightness > 220) score *= ((255 - lightness) / 35); // penalize extremely washed out white
+              return { r, g, b, score, count: bkt.count };
+            });
+
+          buckets.sort((a, b) => b.score - a.score);
+
+          const distinct = [];
+          const colorDistance = (c1, c2) => {
+            return Math.abs(c1.r - c2.r) + Math.abs(c1.g - c2.g) + Math.abs(c1.b - c2.b);
+          };
+
+          for (const bkt of buckets) {
+            if (distinct.length >= 6) break;
+            const isDistinct = distinct.every(d => colorDistance(d, bkt) > 100);
+            if (isDistinct) distinct.push(bkt);
+          }
+
+          if (distinct.length < 6) {
+            for (const bkt of buckets) {
+              if (distinct.length >= 6) break;
+              if (!distinct.includes(bkt)) {
+                const isDistinct = distinct.every(d => colorDistance(d, bkt) > 50);
+                if (isDistinct) distinct.push(bkt);
+              }
+            }
+          }
+          if (distinct.length < 6) {
+            for (const bkt of buckets) {
+              if (distinct.length >= 6) break;
+              if (!distinct.includes(bkt)) distinct.push(bkt);
+            }
+          }
+
           const domContainer = document.getElementById('dominantColors');
           if (domContainer) {
-            domContainer.innerHTML = sorted.map(bkt => {
-              const r = Math.round(bkt.r / bkt.count).toString(16).padStart(2, '0');
-              const g = Math.round(bkt.g / bkt.count).toString(16).padStart(2, '0');
-              const b = Math.round(bkt.b / bkt.count).toString(16).padStart(2, '0');
+            domContainer.innerHTML = distinct.map(bkt => {
+              const r = bkt.r.toString(16).padStart(2, '0');
+              const g = bkt.g.toString(16).padStart(2, '0');
+              const b = bkt.b.toString(16).padStart(2, '0');
               return `<div class="flex-1 h-full transition-all duration-300 hover:flex-[1.8] cursor-pointer group flex items-center justify-center rounded-sm" style="background-color:#${r}${g}${b}" title="#${r}${g}${b}" onclick="navigator.clipboard.writeText('#${r}${g}${b}')"><span class="opacity-0 group-hover:opacity-100 text-white drop-shadow-md text-[8px] font-mono pointer-events-none transition-opacity duration-200">Copy</span></div>`;
             }).join('');
           }
           drawCurve();
         };
 
+        const updateOutputDimensions = () => {
+          if (!cropper) return;
+          const data = cropper.getData();
+          state.outWidth = Math.round(data.width * state.outputScale / 100);
+          state.outHeight = Math.round(data.height * state.outputScale / 100);
+        };
+
         /* ─── Cropper Init ─── */
         const initCropper = () => {
           if (cropper) cropper.destroy();
           cropper = new Cropper(imagePreview.value, {
-            viewMode: 1,
+            viewMode: 0,
             background: false,
             autoCropArea: 1,
-            ready() { resizeCanvases(); queueHistogramUpdate(); },
-            crop(event) {
-              const activeEl = document.activeElement;
-              const wInput = document.querySelector('[v-model\\.number="outWidth"]');
-              const hInput = document.querySelector('[v-model\\.number="outHeight"]');
-              if (activeEl?.tagName !== 'INPUT' || (activeEl?.type !== 'number' && activeEl?.type !== 'range')) {
-                state.outWidth = Math.round(event.detail.width * state.outputScale / 100);
-                state.outHeight = Math.round(event.detail.height * state.outputScale / 100);
-              }
+            autoCrop: false,
+            dragMode: 'move',
+            ready() { resizeCanvases(); needsRecrop = true; queueHistogramUpdate(); updateOutputDimensions(); },
+            zoom(event) {
+              clearTimeout(filterTimeout);
+              filterTimeout = setTimeout(() => {
+                needsRecrop = true;
+                queueHistogramUpdate();
+                updateOutputDimensions();
+              }, 150);
+            },
+            cropstart() {
+              // No filter toggling to keep GPU layer caching active
+            },
+            cropend() {
+              needsRecrop = true;
               queueHistogramUpdate();
+              updateOutputDimensions();
             },
           });
         };
@@ -707,6 +880,9 @@
           reader.onload = (e) => {
             state.imageSrc = e.target.result;
             state.imageLoaded = true;
+            baseLutCached = null;
+            needsRecrop = true;
+            cachedCroppedImageData = null;
             nextTick(() => initCropper());
           };
           reader.readAsDataURL(file);
@@ -718,11 +894,17 @@
           cropper = null;
           fileInput.value.value = '';
           state.imageLoaded = false;
-          state.brightness = 100; state.contrast = 100; state.saturation = 100; state.clarity = 100;
-          state.shadows = 100; state.highlights = 100;
+          state.brightness = 0; state.contrast = 0; state.saturation = 0; state.clarity = 0;
+          state.shadows = 0; state.highlights = 0;
+          state.exposure = 0; state.sharpness = 0; state.dehaze = 0; state.vignette = 0;
           state.outputScale = 100; state.outWidth = 0; state.outHeight = 0;
+          state.exportQuality = 90;
           state.exportMessage = '';
+          state.cropMode = 'none';
           curvePoints = [{ x: 0, y: 0 }, { x: 1, y: 1 }];
+          baseLutCached = null;
+          needsRecrop = true;
+          cachedCroppedImageData = null;
           lastHistData = null;
           const domContainer = document.getElementById('dominantColors');
           if (domContainer) domContainer.innerHTML = '';
@@ -730,9 +912,48 @@
           applyFiltersToPreview();
         };
 
+        const resetEdits = () => {
+          state.brightness = 0; state.contrast = 0; state.saturation = 0; state.clarity = 0;
+          state.shadows = 0; state.highlights = 0;
+          state.exposure = 0; state.sharpness = 0; state.dehaze = 0; state.vignette = 0;
+          state.outputScale = 100;
+          state.exportQuality = 90;
+          state.cropMode = 'none';
+          curvePoints = [{ x: 0, y: 0 }, { x: 1, y: 1 }];
+          baseLutCached = null;
+          needsRecrop = true;
+          cachedCroppedImageData = null;
+          drawCurve();
+          applyFiltersToPreview();
+          if (cropper) {
+            cropper.reset();
+            const data = cropper.getData();
+            state.outWidth = Math.round(data.width * state.outputScale / 100);
+            state.outHeight = Math.round(data.height * state.outputScale / 100);
+          }
+        };
+
         /* ─── Crop Presets ─── */
-        const setFreeCrop = () => { if (cropper) cropper.setAspectRatio(NaN); };
-        const setSquareCrop = () => { if (cropper) cropper.setAspectRatio(1); };
+        const setFreeCrop = () => {
+          if (cropper) {
+            cropper.setDragMode('crop');
+            cropper.crop();
+            cropper.setAspectRatio(NaN);
+            state.cropMode = 'free';
+            needsRecrop = true;
+            queueHistogramUpdate();
+          }
+        };
+        const setSquareCrop = () => {
+          if (cropper) {
+            cropper.setDragMode('crop');
+            cropper.crop();
+            cropper.setAspectRatio(1);
+            state.cropMode = 'square';
+            needsRecrop = true;
+            queueHistogramUpdate();
+          }
+        };
 
         /* ─── Export / Compress ─── */
         const compressToTargetSize = async (canvas, targetKB, format) => {
@@ -775,21 +996,38 @@
             const temp = document.createElement('canvas');
             temp.width = final.width; temp.height = final.height;
             const tCtx = temp.getContext('2d');
-            tCtx.filter = `brightness(${state.brightness}%) saturate(${state.saturation}%)`;
+            tCtx.filter = `url(#sharpnessFilterOnly) brightness(${state.brightness + 100}%) saturate(${state.saturation + 100 + (state.dehaze * 0.3)}%)`;
             tCtx.drawImage(final, 0, 0);
             ctx.clearRect(0, 0, final.width, final.height);
             ctx.drawImage(temp, 0, 0);
+
+            // Draw Vignette if active
+            if (state.vignette > 0) {
+              const strength = state.vignette / 100;
+              const gradient = ctx.createRadialGradient(
+                final.width / 2, final.height / 2, 0,
+                final.width / 2, final.height / 2, Math.sqrt(Math.pow(final.width / 2, 2) + Math.pow(final.height / 2, 2))
+              );
+              gradient.addColorStop(0, 'rgba(0,0,0,0)');
+              gradient.addColorStop(0.4, 'rgba(0,0,0,0)');
+              gradient.addColorStop(1, `rgba(0,0,0,${strength})`);
+              
+              ctx.save();
+              ctx.globalCompositeOperation = 'multiply';
+              ctx.fillStyle = gradient;
+              ctx.fillRect(0, 0, final.width, final.height);
+              ctx.restore();
+            }
             let blob;
             if (state.exportFormat === 'image/png' || !state.targetKB) {
-              blob = await new Promise(r => final.toBlob(r, state.exportFormat, 0.95));
+              blob = await new Promise(r => final.toBlob(r, state.exportFormat, state.exportQuality / 100));
             } else {
               blob = await compressToTargetSize(final, state.targetKB, state.exportFormat);
             }
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            const ext = state.exportFormat.split('/')[1];
-            a.download = `${state.originalFileName}_edited.${ext}`;
+            a.download = `${state.originalFileName}_edited.jpg`;
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
             URL.revokeObjectURL(url);
             state.exportMessage = `Success! Final size: ${(blob.size / 1024).toFixed(1)} KB`;
@@ -805,13 +1043,35 @@
         };
 
         /* ─── Watchers ─── */
-        watch(() => state.sidebarOpen, () => {
-          setTimeout(() => window.dispatchEvent(new Event('resize')), 310);
+
+        watch(() => panels.scale, (isOpen) => {
+          if (!cropper) return;
+          if (isOpen) {
+            setFreeCrop();
+          } else {
+            cropper.clear();
+            cropper.setDragMode('move');
+            state.cropMode = 'none';
+            needsRecrop = true;
+            queueHistogramUpdate();
+          }
         });
 
-        watch(() => [state.brightness, state.contrast, state.saturation, state.clarity, state.shadows, state.highlights], () => {
-          applyFiltersToPreview();
+        watch(() => [
+          state.brightness, state.contrast, state.saturation, state.clarity, 
+          state.shadows, state.highlights, state.exposure, state.sharpness, state.dehaze
+        ], () => {
+          updateLutMap();
           queueHistogramUpdate();
+        });
+
+        watch(() => [state.vignette, state.isComparing], () => {
+          const strength = state.isComparing ? 0 : (state.vignette / 100);
+          document.documentElement.style.setProperty('--vignette-strength', strength.toFixed(2));
+        });
+
+        watch(() => state.isComparing, () => {
+          applyFiltersToPreview();
         });
         watch(() => state.outputScale, (newVal) => {
           if (!cropper) return;
@@ -832,6 +1092,21 @@
           state.outWidth = Math.round(newH * ratio);
         });
 
+        /* ─── Keyboard Compare Handlers ─── */
+        const handleKeyDown = (e) => {
+          if (state.imageLoaded && !state.isTyping) {
+            if (e.key === '\\' || e.key === ' ' || e.code === 'Space') {
+              if (e.key === ' ' || e.code === 'Space') e.preventDefault();
+              state.isComparing = true;
+            }
+          }
+        };
+        const handleKeyUp = (e) => {
+          if (e.key === '\\' || e.key === ' ' || e.code === 'Space') {
+            state.isComparing = false;
+          }
+        };
+
         /* ─── Mounted ─── */
         onMounted(() => {
           const canvas = curveCanvas.value;
@@ -845,6 +1120,10 @@
           window.addEventListener('mouseup', attachDragEnd);
           window.addEventListener('touchend', attachDragEnd);
           canvas.addEventListener('dblclick', attachDoubleClick);
+
+          // Keyboard listeners for before/after comparison
+          window.addEventListener('keydown', handleKeyDown);
+          window.addEventListener('keyup', handleKeyUp);
         });
 
         return {
@@ -865,6 +1144,7 @@
           setSquareCrop,
           exportImage,
           resetAll,
+          resetEdits,
         };
       }
     }).mount('#app');
