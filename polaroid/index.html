@@ -4,8 +4,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Polaroid Studio | 4x6 Print Generator</title>
-<meta content="Create two distinct classic 5:6 Polaroids side-by-side on a standard 4x6 landscape print canvas with cut guidelines. Adjust scale, rotation, and custom captions separately, print, and cut." name="description"/>
+<title>Polaroid Studio | 4x6 & 5x7 Print Generator</title>
+<meta content="Create two distinct classic 5:6 Polaroids side-by-side on a standard 4x6 or 5x7 landscape print canvas with cut guidelines. Adjust scale, rotation, and custom captions separately, print, and cut." name="description"/>
 <!-- Fonts & Icons -->
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Caveat+Brush&amp;family=Shadows+Into+Light+Two&amp;family=Coming+Soon&amp;family=Caveat:wght@400;700&amp;family=Gochi+Hand&amp;family=Gloria+Hallelujah&amp;family=Shantell+Sans:ital,wght@0,300..800;1,300..800&amp;family=Cedarville+Cursive&amp;display=swap" rel="stylesheet"/>
@@ -183,43 +183,42 @@
 <!-- Quick Helper Note -->
 <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-5 py-2 rounded-full border border-white/10 text-[11px] text-slate-400 flex items-center gap-2 select-none pointer-events-none z-10 shadow-xl">
 <span class="material-symbols-outlined text-purple-400 text-sm">fullscreen</span>
-<span><b>Classic SX-70/600 (5:6 Ratio)</b> side-by-side on 4x6 Landscape Sheet.</span>
+<span><b>Classic SX-70/600 (5:6 Ratio)</b> side-by-side on {{ selectedTemplate === '5x7' ? '5x7' : '4x6' }} Landscape Sheet.</span>
 </div>
-<!-- 4x6 Landscape Photo Print Sheet Container (780px wide by 520px tall is exactly 6:4 aspect ratio) -->
-<div class="relative bg-white shadow-2xl transition-all duration-300 select-none flex flex-row shrink-0 w-[780px] h-[520px] border border-white/10" id="polaroid-print" style="border-radius: 4px;">
-<!-- MINIMAL BLACK CROP MARKS (Only at the outer corners and center cut points) -->
+<!-- Dynamic Photo Print Sheet Container -->
+<div :style="{ width: canvasConfig.width + 'px', height: canvasConfig.height + 'px' }" class="relative bg-white shadow-2xl transition-all duration-300 select-none flex flex-row shrink-0 border border-white/10" id="polaroid-print" style="border-radius: 4px;">
+<!-- MINIMAL BLACK CROP MARKS -->
 <svg class="absolute inset-0 w-full h-full pointer-events-none z-30" v-show="showCutLineInExport" xmlns="http://www.w3.org/2000/svg">
 <!-- Top-Left Crop Marks -->
-<line stroke="black" stroke-width="1.2" x1="26" x2="26" y1="22" y2="42"></line>
-<line stroke="black" stroke-width="1.2" x1="6" x2="26" y1="42" y2="42"></line>
+<line stroke="black" stroke-width="1.2" :x1="canvasConfig.cardA_X" :x2="canvasConfig.cardA_X" :y1="canvasConfig.cropTopY1" :y2="canvasConfig.cropTopY2"></line>
+<line stroke="black" stroke-width="1.2" :x1="canvasConfig.cropLeftX1" :x2="canvasConfig.cardA_X" :y1="canvasConfig.cropTopY2" :y2="canvasConfig.cropTopY2"></line>
 <!-- Top-Right Crop Marks -->
-<line stroke="black" stroke-width="1.2" x1="754" x2="754" y1="22" y2="42"></line>
-<line stroke="black" stroke-width="1.2" x1="754" x2="774" y1="42" y2="42"></line>
+<line stroke="black" stroke-width="1.2" :x1="canvasConfig.cropRightX1" :x2="canvasConfig.cropRightX1" :y1="canvasConfig.cropTopY1" :y2="canvasConfig.cropTopY2"></line>
+<line stroke="black" stroke-width="1.2" :x1="canvasConfig.cropRightX1" :x2="canvasConfig.cropRightX2" :y1="canvasConfig.cropTopY2" :y2="canvasConfig.cropTopY2"></line>
 <!-- Bottom-Left Crop Marks -->
-<line stroke="black" stroke-width="1.2" x1="26" x2="26" y1="478" y2="498"></line>
-<line stroke="black" stroke-width="1.2" x1="6" x2="26" y1="478" y2="478"></line>
+<line stroke="black" stroke-width="1.2" :x1="canvasConfig.cardA_X" :x2="canvasConfig.cardA_X" :y1="canvasConfig.cropBottomY1" :y2="canvasConfig.cropBottomY2"></line>
+<line stroke="black" stroke-width="1.2" :x1="canvasConfig.cropLeftX1" :x2="canvasConfig.cardA_X" :y1="canvasConfig.cropBottomY1" :y2="canvasConfig.cropBottomY1"></line>
 <!-- Bottom-Right Crop Marks -->
-<line stroke="black" stroke-width="1.2" x1="754" x2="754" y1="478" y2="498"></line>
-<line stroke="black" stroke-width="1.2" x1="754" x2="774" y1="478" y2="478"></line>
+<line stroke="black" stroke-width="1.2" :x1="canvasConfig.cropRightX1" :x2="canvasConfig.cropRightX1" :y1="canvasConfig.cropBottomY1" :y2="canvasConfig.cropBottomY2"></line>
+<line stroke="black" stroke-width="1.2" :x1="canvasConfig.cropRightX1" :x2="canvasConfig.cropRightX2" :y1="canvasConfig.cropBottomY1" :y2="canvasConfig.cropBottomY1"></line>
 <!-- Center Cut Marks (Top & Bottom) -->
-<line stroke="black" stroke-width="1.2" x1="390" x2="390" y1="22" y2="42"></line>
-<line stroke="black" stroke-width="1.2" x1="390" x2="390" y1="478" y2="498"></line>
-<!-- CMYK Color Calibration Squares (Outside Cards, close to top-left cut mark, no borders) -->
-<rect fill="#00ffff" height="6" width="6" x="28" y="34"></rect>
-<rect fill="#ff00ff" height="6" width="6" x="35" y="34"></rect>
-<rect fill="#ffff00" height="6" width="6" x="42" y="34"></rect>
-<rect fill="#000000" height="6" width="6" x="49" y="34"></rect>
+<line stroke="black" stroke-width="1.2" :x1="canvasConfig.cropCenterX" :x2="canvasConfig.cropCenterX" :y1="canvasConfig.cropTopY1" :y2="canvasConfig.cropTopY2"></line>
+<line stroke="black" stroke-width="1.2" :x1="canvasConfig.cropCenterX" :x2="canvasConfig.cropCenterX" :y1="canvasConfig.cropBottomY1" :y2="canvasConfig.cropBottomY2"></line>
+<!-- CMYK Color Calibration Squares -->
+<rect fill="#00ffff" height="6" width="6" :x="canvasConfig.cmykX" :y="canvasConfig.cmykY"></rect>
+<rect fill="#ff00ff" height="6" width="6" :x="canvasConfig.cmykX + 7" :y="canvasConfig.cmykY"></rect>
+<rect fill="#ffff00" height="6" width="6" :x="canvasConfig.cmykX + 14" :y="canvasConfig.cmykY"></rect>
+<rect fill="#000000" height="6" width="6" :x="canvasConfig.cmykX + 21" :y="canvasConfig.cmykY"></rect>
 </svg>
-<!-- POLAROID LEFT (Polaroid A - Exact 364x436 Classic 5:6 proportions) -->
-<!-- Placed at X: 26px (touches center X=390px!) -->
+<!-- POLAROID LEFT (Polaroid A - Exact Classic 5:6 proportions) -->
 <div :class="[
                         framePaperClass,
                         activeImage === 'A' ? 'border-slate-400' : 'border-black/5'
-                    ]" @mousedown="selectImage('A')" @touchstart="selectImage('A')" class="absolute left-[26px] top-[42px] w-[364px] height-[436px] flex flex-col items-center justify-start transition-all duration-200" style="height: 436px; border-radius: 2px;">
-<!-- Cutout Container (Perfect centered square: 324px x 324px, Y margin 20px) -->
+                    ]" @mousedown="selectImage('A')" @touchstart="selectImage('A')" class="absolute flex flex-col items-center justify-start transition-all duration-200" :style="{ left: canvasConfig.cardA_X + 'px', top: canvasConfig.cardY + 'px', width: canvasConfig.cardW + 'px', height: canvasConfig.cardH + 'px', borderRadius: '2px' }">
+<!-- Cutout Container (Perfect centered square, Y margin 20px/22px) -->
 <div :class="[
                             !imgA.src ? 'border border-dashed border-slate-400/30' : 'border-0'
-                        ]" :style="{ backgroundColor: imgA.bgColor }" @click="selectImage('A')" @dblclick="resetImageTransforms" @dragover.prevent="" @drop.prevent="handleFileDrop('A', $event)" class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden transition-all duration-200 cursor-pointer select-none">
+                        ]" :style="{ backgroundColor: imgA.bgColor, width: canvasConfig.cutoutSize + 'px', height: canvasConfig.cutoutSize + 'px', marginTop: canvasConfig.cutoutMargin + 'px' }" @click="selectImage('A')" @dblclick="resetImageTransforms" @dragover.prevent="" @drop.prevent="handleFileDrop('A', $event)" class="relative overflow-hidden transition-all duration-200 cursor-pointer select-none">
 <!-- Image Preview wrapper -->
 <div @mousedown.stop="startDrag('A', $event)" @touchstart.stop="startDrag('A', $event)" @wheel.prevent="handleWheel('A', $event)" class="w-full h-full relative" v-if="imgA.src">
 <img :class="getFilterClass(imgA.filter)" :src="imgA.src" :style="getImageStyle(imgA)" alt="Image A" class="absolute top-1/2 left-1/2 origin-center pointer-events-none max-w-none max-h-none select-none"/>
@@ -233,8 +232,7 @@
 </div>
 </div>
 <!-- Custom Handwritten Caption Overlay (A) -->
-<!-- Sized inside the bottom 92px margin space -->
-<div class="absolute top-[344px] bottom-0 left-5 right-5 flex items-center justify-center text-center">
+<div class="absolute bottom-0 left-5 right-5 flex items-center justify-center text-center" :style="{ top: canvasConfig.captionTop + 'px' }">
 <textarea :style="{ 
                                 fontSize: captionFontSize + 'px', 
                                 color: captionColor,
@@ -247,16 +245,15 @@
                             }" class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text resize-none overflow-hidden" maxlength="60" placeholder="Write left caption..." rows="2" v-model="captionTextA"></textarea>
 </div>
 </div>
-<!-- POLAROID RIGHT (Polaroid B - Exact 364x436 Classic 5:6 proportions) -->
-<!-- Placed at X: 390px (touches left Polaroid at X=390px!) -->
+<!-- POLAROID RIGHT (Polaroid B - Exact Classic 5:6 proportions) -->
 <div :class="[
                         framePaperClass,
                         activeImage === 'B' ? 'border-slate-400' : 'border-black/5'
-                    ]" @mousedown="selectImage('B')" @touchstart="selectImage('B')" class="absolute left-[390px] top-[42px] w-[364px] height-[436px] flex flex-col items-center justify-start transition-all duration-200" style="height: 436px; border-radius: 2px;">
-<!-- Cutout Container (Perfect centered square: 324px x 324px, Y margin 20px) -->
+                    ]" @mousedown="selectImage('B')" @touchstart="selectImage('B')" class="absolute flex flex-col items-center justify-start transition-all duration-200" :style="{ left: canvasConfig.cardB_X + 'px', top: canvasConfig.cardY + 'px', width: canvasConfig.cardW + 'px', height: canvasConfig.cardH + 'px', borderRadius: '2px' }">
+<!-- Cutout Container (Perfect centered square, Y margin 20px/22px) -->
 <div :class="[
                             !imgB.src ? 'border border-dashed border-slate-400/30' : 'border-0'
-                        ]" :style="{ backgroundColor: imgB.bgColor }" @click="selectImage('B')" @dblclick="resetImageTransforms" @dragover.prevent="" @drop.prevent="handleFileDrop('B', $event)" class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden transition-all duration-200 cursor-pointer select-none">
+                        ]" :style="{ backgroundColor: imgB.bgColor, width: canvasConfig.cutoutSize + 'px', height: canvasConfig.cutoutSize + 'px', marginTop: canvasConfig.cutoutMargin + 'px' }" @click="selectImage('B')" @dblclick="resetImageTransforms" @dragover.prevent="" @drop.prevent="handleFileDrop('B', $event)" class="relative overflow-hidden transition-all duration-200 cursor-pointer select-none">
 <!-- Image Preview wrapper -->
 <div @mousedown.stop="startDrag('B', $event)" @touchstart.stop="startDrag('B', $event)" @wheel.prevent="handleWheel('B', $event)" class="w-full h-full relative" v-if="imgB.src">
 <img :class="getFilterClass(imgB.filter)" :src="imgB.src" :style="getImageStyle(imgB)" alt="Image B" class="absolute top-1/2 left-1/2 origin-center pointer-events-none max-w-none max-h-none select-none"/>
@@ -270,7 +267,7 @@
 </div>
 </div>
 <!-- Custom Handwritten Caption Overlay (B) -->
-<div class="absolute top-[344px] bottom-0 left-5 right-5 flex items-center justify-center text-center">
+<div class="absolute bottom-0 left-5 right-5 flex items-center justify-center text-center" :style="{ top: canvasConfig.captionTop + 'px' }">
 <textarea :style="{ 
                                 fontSize: captionFontSize + 'px', 
                                 color: captionColor,
@@ -286,209 +283,222 @@
 </div>
 </div>
 <!-- ─── Right Inspector Panel (Static Frame, internal scrollable settings!) ─── -->
-<aside class="w-80 glass-panel border-l shadow-2xl flex flex-col h-full shrink-0 overflow-hidden">
-<!-- Panel Title -->
-<div class="p-5 border-b border-white/5 flex items-center justify-between">
-<div>
-<h2 class="text-sm font-bold tracking-wider text-purple-400 uppercase">SX-70 Print Inspector</h2>
-<p class="text-xs text-slate-400">Configure 4x6 Printable</p>
-</div>
-<span class="material-symbols-outlined text-slate-500">grid_view</span>
-</div>
-<!-- Scrollable Accordions Container -->
-<div class="flex-1 overflow-y-auto scrollbar-custom flex flex-col min-h-0">
-<!-- ═══ Accordion 1: Paper & Guidelines ═══ -->
-<div class="border-b border-white/5 group">
-<button @click="togglePanel('layout')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">settings</span>
-<span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">1. Canvas &amp; Print Setup</span>
-</div>
-<span :class="{'rotate-180': panels.layout}" class="material-symbols-outlined text-slate-400 text-sm transition duration-200" style="font-size: 18px;">expand_more</span>
-</button>
-<div :class="{'collapsed': !panels.layout}" class="px-5 pb-5 space-y-4 accordion-body">
-<!-- Frame Color Selector -->
-<div class="space-y-2 mt-1">
-<label class="text-[9px] uppercase font-bold text-slate-500">Cardboard Texture Color</label>
-<div class="flex gap-2">
-<button :class="[
+<aside class="w-[420px] glass-panel border-l shadow-2xl flex flex-col h-full shrink-0 overflow-hidden">
+    <!-- Top Action Header -->
+    <div class="p-5 border-b border-white/5 bg-slate-900/40 shrink-0 flex flex-col gap-3">
+        <div class="grid grid-cols-2 gap-3">
+            <button :disabled="exporting" @click="exportPolaroid('pdf')" class="py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs tracking-wider uppercase transition flex items-center justify-center gap-2 shadow-lg shadow-purple-950/20" id="exportPdfBtn">
+                <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                <span>{{ exporting ? 'PDF...' : 'PDF Print' }}</span>
+            </button>
+            <button :disabled="exporting" @click="exportPolaroid('jpg')" class="py-3 px-4 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-bold tracking-wider uppercase transition flex items-center justify-center gap-2" id="exportJpgBtn">
+                <span class="material-symbols-outlined text-[18px]">image</span>
+                <span>JPG Image</span>
+            </button>
+        </div>
+        <p class="text-[11px] text-slate-400 text-center leading-relaxed">
+            PDF preserves absolute dimensions for printing. JPG is best for digital sharing.
+        </p>
+    </div>
+    <!-- Scrollable Accordions Container -->
+    <div class="flex-1 overflow-y-auto scrollbar-custom flex flex-col min-h-0">
+        <!-- ═══ Accordion 1: Paper & Guidelines ═══ -->
+        <div :class="{'bg-purple-950/10 border-l-2 border-purple-500/80': panels.layout, 'border-l-2 border-transparent': !panels.layout}" class="border-b border-white/5 transition-all duration-300">
+            <button @click="togglePanel('layout')" :class="{'bg-white/5': panels.layout}" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-all duration-200">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined transition" :class="panels.layout ? 'text-purple-400' : 'text-slate-400'" style="font-size: 18px;">settings</span>
+                    <span class="text-xs uppercase font-bold tracking-widest transition" :class="panels.layout ? 'text-purple-300' : 'text-slate-300'">1. Canvas &amp; Print Setup</span>
+                </div>
+                <span :class="{'rotate-180 text-purple-400': panels.layout, 'text-slate-400': !panels.layout}" class="material-symbols-outlined text-sm transition duration-200" style="font-size: 18px;">expand_more</span>
+            </button>
+            <div :class="{'collapsed': !panels.layout}" class="px-5 pb-5 space-y-4 accordion-body">
+                <!-- Printable Canvas Size -->
+                <div class="space-y-2 mt-1">
+                    <label class="text-xs uppercase font-bold text-slate-400">Printable Canvas Size</label>
+                    <div class="flex gap-2">
+                        <button :class="selectedTemplate === '4x6' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-400 hover:bg-slate-800'" @click="selectedTemplate = '4x6'" class="flex-1 py-2 rounded-lg text-xs font-bold border transition">
+                            4x6 Inch Sheet
+                        </button>
+                        <button :class="selectedTemplate === '5x7' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-400 hover:bg-slate-800'" @click="selectedTemplate = '5x7'" class="flex-1 py-2 rounded-lg text-xs font-bold border transition">
+                            5x7 Inch Sheet
+                        </button>
+                    </div>
+                </div>
+                <!-- Frame Color Selector -->
+                <div class="space-y-2">
+                    <label class="text-xs uppercase font-bold text-slate-400">Cardboard Texture Color</label>
+                    <div class="flex gap-2">
+                        <button :class="[
                                         theme.class,
                                         frameThemeColor === theme.id ? 'border-purple-500 scale-110 shadow-lg' : 'border-white/10 hover:border-slate-400'
                                     ]" :key="theme.id" :title="theme.name" @click="frameThemeColor = theme.id" class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center relative" v-for="theme in themes">
-<span :class="theme.id === 'white' || theme.id === 'vintage' ? 'text-black' : 'text-white'" class="material-symbols-outlined text-xs" v-if="frameThemeColor === theme.id">check</span>
-</button>
-</div>
-</div>
-<!-- Guidelines toggles -->
-<div class="space-y-2 pt-1">
-<div class="flex items-center justify-between">
-<label class="text-[10px] uppercase font-bold text-slate-400">Show Card Cut Markers</label>
-<button :class="showCutLineInExport ? 'bg-purple-600' : 'bg-slate-800'" @click="showCutLineInExport = !showCutLineInExport" class="w-9 h-5 rounded-full p-0.5 transition duration-200 focus:outline-none">
-<div :class="{'translate-x-4': showCutLineInExport}" class="w-4 h-4 rounded-full bg-white transition"></div>
-</button>
-</div>
-<p class="text-[9px] text-slate-500 leading-normal">
-                                Enclosing dotted outlines will be rendered around each classic SX-70 card boundary to guide precise scissor cuts from your 4x6 print.
-                            </p>
-</div>
-</div>
-</div>
-<!-- ═══ Accordion 2: Interactive Position Tuning ═══ -->
-<div class="border-b border-white/5 group">
-<button @click="togglePanel('adjust')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">tune</span>
-<span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">2. Photo Tuning</span>
-</div>
-<span :class="{'rotate-180': panels.adjust}" class="material-symbols-outlined text-slate-400 text-sm transition duration-200" style="font-size: 18px;">expand_more</span>
-</button>
-<div :class="{'collapsed': !panels.adjust}" class="px-5 pb-5 space-y-4 accordion-body">
-<!-- Toggle target photo -->
-<div class="flex gap-2 mt-1">
-<button :class="activeImage === 'A' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-500'" @click="selectImage('A')" class="flex-1 py-1 rounded text-[10px] font-bold border transition">
-                                Polaroid A (Left)
+                            <span :class="theme.id === 'white' || theme.id === 'vintage' ? 'text-black' : 'text-white'" class="material-symbols-outlined text-xs" v-if="frameThemeColor === theme.id">check</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Guidelines toggles -->
+                <div class="space-y-2 pt-1">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs uppercase font-bold text-slate-300">Show Card Cut Markers</label>
+                        <button :class="showCutLineInExport ? 'bg-purple-600' : 'bg-slate-800'" @click="showCutLineInExport = !showCutLineInExport" class="w-9 h-5 rounded-full p-0.5 transition duration-200 focus:outline-none">
+                            <div :class="{'translate-x-4': showCutLineInExport}" class="w-4 h-4 rounded-full bg-white transition"></div>
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-normal">
+                        Enclosing dotted outlines will be rendered around each classic SX-70 card boundary to guide precise scissor cuts from your {{ selectedTemplate === '5x7' ? '5x7' : '4x6' }} print.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- ═══ Accordion 2: Interactive Position Tuning ═══ -->
+        <div :class="{'bg-purple-950/10 border-l-2 border-purple-500/80': panels.adjust, 'border-l-2 border-transparent': !panels.adjust}" class="border-b border-white/5 transition-all duration-300">
+            <button @click="togglePanel('adjust')" :class="{'bg-white/5': panels.adjust}" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-all duration-200">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined transition" :class="panels.adjust ? 'text-purple-400' : 'text-slate-400'" style="font-size: 18px;">tune</span>
+                    <span class="text-xs uppercase font-bold tracking-widest transition" :class="panels.adjust ? 'text-purple-300' : 'text-slate-300'">2. Photo Tuning</span>
+                </div>
+                <span :class="{'rotate-180 text-purple-400': panels.adjust, 'text-slate-400': !panels.adjust}" class="material-symbols-outlined text-sm transition duration-200" style="font-size: 18px;">expand_more</span>
+            </button>
+            <div :class="{'collapsed': !panels.adjust}" class="px-5 pb-5 space-y-4 accordion-body">
+                <!-- Toggle target photo -->
+                <div class="flex gap-2 mt-1">
+                    <button :class="activeImage === 'A' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-500'" @click="selectImage('A')" class="flex-1 py-2 rounded text-xs font-bold border transition">
+                        Polaroid A (Left)
+                    </button>
+                    <button :class="activeImage === 'B' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-500'" @click="selectImage('B')" class="flex-1 py-2 rounded text-xs font-bold border transition">
+                        Polaroid B (Right)
+                    </button>
+                </div>
+                <!-- Sliders (If target image loaded) -->
+                <div class="space-y-4" v-if="activeImageObject.src">
+                    <!-- Action reset/remove -->
+                    <div class="flex justify-between items-center bg-slate-900/50 p-2.5 rounded-lg border border-white/5">
+                        <span class="text-xs text-slate-300">Slot {{ activeImage }} Target</span>
+                        <div class="flex gap-2">
+                            <button @click="resetImageTransforms" class="text-xs text-purple-400 hover:underline">Reset</button>
+                            <span class="text-slate-600">|</span>
+                            <button @click="clearImage" class="text-xs text-red-400 hover:underline">Remove</button>
+                        </div>
+                    </div>
+                    <!-- Two Column layout for Scale and Rotation -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Scale Slider -->
+                        <div @dblclick="resetScale" class="space-y-1 group cursor-pointer" title="Double-click to reset scale to 100%">
+                            <div class="flex justify-between text-xs font-medium">
+                                <span class="text-slate-300 group-hover:text-purple-300 transition">Scale / Zoom</span>
+                                <span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.scale * 100) }}%</span>
+                            </div>
+                            <input max="10.0" min="0.05" step="0.01" type="range" v-model.number="activeImageObject.scale"/>
+                        </div>
+                        <!-- Rotation Slider -->
+                        <div @dblclick="resetRotation" class="space-y-1 group cursor-pointer" title="Double-click to reset rotation to 0°">
+                            <div class="flex justify-between text-xs font-medium">
+                                <span class="text-slate-300 group-hover:text-purple-300 transition">Rotation</span>
+                                <span class="text-purple-400 font-mono">{{ activeImageObject.rotation }}°</span>
+                            </div>
+                            <input max="180" min="-180" step="1" type="range" v-model.number="activeImageObject.rotation"/>
+                        </div>
+                    </div>
+                    <!-- Two Column layout for nudges -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Alignment X Slider -->
+                        <div @dblclick="resetX" class="space-y-1 group cursor-pointer" title="Double-click to center horizontally">
+                            <div class="flex justify-between text-xs font-medium">
+                                <span class="text-slate-300 group-hover:text-purple-300 transition">Nudge X (Horiz)</span>
+                                <span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.x) }}px</span>
+                            </div>
+                            <input max="200" min="-200" step="1" type="range" v-model.number="activeImageObject.x"/>
+                        </div>
+                        <!-- Alignment Y Slider -->
+                        <div @dblclick="resetY" class="space-y-1 group cursor-pointer" title="Double-click to center vertically">
+                            <div class="flex justify-between text-xs font-medium">
+                                <span class="text-slate-300 group-hover:text-purple-300 transition">Nudge Y (Vert)</span>
+                                <span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.y) }}px</span>
+                            </div>
+                            <input max="200" min="-200" step="1" type="range" v-model.number="activeImageObject.y"/>
+                        </div>
+                    </div>
+                    <!-- Retro Filters -->
+                    <div class="space-y-2">
+                        <label class="text-xs uppercase font-bold text-slate-400">Filter Preset</label>
+                        <div class="grid grid-cols-4 gap-1.5">
+                            <button :class="activeImageObject.filter === filt.id ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-400 hover:bg-slate-800'" :key="filt.id" @click="activeImageObject.filter = filt.id" class="py-1.5 rounded text-xs font-bold border transition capitalize" v-for="filt in filters">
+                                {{ filt.name }}
                             </button>
-<button :class="activeImage === 'B' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-500'" @click="selectImage('B')" class="flex-1 py-1 rounded text-[10px] font-bold border transition">
-                                Polaroid B (Right)
+                        </div>
+                    </div>
+                    <!-- Photo Background Color -->
+                    <div class="space-y-1">
+                        <label class="text-xs uppercase font-bold text-slate-400">Photo Background Color</label>
+                        <div class="flex items-center gap-2 bg-slate-900 border border-white/5 px-2 py-1.5 rounded-lg">
+                            <input class="w-6 h-6 border-0 bg-transparent cursor-pointer rounded" type="color" v-model="activeImageObject.bgColor"/>
+                            <span class="text-xs font-mono uppercase text-slate-400">{{ activeImageObject.bgColor }}</span>
+                            <button @click="activeImageObject.bgColor = '#07090d'" class="ml-auto text-xs text-purple-400 hover:underline" title="Reset to default dark background">
+                                Reset
                             </button>
-</div>
-<!-- Sliders (If target image loaded) -->
-<div class="space-y-4" v-if="activeImageObject.src">
-<!-- Action reset/remove -->
-<div class="flex justify-between items-center bg-slate-900/50 p-2 rounded-lg border border-white/5">
-<span class="text-[10px] text-slate-400">Slot {{ activeImage }} Target</span>
-<div class="flex gap-2">
-<button @click="resetImageTransforms" class="text-[10px] text-purple-400 hover:underline">Reset</button>
-<span class="text-slate-600">|</span>
-<button @click="clearImage" class="text-[10px] text-red-400 hover:underline">Remove</button>
-</div>
-</div>
-<!-- Scale Slider -->
-<div @dblclick="resetScale" class="space-y-1 group cursor-pointer" title="Double-click to reset scale to 100%">
-<div class="flex justify-between text-[11px] font-medium">
-<span class="text-slate-400 group-hover:text-purple-300 transition">Scale / Zoom</span>
-<span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.scale * 100) }}%</span>
-</div>
-<input max="10.0" min="0.05" step="0.01" type="range" v-model.number="activeImageObject.scale"/>
-</div>
-<!-- Rotation Slider -->
-<div @dblclick="resetRotation" class="space-y-1 group cursor-pointer" title="Double-click to reset rotation to 0°">
-<div class="flex justify-between text-[11px] font-medium">
-<span class="text-slate-400 group-hover:text-purple-300 transition">Rotation</span>
-<span class="text-purple-400 font-mono">{{ activeImageObject.rotation }}°</span>
-</div>
-<input max="180" min="-180" step="1" type="range" v-model.number="activeImageObject.rotation"/>
-</div>
-<!-- Alignment X Slider -->
-<div @dblclick="resetX" class="space-y-1 group cursor-pointer" title="Double-click to center horizontally">
-<div class="flex justify-between text-[11px] font-medium">
-<span class="text-slate-400 group-hover:text-purple-300 transition">Nudge Horiz (X)</span>
-<span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.x) }}px</span>
-</div>
-<input max="200" min="-200" step="1" type="range" v-model.number="activeImageObject.x"/>
-</div>
-<!-- Alignment Y Slider -->
-<div @dblclick="resetY" class="space-y-1 group cursor-pointer" title="Double-click to center vertically">
-<div class="flex justify-between text-[11px] font-medium">
-<span class="text-slate-400 group-hover:text-purple-300 transition">Nudge Vert (Y)</span>
-<span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.y) }}px</span>
-</div>
-<input max="200" min="-200" step="1" type="range" v-model.number="activeImageObject.y"/>
-</div>
-<!-- Retro Filters -->
-<div class="space-y-2">
-<label class="text-[9px] uppercase font-bold text-slate-500">Filter Preset</label>
-<div class="grid grid-cols-3 gap-1.5">
-<button :class="activeImageObject.filter === filt.id ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-400 hover:bg-slate-800'" :key="filt.id" @click="activeImageObject.filter = filt.id" class="py-1 rounded text-[10px] font-bold border transition capitalize" v-for="filt in filters">
-                                        {{ filt.name }}
-                                    </button>
-</div>
-</div>
-<!-- Photo Background Color -->
-<div class="space-y-1">
-<label class="text-[9px] uppercase font-bold text-slate-500">Photo Background Color</label>
-<div class="flex items-center gap-2 bg-slate-900 border border-white/5 px-2 py-1.5 rounded-lg">
-<input class="w-6 h-6 border-0 bg-transparent cursor-pointer rounded" type="color" v-model="activeImageObject.bgColor"/>
-<span class="text-[10px] font-mono uppercase text-slate-400">{{ activeImageObject.bgColor }}</span>
-<button @click="activeImageObject.bgColor = '#07090d'" class="ml-auto text-[9px] text-purple-400 hover:underline" title="Reset to default dark background">
-                                        Reset
-                                    </button>
-</div>
-</div>
-</div>
-<!-- No Image warning -->
-<div class="text-center bg-slate-950/40 p-4 rounded-xl border border-dashed border-white/5 mt-1" v-else="">
-<span class="material-symbols-outlined text-slate-600 text-xl block mb-1">photo_library</span>
-<p class="text-[10px] text-slate-500">No image loaded in slot {{ activeImage }}. Click on the Polaroid frame above to upload.</p>
-</div>
-</div>
-</div>
-<!-- ═══ Accordion 3: Captions & Typography ═══ -->
-<div class="border-b border-white/5 group">
-<button @click="togglePanel('captions')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">edit_note</span>
-<span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">3. Typography &amp; Ink</span>
-</div>
-<span :class="{'rotate-180': panels.captions}" class="material-symbols-outlined text-slate-400 text-sm transition duration-200" style="font-size: 18px;">expand_more</span>
-</button>
-<div :class="{'collapsed': !panels.captions}" class="px-5 pb-5 space-y-4 accordion-body">
-<!-- Text inputs -->
-<div class="space-y-2 mt-1">
-<div>
-<label class="text-[9px] uppercase font-bold text-slate-500">Polaroid A (Left) Caption</label>
-<textarea class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5 resize-none overflow-hidden" maxlength="60" placeholder="Memory left side..." rows="2" v-model="captionTextA"></textarea>
-</div>
-<div>
-<label class="text-[9px] uppercase font-bold text-slate-500">Polaroid B (Right) Caption</label>
-<textarea class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5 resize-none overflow-hidden" maxlength="60" placeholder="Memory right side..." rows="2" v-model="captionTextB"></textarea>
-</div>
-</div>
-<!-- Font Family -->
-<div class="space-y-1">
-<label class="text-[9px] uppercase font-bold text-slate-500">Ink Font Family</label>
-<select class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 py-2" v-model="captionFont">
-<option value="Caveat Brush">Caveat Brush</option>
-<option value="Shadows Into Light Two">Shadows Into Light Two</option>
-<option value="Coming Soon">Coming Soon</option>
-<option value="Caveat">Caveat</option>
-<option value="Gochi Hand">Gochi Hand</option>
-<option value="Gloria Hallelujah">Gloria Hallelujah</option>
-<option value="Shantell Sans">Shantell Sans</option>
-<option value="Cedarville Cursive">Cedarville Cursive</option>
-</select>
-</div>
-<!-- Font Size & Color Row -->
-<div class="grid grid-cols-2 gap-3">
-<div class="space-y-1">
-<label class="text-[9px] uppercase font-bold text-slate-500">Font Size (px)</label>
-<input class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5" type="number" v-model.number="captionFontSize"/>
-</div>
-<div class="space-y-1">
-<label class="text-[9px] uppercase font-bold text-slate-500">Ink Color</label>
-<div class="flex items-center gap-2 bg-slate-900 border border-white/5 px-2 py-1 rounded-lg">
-<input class="w-5 h-5 border-0 bg-transparent cursor-pointer rounded" type="color" v-model="captionColor"/>
-<span class="text-[9px] font-mono uppercase text-slate-400">{{ captionColor }}</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Export Buttons (Always fixed at bottom of sidebar for easy accessibility) -->
-<div class="p-5 pt-4 space-y-3 border-t border-white/5 bg-slate-900/50 backdrop-blur-md shrink-0">
-<button :disabled="exporting" @click="exportPolaroid('pdf')" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs tracking-wider uppercase transition shadow-xl shadow-purple-950/20 flex items-center justify-center gap-2" id="exportPdfBtn">
-<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-<span>{{ exporting ? 'Compiling PDF...' : 'Export PDF Print Layout' }}</span>
-</button>
-<button :disabled="exporting" @click="exportPolaroid('jpg')" class="w-full py-2.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold tracking-wider uppercase transition flex items-center justify-center gap-2" id="exportJpgBtn">
-<span class="material-symbols-outlined text-[18px]">image</span>
-<span>Download High-Res JPG</span>
-</button>
-<p class="text-[9px] text-slate-500 text-center leading-relaxed">
-                    PDF format preserves absolute dimensions and colors for home printing (ideal for HP Smart Tank 530). JPG is perfect for digital sharing or kiosks.
-                </p>
-</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- No Image warning -->
+                <div class="text-center bg-slate-950/40 p-4 rounded-xl border border-dashed border-white/5 mt-1" v-else="">
+                    <span class="material-symbols-outlined text-slate-600 text-xl block mb-1">photo_library</span>
+                    <p class="text-xs text-slate-400">No image loaded in slot {{ activeImage }}. Click on the Polaroid frame above to upload.</p>
+                </div>
+            </div>
+        </div>
+        <!-- ═══ Accordion 3: Captions & Typography ═══ -->
+        <div :class="{'bg-purple-950/10 border-l-2 border-purple-500/80': panels.captions, 'border-l-2 border-transparent': !panels.captions}" class="border-b border-white/5 transition-all duration-300">
+            <button @click="togglePanel('captions')" :class="{'bg-white/5': panels.captions}" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-all duration-200">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined transition" :class="panels.captions ? 'text-purple-400' : 'text-slate-400'" style="font-size: 18px;">edit_note</span>
+                    <span class="text-xs uppercase font-bold tracking-widest transition" :class="panels.captions ? 'text-purple-300' : 'text-slate-300'">3. Typography &amp; Ink</span>
+                </div>
+                <span :class="{'rotate-180 text-purple-400': panels.captions, 'text-slate-400': !panels.captions}" class="material-symbols-outlined text-sm transition duration-200" style="font-size: 18px;">expand_more</span>
+            </button>
+            <div :class="{'collapsed': !panels.captions}" class="px-5 pb-5 space-y-4 accordion-body">
+                <!-- Text inputs -->
+                <div class="space-y-2 mt-1">
+                    <div>
+                        <label class="text-xs uppercase font-bold text-slate-400">Polaroid A (Left) Caption</label>
+                        <textarea class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-sm rounded-lg text-slate-200 px-3 py-2 resize-none overflow-hidden" maxlength="60" placeholder="Memory left side..." rows="2" v-model="captionTextA"></textarea>
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase font-bold text-slate-400">Polaroid B (Right) Caption</label>
+                        <textarea class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-sm rounded-lg text-slate-200 px-3 py-2 resize-none overflow-hidden" maxlength="60" placeholder="Memory right side..." rows="2" v-model="captionTextB"></textarea>
+                    </div>
+                </div>
+                <!-- Font Family -->
+                <div class="space-y-1">
+                    <label class="text-xs uppercase font-bold text-slate-400">Ink Font Family</label>
+                    <select class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-sm rounded-lg text-slate-200 py-2" v-model="captionFont">
+                        <option value="Caveat Brush">Caveat Brush</option>
+                        <option value="Shadows Into Light Two">Shadows Into Light Two</option>
+                        <option value="Coming Soon">Coming Soon</option>
+                        <option value="Caveat">Caveat</option>
+                        <option value="Gochi Hand">Gochi Hand</option>
+                        <option value="Gloria Hallelujah">Gloria Hallelujah</option>
+                        <option value="Shantell Sans">Shantell Sans</option>
+                        <option value="Cedarville Cursive">Cedarville Cursive</option>
+                    </select>
+                </div>
+                <!-- Font Size & Color Row -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-xs uppercase font-bold text-slate-400">Font Size (px)</label>
+                        <input class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-sm rounded-lg text-slate-200 px-3 py-2" type="number" v-model.number="captionFontSize"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs uppercase font-bold text-slate-400">Ink Color</label>
+                        <div class="flex items-center gap-2 bg-slate-900 border border-white/5 px-2 py-1 rounded-lg">
+                            <input class="w-7 h-7 border-0 bg-transparent cursor-pointer rounded" type="color" v-model="captionColor"/>
+                            <span class="text-xs font-mono uppercase text-slate-400">{{ captionColor }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </aside>
 </main>
 <!-- Hidden high-res rendering canvas -->
@@ -528,6 +538,61 @@
                 const togglePanel = (key) => { panels[key] = !panels[key]; };
 
                 /* ─── Main States ─── */
+                const selectedTemplate = ref('4x6'); // '4x6' or '5x7'
+                const canvasConfig = computed(() => {
+                    if (selectedTemplate.value === '5x7') {
+                        return {
+                            width: 840,
+                            height: 600,
+                            cardW: 400,
+                            cardH: 480,
+                            cardY: 60,
+                            cardA_X: 20,
+                            cardB_X: 420,
+                            cropTopY1: 40,
+                            cropTopY2: 60,
+                            cropBottomY1: 540,
+                            cropBottomY2: 560,
+                            cropLeftX1: 0,
+                            cropLeftX2: 20,
+                            cropRightX1: 820,
+                            cropRightX2: 840,
+                            cropCenterX: 420,
+                            cmykX: 22,
+                            cmykY: 52,
+                            cutoutSize: 356,
+                            cutoutMargin: 22,
+                            captionTop: 378,
+                            printFormat: [7, 5]
+                        };
+                    } else {
+                        return {
+                            width: 780,
+                            height: 520,
+                            cardW: 364,
+                            cardH: 436,
+                            cardY: 42,
+                            cardA_X: 26,
+                            cardB_X: 390,
+                            cropTopY1: 22,
+                            cropTopY2: 42,
+                            cropBottomY1: 478,
+                            cropBottomY2: 498,
+                            cropLeftX1: 6,
+                            cropLeftX2: 26,
+                            cropRightX1: 754,
+                            cropRightX2: 774,
+                            cropCenterX: 390,
+                            cmykX: 28,
+                            cmykY: 34,
+                            cutoutSize: 324,
+                            cutoutMargin: 20,
+                            captionTop: 344,
+                            printFormat: [6, 4]
+                        };
+                    }
+                });
+
                 const frameThemeColor = ref('white');
                 const showCutLineInExport = ref(true);
                 const captionTextA = ref('');
@@ -585,11 +650,12 @@
                     if (!img.width || !img.height) return {};
                     
                     const aspect = img.width / img.height;
-                    let width = 324;
-                    let height = 324 / aspect;
-                    if (height < 324) {
-                        height = 324;
-                        width = 324 * aspect;
+                    const cutout = canvasConfig.value.cutoutSize;
+                    let width = cutout;
+                    let height = cutout / aspect;
+                    if (height < cutout) {
+                        height = cutout;
+                        width = cutout * aspect;
                     }
                     
                     return {
@@ -679,6 +745,7 @@
                     captionColor.value = '#1e293b';
                     captionFontSize.value = 26;
                     activeImage.value = 'A';
+                    selectedTemplate.value = '4x6';
                 };
 
                 /* ─── Drag Manipulation Logic (Normalized dynamically to maintain natural mouse speeds) ─── */
@@ -722,13 +789,13 @@
 
                     const img = activeImage.value === 'A' ? imgA : imgB;
                     
-                    // NORMALIZE drag offsets relative to our 780px coordinate system baseline.
+                    // NORMALIZE drag offsets relative to our dynamic coordinate system baseline.
                     // This guarantees that mouse movement matches the image pan exactly, 
                     // regardless of how large the Polaroid preview is scaled on screen.
                     const printEl = document.getElementById('polaroid-print');
                     if (printEl) {
                         const actualWidth = printEl.getBoundingClientRect().width;
-                        const baselineWidth = 780; // Scale dragging offsets from actual px to baseline px
+                        const baselineWidth = canvasConfig.value.width; // Scale dragging offsets from actual px to baseline px
                         const scaleRatio = baselineWidth / actualWidth;
 
                         img.x = startImgX + dx * scaleRatio;
@@ -890,14 +957,14 @@
                 const exportPolaroid = async (format = 'pdf') => {
                     if (exporting.value) return;
                     exporting.value = true;
-
-                    // A standard 4x6 print at 300 DPI high resolution is exactly 1800 x 1200 or 2400 x 1600.
-                    // Let's print at 2400 x 1600!
-                    const targetWidth = 2400;
-                    const targetHeight = 1600;
-                    const baselineWidth = 780; // Virtual design baseline
+ 
+                    // 4x6 template target: 2400x1600 px at 400 DPI
+                    // 5x7 template target: 2800x2000 px at 400 DPI
+                    const targetWidth = selectedTemplate.value === '5x7' ? 2800 : 2400;
+                    const targetHeight = selectedTemplate.value === '5x7' ? 2000 : 1600;
+                    const baselineWidth = canvasConfig.value.width; // Virtual design baseline
                     const scaleFactor = targetWidth / baselineWidth;
-
+ 
                     const canvas = document.getElementById('exportCanvas');
                     canvas.width = targetWidth;
                     canvas.height = targetHeight;
@@ -905,58 +972,57 @@
                     const ctx = canvas.getContext('2d');
                     ctx.imageSmoothingEnabled = true;
                     ctx.imageSmoothingQuality = 'high';
-
-                    // 1. Draw 4x6 sheet canvas background (transparent print sheet, so standard canvas base is filled transparent or clean white)
+ 
+                    // 1. Draw sheet canvas background (transparent print sheet, so standard canvas base is filled transparent or clean white)
                     ctx.fillStyle = '#ffffff'; // Pure white background to save ink
                     ctx.fillRect(0, 0, targetWidth, targetHeight);
-
-                    // 2. Draw both floating cards with exact 5:6 classic aspect ratios inside 4x6 canvas
+ 
+                    // 2. Draw both floating cards with exact 5:6 classic aspect ratios inside canvas
                     const drawCardAndContents = async (imgData, cardX, cardY, cardW, cardH, captionTextValue, slot) => {
                         const sCardX = cardX * scaleFactor;
                         const sCardY = cardY * scaleFactor;
                         const sCardW = cardW * scaleFactor;
                         const sCardH = cardH * scaleFactor;
-
+ 
                         ctx.save();
                         
                         // Create paper texture base strictly clipped to card boundaries
                         ctx.beginPath();
                         ctx.rect(sCardX, sCardY, sCardW, sCardH);
-
+ 
                         ctx.clip();
                         drawPaperTexture(ctx, targetWidth, targetHeight, frameThemeColor.value);
-
+ 
                         // Draw cutout square inside this card:
-                        // Cutout dimensions: width=324px, height=324px. X margin inside = 20px. Y margin inside = 20px
-                        const cutX = (cardX + 20) * scaleFactor;
-                        const cutY = (cardY + 20) * scaleFactor;
-                        const cutW = 324 * scaleFactor;
-                        const cutH = 324 * scaleFactor;
-
+                        const cutX = (cardX + canvasConfig.value.cutoutMargin) * scaleFactor;
+                        const cutY = (cardY + canvasConfig.value.cutoutMargin) * scaleFactor;
+                        const cutW = canvasConfig.value.cutoutSize * scaleFactor;
+                        const cutH = canvasConfig.value.cutoutSize * scaleFactor;
+ 
                         ctx.save();
                         ctx.beginPath();
                         ctx.rect(cutX, cutY, cutW, cutH);
                         ctx.clip();
-
+ 
                         // Hole background
                         ctx.fillStyle = imgData.bgColor || '#07090d';
                         ctx.fillRect(cutX, cutY, cutW, cutH);
-
+ 
                         if (imgData.src) {
                             const imgEl = new Image();
                             await new Promise((resolve) => {
                                 imgEl.onload = resolve;
                                 imgEl.src = imgData.src;
                             });
-
+ 
                             ctx.save();
                             ctx.translate(cutX + cutW / 2, cutY + cutH / 2);
                             ctx.translate(imgData.x * scaleFactor, imgData.y * scaleFactor);
                             ctx.scale(imgData.scale, imgData.scale);
                             ctx.rotate(imgData.rotation * Math.PI / 180);
-
+ 
                             ctx.filter = getCanvasCSSFilter(imgData.filter);
-
+ 
                             const aspect = imgData.width / imgData.height;
                             let drawW = cutW;
                             let drawH = cutW / aspect;
@@ -968,10 +1034,10 @@
                             ctx.restore();
                         } else {
                             ctx.fillStyle = 'rgba(255,255,255,0.03)';
-                            ctx.fillRect(cutX + 20, cutY + 20, cutW - 40, cutH - 40);
+                            ctx.fillRect(cutX + 20 * scaleFactor, cutY + 20 * scaleFactor, cutW - 40 * scaleFactor, cutH - 40 * scaleFactor);
                         }
                         ctx.restore(); // Restore cutout clip
-
+ 
                         // Draw caption inside bottom margin
                         if (captionTextValue.trim()) {
                             ctx.save();
@@ -982,24 +1048,23 @@
                             ctx.font = `${isBold ? 'bold' : 'normal'} ${finalSize}px "${captionFont.value}", cursive, sans-serif`;
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
-
-                            // Text centered relative to card width. Y positioning is bottom margin center (Yoffset = cardY + 20 + 324 + 46 = cardY + 390px)
+ 
+                            // Text centered relative to card width.
                             const textX = sCardX + sCardW / 2;
-                            const textY = sCardY + (390 * scaleFactor);
-
-                            // Calculate available width inside card: Card Width is 364px. Symmetrical padding is 20px left/right. 
-                            // 364 - 40 = 324px virtual width. Sized with scaleFactor: 324 * scaleFactor.
-                            const maxTextWidth = 324 * scaleFactor;
+                            const textY = sCardY + (canvasConfig.value.captionTop + (cardH - canvasConfig.value.captionTop) / 2) * scaleFactor;
+ 
+                            // Calculate available width inside card
+                            const maxTextWidth = (cardW - 40) * scaleFactor;
                             const lineHeight = finalSize * 1.25;
-
+ 
                             // Wrap text by split-word sizing metrics
                             const paragraphs = captionTextValue.split('\n');
                             const lines = [];
-
+ 
                             for (let p of paragraphs) {
                                 const words = p.split(' ');
                                 let currentLine = '';
-
+ 
                                 for (let n = 0; n < words.length; n++) {
                                     let testLine = currentLine + words[n] + ' ';
                                     let testWidth = ctx.measureText(testLine.trim()).width;
@@ -1012,72 +1077,98 @@
                                 }
                                 lines.push(currentLine.trim());
                             }
-
+ 
                             // Vertically center lines around textY
                             const totalHeight = lines.length * lineHeight;
                             const startY = textY - (totalHeight / 2) + (lineHeight / 2);
-
+ 
                             for (let i = 0; i < lines.length; i++) {
                                 ctx.fillText(lines[i], textX, startY + (i * lineHeight));
                             }
                             ctx.restore();
                         }
-
+ 
                         ctx.restore(); // Restore card clip
                     };
-
-                    // Draw both portrait Polaroids (Width: 364px, Height: 436px)
-                    // Polaroid A (Left): X = 26px, Y = 42px (touches center X=390px!)
-                    // Polaroid B (Right): X = 390px, Y = 42px (touches center X=390px!)
-                    await drawCardAndContents(imgA, 26, 42, 364, 436, captionTextA.value, 'A');
-                    await drawCardAndContents(imgB, 390, 42, 364, 436, captionTextB.value, 'B');
-
+ 
+                    // Draw both portrait Polaroids (Width: cardW, Height: cardH)
+                    await drawCardAndContents(imgA, canvasConfig.value.cardA_X, canvasConfig.value.cardY, canvasConfig.value.cardW, canvasConfig.value.cardH, captionTextA.value, 'A');
+                    await drawCardAndContents(imgB, canvasConfig.value.cardB_X, canvasConfig.value.cardY, canvasConfig.value.cardW, canvasConfig.value.cardH, captionTextB.value, 'B');
+ 
                     // 3. Draw Solid Black Corner Crop Marks (Minimal, only at card corners to save ink)
                     if (showCutLineInExport.value) {
                         ctx.save();
                         ctx.strokeStyle = '#000000'; // Black ink crop marks
                         ctx.lineWidth = 1.2 * scaleFactor;
                         ctx.setLineDash([]); // Solid lines
-
+ 
                         const drawTick = (x1, y1, x2, y2) => {
                             ctx.beginPath();
                             ctx.moveTo(x1 * scaleFactor, y1 * scaleFactor);
                             ctx.lineTo(x2 * scaleFactor, y2 * scaleFactor);
                             ctx.stroke();
                         };
-
+ 
                         // Top-Left crop corner
-                        drawTick(26, 22, 26, 42);
-                        drawTick(6, 42, 26, 42);
-
+                        drawTick(canvasConfig.value.cardA_X, canvasConfig.value.cropTopY1, canvasConfig.value.cardA_X, canvasConfig.value.cropTopY2);
+                        drawTick(canvasConfig.value.cropLeftX1, canvasConfig.value.cropTopY2, canvasConfig.value.cardA_X, canvasConfig.value.cropTopY2);
+ 
                         // Top-Right crop corner
-                        drawTick(754, 22, 754, 42);
-                        drawTick(754, 42, 774, 42);
-
+                        drawTick(canvasConfig.value.cropRightX1, canvasConfig.value.cropTopY1, canvasConfig.value.cropRightX1, canvasConfig.value.cropTopY2);
+                        drawTick(canvasConfig.value.cropRightX1, canvasConfig.value.cropTopY2, canvasConfig.value.cropRightX2, canvasConfig.value.cropTopY2);
+ 
                         // Bottom-Left crop corner
-                        drawTick(26, 478, 26, 498);
-                        drawTick(6, 478, 26, 478);
-
+                        drawTick(canvasConfig.value.cardA_X, canvasConfig.value.cropBottomY1, canvasConfig.value.cardA_X, canvasConfig.value.cropBottomY2);
+                        drawTick(canvasConfig.value.cropLeftX1, canvasConfig.value.cropBottomY1, canvasConfig.value.cardA_X, canvasConfig.value.cropBottomY1);
+ 
                         // Bottom-Right crop corner
-                        drawTick(754, 478, 754, 498);
-                        drawTick(754, 478, 774, 478);
-
+                        drawTick(canvasConfig.value.cropRightX1, canvasConfig.value.cropBottomY1, canvasConfig.value.cropRightX1, canvasConfig.value.cropBottomY2);
+                        drawTick(canvasConfig.value.cropRightX1, canvasConfig.value.cropBottomY1, canvasConfig.value.cropRightX2, canvasConfig.value.cropBottomY1);
+ 
                         // Center Slice ticks (Top and Bottom)
-                        drawTick(390, 22, 390, 42);
-                        drawTick(390, 478, 390, 498);
-
+                        drawTick(canvasConfig.value.cropCenterX, canvasConfig.value.cropTopY1, canvasConfig.value.cropCenterX, canvasConfig.value.cropTopY2);
+                        drawTick(canvasConfig.value.cropCenterX, canvasConfig.value.cropBottomY1, canvasConfig.value.cropCenterX, canvasConfig.value.cropBottomY2);
+ 
                         // Draw CMYK Color Calibration Squares (Outside Cards, close to top-left cut mark, no borders)
                         const cmykColors = ['#00ffff', '#ff00ff', '#ffff00', '#000000'];
                         const squareSize = 6;
-                        const startX = 28;
-                        const startY = 34;
                         cmykColors.forEach((color, index) => {
                             ctx.fillStyle = color;
-                            ctx.fillRect((startX + index * 7) * scaleFactor, startY * scaleFactor, squareSize * scaleFactor, squareSize * scaleFactor);
+                            ctx.fillRect((canvasConfig.value.cmykX + index * 7) * scaleFactor, canvasConfig.value.cmykY * scaleFactor, squareSize * scaleFactor, squareSize * scaleFactor);
                         });
-
+ 
                         ctx.restore();
                     }
+ 
+                    // Helper to inject JFIF DPI density metadata into JPEG raw bytes
+                    const injectDPI = (base64Str, dpiValue) => {
+                        const byteString = atob(base64Str.split(',')[1]);
+                        const array = new Uint8Array(byteString.length);
+                        for (let i = 0; i < byteString.length; i++) {
+                            array[i] = byteString.charCodeAt(i);
+                        }
+                        // Search for APP0 marker (FF E0)
+                        for (let i = 0; i < array.length - 4; i++) {
+                            if (array[i] === 0xFF && array[i+1] === 0xE0) {
+                                // Confirm "JFIF\0" identifier
+                                if (
+                                    array[i+6] === 0x4A &&
+                                    array[i+7] === 0x46 &&
+                                    array[i+8] === 0x49 &&
+                                    array[i+9] === 0x46 &&
+                                    array[i+10] === 0x00
+                                ) {
+                                    array[i+13] = 1; // Units: 1 = DPI (dots per inch)
+                                    array[i+14] = (dpiValue >> 8) & 0xFF; // X density High
+                                    array[i+15] = dpiValue & 0xFF;        // X density Low
+                                    array[i+16] = (dpiValue >> 8) & 0xFF; // Y density High
+                                    array[i+17] = dpiValue & 0xFF;        // Y density Low
+                                }
+                                break;
+                            }
+                        }
+                        return new Blob([array], { type: 'image/jpeg' });
+                    };
 
                     // 4. Trigger download
                     try {
@@ -1086,19 +1177,24 @@
                             const pdf = new jsPDF({
                                 orientation: 'landscape',
                                 unit: 'in',
-                                format: [6, 4]
+                                format: canvasConfig.value.printFormat
                             });
                             // Use high quality image generation
                             const imgDataUrl = canvas.toDataURL('image/jpeg', 0.98);
-                            pdf.addImage(imgDataUrl, 'JPEG', 0, 0, 6, 4);
-                            pdf.save(`classic-polaroids-4x6-${Date.now()}.pdf`);
+                            pdf.addImage(imgDataUrl, 'JPEG', 0, 0, canvasConfig.value.printFormat[0], canvasConfig.value.printFormat[1]);
+                            pdf.save(`classic-polaroids-${selectedTemplate.value}-${Date.now()}.pdf`);
                         } else {
+                            const imgDataUrl = canvas.toDataURL('image/jpeg', 0.96);
+                            const blob = injectDPI(imgDataUrl, 400); // exactly 400 DPI
+                            const blobUrl = URL.createObjectURL(blob);
+
                             const link = document.createElement('a');
-                            link.download = `classic-polaroids-4x6-${Date.now()}.jpg`;
-                            link.href = canvas.toDataURL('image/jpeg', 0.96);
+                            link.download = `classic-polaroids-${selectedTemplate.value}-${Date.now()}.jpg`;
+                            link.href = blobUrl;
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
+                            URL.revokeObjectURL(blobUrl);
                         }
                     } catch (err) {
                         console.error('Failed to trigger high-res export', err);
@@ -1113,6 +1209,8 @@
                     filters,
                     panels,
                     togglePanel,
+                    selectedTemplate,
+                    canvasConfig,
                     frameThemeColor,
                     showCutLineInExport,
                     captionTextA,
