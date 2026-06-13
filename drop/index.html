@@ -645,7 +645,7 @@
         const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
 
         // Configuration
-        const CHUNK_SIZE = 16384; // 16KB standard WebRTC chunk size for safety
+        const CHUNK_SIZE = 65536; // 64KB standard WebRTC chunk size for throughput
 
         // List of fun adjectives and animals
         const adjectives = ["Crimson", "Ocean", "Amber", "Golden", "Neon", "Electric", "Dazzling", "Quiet", "Jolly", "Mystic", "Zen", "Hyper", "Stellar", "Cosmic", "Velvet"];
@@ -892,12 +892,6 @@
                         
                         const progress = (chunks.length / meta.totalChunks) * 100;
                         updatePeerProgress(conn.peer, progress);
-
-                        // Request next chunk
-                        conn.send({
-                            type: 'chunk-request',
-                            index: chunks.length
-                        });
                         return;
                     }
 
@@ -922,12 +916,6 @@
                         delete receivedChunks[conn.peer];
                         delete receivedMetadata[conn.peer];
                         updatePeerProgress(conn.peer, 0);
-                        return;
-                    }
-
-                    // Chunk request (Sender side receiving next block request)
-                    if (data.type === 'chunk-request') {
-                        sendNextChunk(conn.peer, data.index);
                         return;
                     }
                 };
@@ -978,48 +966,66 @@
                     });
                 };
 
-                const startFileTransfer = (peerId) => {
-                    const state = outgoingFileState[peerId];
-                    if (!state) return;
-
-                    // Trigger chunk transmission
-                    sendNextChunk(peerId, 0);
-                };
-
-                const sendNextChunk = (peerId, chunkIndex) => {
+                const startFileTransfer = async (peerId) => {
                     const state = outgoingFileState[peerId];
                     if (!state) return;
 
                     const file = state.file;
                     const totalChunks = state.totalChunks;
                     const conn = state.connection;
-
-                    if (chunkIndex >= totalChunks) {
-                        // All chunks sent! Notify receiver.
-                        conn.send({
-                            type: 'file-complete'
-                        });
-                        updatePeerProgress(peerId, 0);
-                        delete outgoingFileState[peerId];
-                        return;
+                    const dc = conn.dataChannel;
+                    
+                    if (dc) {
+                        dc.bufferedAmountLowThreshold = 65536; // 64KB threshold
                     }
 
-                    const start = chunkIndex * CHUNK_SIZE;
-                    const end = Math.min(start + CHUNK_SIZE, file.size);
-                    const slice = file.slice(start, end);
+                    // Helper to wait until bufferedAmount drops below 256KB to avoid choking the channel
+                    const waitBuffer = () => new Promise(resolve => {
+                        if (!dc || dc.bufferedAmount < 256 * 1024) {
+                            resolve();
+                        } else {
+                            dc.onbufferedamountlow = () => {
+                                dc.onbufferedamountlow = null;
+                                resolve();
+                            };
+                            // Fail-safe fallback
+                            setTimeout(resolve, 100);
+                        }
+                    });
 
-                    // Read chunk as array buffer and send
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        conn.send({
-                            type: 'chunk',
-                            chunk: e.target.result
-                        });
-                        
-                        const progress = (chunkIndex / totalChunks) * 100;
-                        updatePeerProgress(peerId, progress);
-                    };
-                    reader.readAsArrayBuffer(slice);
+                    try {
+                        for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                            await waitBuffer();
+
+                            if (!conn.open) break;
+
+                            const start = chunkIndex * CHUNK_SIZE;
+                            const end = Math.min(start + CHUNK_SIZE, file.size);
+                            const slice = file.slice(start, end);
+                            
+                            const arrayBuffer = await slice.arrayBuffer();
+                            
+                            conn.send({
+                                type: 'chunk',
+                                chunk: arrayBuffer
+                            });
+
+                            const progress = (chunkIndex / totalChunks) * 100;
+                            updatePeerProgress(peerId, progress);
+                        }
+
+                        if (conn.open) {
+                            conn.send({
+                                type: 'file-complete'
+                            });
+                        }
+                    } catch (e) {
+                        console.error('File transfer error:', e);
+                        alert('An error occurred during file transfer.');
+                    } finally {
+                        updatePeerProgress(peerId, 0);
+                        delete outgoingFileState[peerId];
+                    }
                 };
 
                 // File acceptance flow
