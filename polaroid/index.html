@@ -1,21 +1,20 @@
 <!DOCTYPE html>
+
 <html class="dark" lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Polaroid Studio | 4x6 Print Generator</title>
-    <meta name="description" content="Create two distinct classic 5:6 Polaroids side-by-side on a standard 4x6 landscape print canvas with cut guidelines. Adjust scale, rotation, and custom captions separately, print, and cut." />
-    
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat+Brush&family=Shadows+Into+Light+Two&family=Coming+Soon&family=Caveat:wght@400;700&family=Gochi+Hand&family=Gloria+Hallelujah&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Cedarville+Cursive&display=swap" rel="stylesheet" />
-    
-    <!-- Vue 3 and Tailwind CDN -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <!-- jsPDF for PDF generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Polaroid Studio | 4x6 Print Generator</title>
+<meta content="Create two distinct classic 5:6 Polaroids side-by-side on a standard 4x6 landscape print canvas with cut guidelines. Adjust scale, rotation, and custom captions separately, print, and cut." name="description"/>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Caveat+Brush&amp;family=Shadows+Into+Light+Two&amp;family=Coming+Soon&amp;family=Caveat:wght@400;700&amp;family=Gochi+Hand&amp;family=Gloria+Hallelujah&amp;family=Shantell+Sans:ital,wght@0,300..800;1,300..800&amp;family=Cedarville+Cursive&amp;display=swap" rel="stylesheet"/>
+<!-- Vue 3 and Tailwind CDN -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -35,11 +34,9 @@
             }
         };
     </script>
-    
-    <link href="/style.css" rel="stylesheet">
-    <link rel="icon" href="/logo.png" type="image/png">
-    
-    <style>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/logo.png" rel="icon" type="image/png"/>
+<style>
         /* Retro grid board background */
         .grid-board {
             background-color: #0b0e14;
@@ -164,138 +161,81 @@
         }
     </style>
 </head>
-
-<body class="bg-bg-main text-slate-100 h-screen flex flex-col overflow-hidden font-sans select-none" id="app" v-cloak>
-
-    <!-- ═══════════════ Global Header ═══════════════ -->
-    <nav class="global-nav">
-        <div class="flex items-center">
-            <a href="/" class="global-nav-brand">
-                <img src="/logo.png" alt="Logo" class="global-nav-icon">
+<body class="bg-bg-main text-slate-100 h-screen flex flex-col overflow-hidden font-sans select-none" id="app" v-cloak="">
+<!-- ═══════════════ Global Header ═══════════════ -->
+<nav class="global-nav">
+<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
                 Swiss<span>Web</span>
-            </a>
-            <div class="hidden sm:block border-l border-slate-700/60 pl-4 ml-4 py-1">
-                <h1 class="text-sm font-bold text-slate-200 m-0 leading-none">Polaroid<span class="text-purple-400">Studio</span></h1>
-            </div>
-        </div>
-        <div class="global-nav-links flex items-center gap-4">
-            <button @click="resetAll" class="text-xs text-slate-400 hover:text-white transition flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/5 hover:border-purple-500/30 hover:bg-purple-500/5">
-                <span class="material-symbols-outlined text-[16px]">restart_alt</span>
+</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">PolaroidStudio</h1></div></div>
+<div class="global-nav-links flex items-center gap-4">
+<button @click="resetAll" class="text-xs text-slate-400 hover:text-white transition flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/5 hover:border-purple-500/30 hover:bg-purple-500/5">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
                 Reset Print
             </button>
-            <a href="/" class="global-nav-link">Home</a>
-        </div>
-    </nav>
-
-    <!-- ═══════════════ Main Workstation ═══════════════ -->
-    <main class="flex-1 flex min-h-0 w-full h-[calc(100vh-3.5rem)]">
-
-        <!-- ─── Center Display Board (Auto-scaling Grid Canvas) ─── -->
-        <div class="flex-1 relative grid-board flex items-center justify-center p-6 md:p-12 overflow-hidden">
-            
-            <!-- Quick Helper Note -->
-            <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-5 py-2 rounded-full border border-white/10 text-[11px] text-slate-400 flex items-center gap-2 select-none pointer-events-none z-10 shadow-xl">
-                <span class="material-symbols-outlined text-purple-400 text-sm">fullscreen</span>
-                <span><b>Classic SX-70/600 (5:6 Ratio)</b> side-by-side on 4x6 Landscape Sheet.</span>
-            </div>
-
-            <!-- 4x6 Landscape Photo Print Sheet Container (780px wide by 520px tall is exactly 6:4 aspect ratio) -->
-            <div 
-                id="polaroid-print"
-                class="relative bg-white shadow-2xl transition-all duration-300 select-none flex flex-row shrink-0 w-[780px] h-[520px] border border-white/10"
-                style="border-radius: 4px;"
-            >
-                <!-- MINIMAL BLACK CROP MARKS (Only at the outer corners and center cut points) -->
-                <svg v-show="showCutLineInExport" class="absolute inset-0 w-full h-full pointer-events-none z-30" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Top-Left Crop Marks -->
-                    <line x1="26" y1="22" x2="26" y2="42" stroke="black" stroke-width="1.2" />
-                    <line x1="6" y1="42" x2="26" y2="42" stroke="black" stroke-width="1.2" />
-                    
-                    <!-- Top-Right Crop Marks -->
-                    <line x1="754" y1="22" x2="754" y2="42" stroke="black" stroke-width="1.2" />
-                    <line x1="754" y1="42" x2="774" y2="42" stroke="black" stroke-width="1.2" />
-                    
-                    <!-- Bottom-Left Crop Marks -->
-                    <line x1="26" y1="478" x2="26" y2="498" stroke="black" stroke-width="1.2" />
-                    <line x1="6" y1="478" x2="26" y2="478" stroke="black" stroke-width="1.2" />
-                    
-                    <!-- Bottom-Right Crop Marks -->
-                    <line x1="754" y1="478" x2="754" y2="498" stroke="black" stroke-width="1.2" />
-                    <line x1="754" y1="478" x2="774" y2="478" stroke="black" stroke-width="1.2" />
-                    
-                    <!-- Center Cut Marks (Top & Bottom) -->
-                    <line x1="390" y1="22" x2="390" y2="42" stroke="black" stroke-width="1.2" />
-                    <line x1="390" y1="478" x2="390" y2="498" stroke="black" stroke-width="1.2" />
-
-                    <!-- CMYK Color Calibration Squares (Outside Cards, close to top-left cut mark, no borders) -->
-                    <rect x="28" y="34" width="6" height="6" fill="#00ffff" />
-                    <rect x="35" y="34" width="6" height="6" fill="#ff00ff" />
-                    <rect x="42" y="34" width="6" height="6" fill="#ffff00" />
-                    <rect x="49" y="34" width="6" height="6" fill="#000000" />
-                </svg>
-
-                <!-- POLAROID LEFT (Polaroid A - Exact 364x436 Classic 5:6 proportions) -->
-                <!-- Placed at X: 26px (touches center X=390px!) -->
-                <div 
-                    class="absolute left-[26px] top-[42px] w-[364px] height-[436px] flex flex-col items-center justify-start transition-all duration-200"
-                    :class="[
+<a class="global-nav-link" href="/">Home</a>
+</div>
+</nav>
+<!-- ═══════════════ Main Workstation ═══════════════ -->
+<main class="flex-1 flex min-h-0 w-full h-[calc(100vh-3.5rem)]">
+<!-- ─── Center Display Board (Auto-scaling Grid Canvas) ─── -->
+<div class="flex-1 relative grid-board flex items-center justify-center p-6 md:p-12 overflow-hidden">
+<!-- Quick Helper Note -->
+<div class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-5 py-2 rounded-full border border-white/10 text-[11px] text-slate-400 flex items-center gap-2 select-none pointer-events-none z-10 shadow-xl">
+<span class="material-symbols-outlined text-purple-400 text-sm">fullscreen</span>
+<span><b>Classic SX-70/600 (5:6 Ratio)</b> side-by-side on 4x6 Landscape Sheet.</span>
+</div>
+<!-- 4x6 Landscape Photo Print Sheet Container (780px wide by 520px tall is exactly 6:4 aspect ratio) -->
+<div class="relative bg-white shadow-2xl transition-all duration-300 select-none flex flex-row shrink-0 w-[780px] h-[520px] border border-white/10" id="polaroid-print" style="border-radius: 4px;">
+<!-- MINIMAL BLACK CROP MARKS (Only at the outer corners and center cut points) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-30" v-show="showCutLineInExport" xmlns="http://www.w3.org/2000/svg">
+<!-- Top-Left Crop Marks -->
+<line stroke="black" stroke-width="1.2" x1="26" x2="26" y1="22" y2="42"></line>
+<line stroke="black" stroke-width="1.2" x1="6" x2="26" y1="42" y2="42"></line>
+<!-- Top-Right Crop Marks -->
+<line stroke="black" stroke-width="1.2" x1="754" x2="754" y1="22" y2="42"></line>
+<line stroke="black" stroke-width="1.2" x1="754" x2="774" y1="42" y2="42"></line>
+<!-- Bottom-Left Crop Marks -->
+<line stroke="black" stroke-width="1.2" x1="26" x2="26" y1="478" y2="498"></line>
+<line stroke="black" stroke-width="1.2" x1="6" x2="26" y1="478" y2="478"></line>
+<!-- Bottom-Right Crop Marks -->
+<line stroke="black" stroke-width="1.2" x1="754" x2="754" y1="478" y2="498"></line>
+<line stroke="black" stroke-width="1.2" x1="754" x2="774" y1="478" y2="478"></line>
+<!-- Center Cut Marks (Top & Bottom) -->
+<line stroke="black" stroke-width="1.2" x1="390" x2="390" y1="22" y2="42"></line>
+<line stroke="black" stroke-width="1.2" x1="390" x2="390" y1="478" y2="498"></line>
+<!-- CMYK Color Calibration Squares (Outside Cards, close to top-left cut mark, no borders) -->
+<rect fill="#00ffff" height="6" width="6" x="28" y="34"></rect>
+<rect fill="#ff00ff" height="6" width="6" x="35" y="34"></rect>
+<rect fill="#ffff00" height="6" width="6" x="42" y="34"></rect>
+<rect fill="#000000" height="6" width="6" x="49" y="34"></rect>
+</svg>
+<!-- POLAROID LEFT (Polaroid A - Exact 364x436 Classic 5:6 proportions) -->
+<!-- Placed at X: 26px (touches center X=390px!) -->
+<div :class="[
                         framePaperClass,
                         activeImage === 'A' ? 'border-slate-400' : 'border-black/5'
-                    ]"
-                    style="height: 436px; border-radius: 2px;"
-                    @mousedown="selectImage('A')"
-                    @touchstart="selectImage('A')"
-                >
-                    <!-- Cutout Container (Perfect centered square: 324px x 324px, Y margin 20px) -->
-                    <div 
-                        class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden transition-all duration-200 cursor-pointer select-none"
-                        :class="[
+                    ]" @mousedown="selectImage('A')" @touchstart="selectImage('A')" class="absolute left-[26px] top-[42px] w-[364px] height-[436px] flex flex-col items-center justify-start transition-all duration-200" style="height: 436px; border-radius: 2px;">
+<!-- Cutout Container (Perfect centered square: 324px x 324px, Y margin 20px) -->
+<div :class="[
                             !imgA.src ? 'border border-dashed border-slate-400/30' : 'border-0'
-                        ]"
-                        :style="{ backgroundColor: imgA.bgColor }"
-                        @dragover.prevent
-                        @drop.prevent="handleFileDrop('A', $event)"
-                        @click="selectImage('A')"
-                        @dblclick="resetImageTransforms"
-                    >
-                        <!-- Image Preview wrapper -->
-                        <div 
-                            v-if="imgA.src" 
-                            class="w-full h-full relative"
-                            @mousedown.stop="startDrag('A', $event)"
-                            @touchstart.stop="startDrag('A', $event)"
-                            @wheel.prevent="handleWheel('A', $event)"
-                        >
-                            <img 
-                                :src="imgA.src" 
-                                class="absolute top-1/2 left-1/2 origin-center pointer-events-none max-w-none max-h-none select-none"
-                                :class="getFilterClass(imgA.filter)"
-                                :style="getImageStyle(imgA)"
-                                alt="Image A"
-                            />
-                        </div>
- 
-                        <!-- Empty State Uploader -->
-                        <div 
-                            v-else 
-                            @click="$refs.uploadA.click()" 
-                            class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 hover:bg-black/20 transition"
-                        >
-                            <span class="material-symbols-outlined text-4xl text-slate-500 mb-1.5">add_photo_alternate</span>
-                            <span class="text-xs text-slate-400 font-medium">Upload Photo A</span>
-                            <span class="text-[9px] text-slate-500 mt-1">Click or drag here</span>
-                            <input type="file" ref="uploadA" class="hidden" accept="image/*" @change="handleFileChange('A', $event)" />
-                        </div>
-                    </div>
- 
-                    <!-- Custom Handwritten Caption Overlay (A) -->
-                    <!-- Sized inside the bottom 92px margin space -->
-                    <div class="absolute top-[344px] bottom-0 left-5 right-5 flex items-center justify-center text-center">
-                        <textarea 
-                            v-model="captionTextA"
-                            rows="2"
-                            class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text resize-none overflow-hidden"
-                            :style="{ 
+                        ]" :style="{ backgroundColor: imgA.bgColor }" @click="selectImage('A')" @dblclick="resetImageTransforms" @dragover.prevent="" @drop.prevent="handleFileDrop('A', $event)" class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden transition-all duration-200 cursor-pointer select-none">
+<!-- Image Preview wrapper -->
+<div @mousedown.stop="startDrag('A', $event)" @touchstart.stop="startDrag('A', $event)" @wheel.prevent="handleWheel('A', $event)" class="w-full h-full relative" v-if="imgA.src">
+<img :class="getFilterClass(imgA.filter)" :src="imgA.src" :style="getImageStyle(imgA)" alt="Image A" class="absolute top-1/2 left-1/2 origin-center pointer-events-none max-w-none max-h-none select-none"/>
+</div>
+<!-- Empty State Uploader -->
+<div @click="$refs.uploadA.click()" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 hover:bg-black/20 transition" v-else="">
+<span class="material-symbols-outlined text-4xl text-slate-500 mb-1.5">add_photo_alternate</span>
+<span class="text-xs text-slate-400 font-medium">Upload Photo A</span>
+<span class="text-[9px] text-slate-500 mt-1">Click or drag here</span>
+<input @change="handleFileChange('A', $event)" accept="image/*" class="hidden" ref="uploadA" type="file"/>
+</div>
+</div>
+<!-- Custom Handwritten Caption Overlay (A) -->
+<!-- Sized inside the bottom 92px margin space -->
+<div class="absolute top-[344px] bottom-0 left-5 right-5 flex items-center justify-center text-center">
+<textarea :style="{ 
                                 fontSize: captionFontSize + 'px', 
                                 color: captionColor,
                                 fontFamily: captionFont,
@@ -304,74 +244,34 @@
                                 fieldSizing: 'content',
                                 minHeight: '1.5em',
                                 maxHeight: '3.5em'
-                            }"
-                            placeholder="Write left caption..."
-                            maxlength="60"
-                        ></textarea>
-                    </div>
-                </div>
- 
-                <!-- POLAROID RIGHT (Polaroid B - Exact 364x436 Classic 5:6 proportions) -->
-                <!-- Placed at X: 390px (touches left Polaroid at X=390px!) -->
-                <div 
-                    class="absolute left-[390px] top-[42px] w-[364px] height-[436px] flex flex-col items-center justify-start transition-all duration-200"
-                    :class="[
+                            }" class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text resize-none overflow-hidden" maxlength="60" placeholder="Write left caption..." rows="2" v-model="captionTextA"></textarea>
+</div>
+</div>
+<!-- POLAROID RIGHT (Polaroid B - Exact 364x436 Classic 5:6 proportions) -->
+<!-- Placed at X: 390px (touches left Polaroid at X=390px!) -->
+<div :class="[
                         framePaperClass,
                         activeImage === 'B' ? 'border-slate-400' : 'border-black/5'
-                    ]"
-                    style="height: 436px; border-radius: 2px;"
-                    @mousedown="selectImage('B')"
-                    @touchstart="selectImage('B')"
-                >
-                    <!-- Cutout Container (Perfect centered square: 324px x 324px, Y margin 20px) -->
-                    <div 
-                        class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden transition-all duration-200 cursor-pointer select-none"
-                        :class="[
+                    ]" @mousedown="selectImage('B')" @touchstart="selectImage('B')" class="absolute left-[390px] top-[42px] w-[364px] height-[436px] flex flex-col items-center justify-start transition-all duration-200" style="height: 436px; border-radius: 2px;">
+<!-- Cutout Container (Perfect centered square: 324px x 324px, Y margin 20px) -->
+<div :class="[
                             !imgB.src ? 'border border-dashed border-slate-400/30' : 'border-0'
-                        ]"
-                        :style="{ backgroundColor: imgB.bgColor }"
-                        @dragover.prevent
-                        @drop.prevent="handleFileDrop('B', $event)"
-                        @click="selectImage('B')"
-                        @dblclick="resetImageTransforms"
-                    >
-                        <!-- Image Preview wrapper -->
-                        <div 
-                            v-if="imgB.src" 
-                            class="w-full h-full relative"
-                            @mousedown.stop="startDrag('B', $event)"
-                            @touchstart.stop="startDrag('B', $event)"
-                            @wheel.prevent="handleWheel('B', $event)"
-                        >
-                            <img 
-                                :src="imgB.src" 
-                                class="absolute top-1/2 left-1/2 origin-center pointer-events-none max-w-none max-h-none select-none"
-                                :class="getFilterClass(imgB.filter)"
-                                :style="getImageStyle(imgB)"
-                                alt="Image B"
-                            />
-                        </div>
- 
-                        <!-- Empty State Uploader -->
-                        <div 
-                            v-else 
-                            @click="$refs.uploadB.click()" 
-                            class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 hover:bg-black/20 transition"
-                        >
-                            <span class="material-symbols-outlined text-4xl text-slate-500 mb-1.5">add_photo_alternate</span>
-                            <span class="text-xs text-slate-400 font-medium">Upload Photo B</span>
-                            <span class="text-[9px] text-slate-500 mt-1">Click or drag here</span>
-                            <input type="file" ref="uploadB" class="hidden" accept="image/*" @change="handleFileChange('B', $event)" />
-                        </div>
-                    </div>
- 
-                    <!-- Custom Handwritten Caption Overlay (B) -->
-                    <div class="absolute top-[344px] bottom-0 left-5 right-5 flex items-center justify-center text-center">
-                        <textarea 
-                            v-model="captionTextB"
-                            rows="2"
-                            class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text resize-none overflow-hidden"
-                            :style="{ 
+                        ]" :style="{ backgroundColor: imgB.bgColor }" @click="selectImage('B')" @dblclick="resetImageTransforms" @dragover.prevent="" @drop.prevent="handleFileDrop('B', $event)" class="w-[324px] h-[324px] mt-[20px] relative overflow-hidden transition-all duration-200 cursor-pointer select-none">
+<!-- Image Preview wrapper -->
+<div @mousedown.stop="startDrag('B', $event)" @touchstart.stop="startDrag('B', $event)" @wheel.prevent="handleWheel('B', $event)" class="w-full h-full relative" v-if="imgB.src">
+<img :class="getFilterClass(imgB.filter)" :src="imgB.src" :style="getImageStyle(imgB)" alt="Image B" class="absolute top-1/2 left-1/2 origin-center pointer-events-none max-w-none max-h-none select-none"/>
+</div>
+<!-- Empty State Uploader -->
+<div @click="$refs.uploadB.click()" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 hover:bg-black/20 transition" v-else="">
+<span class="material-symbols-outlined text-4xl text-slate-500 mb-1.5">add_photo_alternate</span>
+<span class="text-xs text-slate-400 font-medium">Upload Photo B</span>
+<span class="text-[9px] text-slate-500 mt-1">Click or drag here</span>
+<input @change="handleFileChange('B', $event)" accept="image/*" class="hidden" ref="uploadB" type="file"/>
+</div>
+</div>
+<!-- Custom Handwritten Caption Overlay (B) -->
+<div class="absolute top-[344px] bottom-0 left-5 right-5 flex items-center justify-center text-center">
+<textarea :style="{ 
                                 fontSize: captionFontSize + 'px', 
                                 color: captionColor,
                                 fontFamily: captionFont,
@@ -380,300 +280,221 @@
                                 fieldSizing: 'content',
                                 minHeight: '1.5em',
                                 maxHeight: '3.5em'
-                            }"
-                            placeholder="Write right caption..."
-                            maxlength="60"
-                        ></textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ─── Right Inspector Panel (Static Frame, internal scrollable settings!) ─── -->
-        <aside class="w-80 glass-panel border-l shadow-2xl flex flex-col h-full shrink-0 overflow-hidden">
-            
-            <!-- Panel Title -->
-            <div class="p-5 border-b border-white/5 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold tracking-wider text-purple-400 uppercase">SX-70 Print Inspector</h2>
-                    <p class="text-xs text-slate-400">Configure 4x6 Printable</p>
-                </div>
-                <span class="material-symbols-outlined text-slate-500">grid_view</span>
-            </div>
-
-            <!-- Scrollable Accordions Container -->
-            <div class="flex-1 overflow-y-auto scrollbar-custom flex flex-col min-h-0">
-
-                <!-- ═══ Accordion 1: Paper & Guidelines ═══ -->
-                <div class="border-b border-white/5 group">
-                    <button 
-                        class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors" 
-                        @click="togglePanel('layout')"
-                    >
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">settings</span>
-                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">1. Canvas & Print Setup</span>
-                        </div>
-                        <span class="material-symbols-outlined text-slate-400 text-sm transition duration-200" :class="{'rotate-180': panels.layout}" style="font-size: 18px;">expand_more</span>
-                    </button>
-                    <div class="px-5 pb-5 space-y-4 accordion-body" :class="{'collapsed': !panels.layout}">
-                        
-                        <!-- Frame Color Selector -->
-                        <div class="space-y-2 mt-1">
-                            <label class="text-[9px] uppercase font-bold text-slate-500">Cardboard Texture Color</label>
-                            <div class="flex gap-2">
-                                <button 
-                                    v-for="theme in themes" 
-                                    :key="theme.id"
-                                    @click="frameThemeColor = theme.id"
-                                    class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center relative"
-                                    :class="[
+                            }" class="w-full text-center bg-transparent border-0 focus:ring-0 outline-none p-0 tracking-wide select-text cursor-text resize-none overflow-hidden" maxlength="60" placeholder="Write right caption..." rows="2" v-model="captionTextB"></textarea>
+</div>
+</div>
+</div>
+</div>
+<!-- ─── Right Inspector Panel (Static Frame, internal scrollable settings!) ─── -->
+<aside class="w-80 glass-panel border-l shadow-2xl flex flex-col h-full shrink-0 overflow-hidden">
+<!-- Panel Title -->
+<div class="p-5 border-b border-white/5 flex items-center justify-between">
+<div>
+<h2 class="text-sm font-bold tracking-wider text-purple-400 uppercase">SX-70 Print Inspector</h2>
+<p class="text-xs text-slate-400">Configure 4x6 Printable</p>
+</div>
+<span class="material-symbols-outlined text-slate-500">grid_view</span>
+</div>
+<!-- Scrollable Accordions Container -->
+<div class="flex-1 overflow-y-auto scrollbar-custom flex flex-col min-h-0">
+<!-- ═══ Accordion 1: Paper & Guidelines ═══ -->
+<div class="border-b border-white/5 group">
+<button @click="togglePanel('layout')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">settings</span>
+<span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">1. Canvas &amp; Print Setup</span>
+</div>
+<span :class="{'rotate-180': panels.layout}" class="material-symbols-outlined text-slate-400 text-sm transition duration-200" style="font-size: 18px;">expand_more</span>
+</button>
+<div :class="{'collapsed': !panels.layout}" class="px-5 pb-5 space-y-4 accordion-body">
+<!-- Frame Color Selector -->
+<div class="space-y-2 mt-1">
+<label class="text-[9px] uppercase font-bold text-slate-500">Cardboard Texture Color</label>
+<div class="flex gap-2">
+<button :class="[
                                         theme.class,
                                         frameThemeColor === theme.id ? 'border-purple-500 scale-110 shadow-lg' : 'border-white/10 hover:border-slate-400'
-                                    ]"
-                                    :title="theme.name"
-                                >
-                                    <span v-if="frameThemeColor === theme.id" class="material-symbols-outlined text-xs" :class="theme.id === 'white' || theme.id === 'vintage' ? 'text-black' : 'text-white'">check</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Guidelines toggles -->
-                        <div class="space-y-2 pt-1">
-                            <div class="flex items-center justify-between">
-                                <label class="text-[10px] uppercase font-bold text-slate-400">Show Card Cut Markers</label>
-                                <button 
-                                    @click="showCutLineInExport = !showCutLineInExport" 
-                                    class="w-9 h-5 rounded-full p-0.5 transition duration-200 focus:outline-none"
-                                    :class="showCutLineInExport ? 'bg-purple-600' : 'bg-slate-800'"
-                                >
-                                    <div class="w-4 h-4 rounded-full bg-white transition" :class="{'translate-x-4': showCutLineInExport}"></div>
-                                </button>
-                            </div>
-                            <p class="text-[9px] text-slate-500 leading-normal">
+                                    ]" :key="theme.id" :title="theme.name" @click="frameThemeColor = theme.id" class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center relative" v-for="theme in themes">
+<span :class="theme.id === 'white' || theme.id === 'vintage' ? 'text-black' : 'text-white'" class="material-symbols-outlined text-xs" v-if="frameThemeColor === theme.id">check</span>
+</button>
+</div>
+</div>
+<!-- Guidelines toggles -->
+<div class="space-y-2 pt-1">
+<div class="flex items-center justify-between">
+<label class="text-[10px] uppercase font-bold text-slate-400">Show Card Cut Markers</label>
+<button :class="showCutLineInExport ? 'bg-purple-600' : 'bg-slate-800'" @click="showCutLineInExport = !showCutLineInExport" class="w-9 h-5 rounded-full p-0.5 transition duration-200 focus:outline-none">
+<div :class="{'translate-x-4': showCutLineInExport}" class="w-4 h-4 rounded-full bg-white transition"></div>
+</button>
+</div>
+<p class="text-[9px] text-slate-500 leading-normal">
                                 Enclosing dotted outlines will be rendered around each classic SX-70 card boundary to guide precise scissor cuts from your 4x6 print.
                             </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ═══ Accordion 2: Interactive Position Tuning ═══ -->
-                <div class="border-b border-white/5 group">
-                    <button 
-                        class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors" 
-                        @click="togglePanel('adjust')"
-                    >
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">tune</span>
-                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">2. Photo Tuning</span>
-                        </div>
-                        <span class="material-symbols-outlined text-slate-400 text-sm transition duration-200" :class="{'rotate-180': panels.adjust}" style="font-size: 18px;">expand_more</span>
-                    </button>
-                    <div class="px-5 pb-5 space-y-4 accordion-body" :class="{'collapsed': !panels.adjust}">
-                        
-                        <!-- Toggle target photo -->
-                        <div class="flex gap-2 mt-1">
-                            <button 
-                                @click="selectImage('A')" 
-                                class="flex-1 py-1 rounded text-[10px] font-bold border transition"
-                                :class="activeImage === 'A' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-500'"
-                            >
+</div>
+</div>
+</div>
+<!-- ═══ Accordion 2: Interactive Position Tuning ═══ -->
+<div class="border-b border-white/5 group">
+<button @click="togglePanel('adjust')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">tune</span>
+<span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">2. Photo Tuning</span>
+</div>
+<span :class="{'rotate-180': panels.adjust}" class="material-symbols-outlined text-slate-400 text-sm transition duration-200" style="font-size: 18px;">expand_more</span>
+</button>
+<div :class="{'collapsed': !panels.adjust}" class="px-5 pb-5 space-y-4 accordion-body">
+<!-- Toggle target photo -->
+<div class="flex gap-2 mt-1">
+<button :class="activeImage === 'A' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-500'" @click="selectImage('A')" class="flex-1 py-1 rounded text-[10px] font-bold border transition">
                                 Polaroid A (Left)
                             </button>
-                            <button 
-                                @click="selectImage('B')" 
-                                class="flex-1 py-1 rounded text-[10px] font-bold border transition"
-                                :class="activeImage === 'B' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-500'"
-                            >
+<button :class="activeImage === 'B' ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-500'" @click="selectImage('B')" class="flex-1 py-1 rounded text-[10px] font-bold border transition">
                                 Polaroid B (Right)
                             </button>
-                        </div>
-
-                        <!-- Sliders (If target image loaded) -->
-                        <div v-if="activeImageObject.src" class="space-y-4">
-                            
-                            <!-- Action reset/remove -->
-                            <div class="flex justify-between items-center bg-slate-900/50 p-2 rounded-lg border border-white/5">
-                                <span class="text-[10px] text-slate-400">Slot {{ activeImage }} Target</span>
-                                <div class="flex gap-2">
-                                    <button @click="resetImageTransforms" class="text-[10px] text-purple-400 hover:underline">Reset</button>
-                                    <span class="text-slate-600">|</span>
-                                    <button @click="clearImage" class="text-[10px] text-red-400 hover:underline">Remove</button>
-                                </div>
-                            </div>
-
-                            <!-- Scale Slider -->
-                            <div class="space-y-1 group cursor-pointer" @dblclick="resetScale" title="Double-click to reset scale to 100%">
-                                <div class="flex justify-between text-[11px] font-medium">
-                                    <span class="text-slate-400 group-hover:text-purple-300 transition">Scale / Zoom</span>
-                                    <span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.scale * 100) }}%</span>
-                                </div>
-                                <input type="range" v-model.number="activeImageObject.scale" min="0.05" max="10.0" step="0.01" />
-                            </div>
-
-                            <!-- Rotation Slider -->
-                            <div class="space-y-1 group cursor-pointer" @dblclick="resetRotation" title="Double-click to reset rotation to 0°">
-                                <div class="flex justify-between text-[11px] font-medium">
-                                    <span class="text-slate-400 group-hover:text-purple-300 transition">Rotation</span>
-                                    <span class="text-purple-400 font-mono">{{ activeImageObject.rotation }}°</span>
-                                </div>
-                                <input type="range" v-model.number="activeImageObject.rotation" min="-180" max="180" step="1" />
-                            </div>
-
-                            <!-- Alignment X Slider -->
-                            <div class="space-y-1 group cursor-pointer" @dblclick="resetX" title="Double-click to center horizontally">
-                                <div class="flex justify-between text-[11px] font-medium">
-                                    <span class="text-slate-400 group-hover:text-purple-300 transition">Nudge Horiz (X)</span>
-                                    <span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.x) }}px</span>
-                                </div>
-                                <input type="range" v-model.number="activeImageObject.x" min="-200" max="200" step="1" />
-                            </div>
-
-                            <!-- Alignment Y Slider -->
-                            <div class="space-y-1 group cursor-pointer" @dblclick="resetY" title="Double-click to center vertically">
-                                <div class="flex justify-between text-[11px] font-medium">
-                                    <span class="text-slate-400 group-hover:text-purple-300 transition">Nudge Vert (Y)</span>
-                                    <span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.y) }}px</span>
-                                </div>
-                                <input type="range" v-model.number="activeImageObject.y" min="-200" max="200" step="1" />
-                            </div>
-
-                            <!-- Retro Filters -->
-                            <div class="space-y-2">
-                                <label class="text-[9px] uppercase font-bold text-slate-500">Filter Preset</label>
-                                <div class="grid grid-cols-3 gap-1.5">
-                                    <button 
-                                        v-for="filt in filters" 
-                                        :key="filt.id"
-                                        @click="activeImageObject.filter = filt.id"
-                                        class="py-1 rounded text-[10px] font-bold border transition capitalize"
-                                        :class="activeImageObject.filter === filt.id ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-400 hover:bg-slate-800'"
-                                    >
+</div>
+<!-- Sliders (If target image loaded) -->
+<div class="space-y-4" v-if="activeImageObject.src">
+<!-- Action reset/remove -->
+<div class="flex justify-between items-center bg-slate-900/50 p-2 rounded-lg border border-white/5">
+<span class="text-[10px] text-slate-400">Slot {{ activeImage }} Target</span>
+<div class="flex gap-2">
+<button @click="resetImageTransforms" class="text-[10px] text-purple-400 hover:underline">Reset</button>
+<span class="text-slate-600">|</span>
+<button @click="clearImage" class="text-[10px] text-red-400 hover:underline">Remove</button>
+</div>
+</div>
+<!-- Scale Slider -->
+<div @dblclick="resetScale" class="space-y-1 group cursor-pointer" title="Double-click to reset scale to 100%">
+<div class="flex justify-between text-[11px] font-medium">
+<span class="text-slate-400 group-hover:text-purple-300 transition">Scale / Zoom</span>
+<span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.scale * 100) }}%</span>
+</div>
+<input max="10.0" min="0.05" step="0.01" type="range" v-model.number="activeImageObject.scale"/>
+</div>
+<!-- Rotation Slider -->
+<div @dblclick="resetRotation" class="space-y-1 group cursor-pointer" title="Double-click to reset rotation to 0°">
+<div class="flex justify-between text-[11px] font-medium">
+<span class="text-slate-400 group-hover:text-purple-300 transition">Rotation</span>
+<span class="text-purple-400 font-mono">{{ activeImageObject.rotation }}°</span>
+</div>
+<input max="180" min="-180" step="1" type="range" v-model.number="activeImageObject.rotation"/>
+</div>
+<!-- Alignment X Slider -->
+<div @dblclick="resetX" class="space-y-1 group cursor-pointer" title="Double-click to center horizontally">
+<div class="flex justify-between text-[11px] font-medium">
+<span class="text-slate-400 group-hover:text-purple-300 transition">Nudge Horiz (X)</span>
+<span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.x) }}px</span>
+</div>
+<input max="200" min="-200" step="1" type="range" v-model.number="activeImageObject.x"/>
+</div>
+<!-- Alignment Y Slider -->
+<div @dblclick="resetY" class="space-y-1 group cursor-pointer" title="Double-click to center vertically">
+<div class="flex justify-between text-[11px] font-medium">
+<span class="text-slate-400 group-hover:text-purple-300 transition">Nudge Vert (Y)</span>
+<span class="text-purple-400 font-mono">{{ Math.round(activeImageObject.y) }}px</span>
+</div>
+<input max="200" min="-200" step="1" type="range" v-model.number="activeImageObject.y"/>
+</div>
+<!-- Retro Filters -->
+<div class="space-y-2">
+<label class="text-[9px] uppercase font-bold text-slate-500">Filter Preset</label>
+<div class="grid grid-cols-3 gap-1.5">
+<button :class="activeImageObject.filter === filt.id ? 'bg-purple-600/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-white/5 text-slate-400 hover:bg-slate-800'" :key="filt.id" @click="activeImageObject.filter = filt.id" class="py-1 rounded text-[10px] font-bold border transition capitalize" v-for="filt in filters">
                                         {{ filt.name }}
                                     </button>
-                                </div>
-                            </div>
-
-                            <!-- Photo Background Color -->
-                            <div class="space-y-1">
-                                <label class="text-[9px] uppercase font-bold text-slate-500">Photo Background Color</label>
-                                <div class="flex items-center gap-2 bg-slate-900 border border-white/5 px-2 py-1.5 rounded-lg">
-                                    <input type="color" v-model="activeImageObject.bgColor" class="w-6 h-6 border-0 bg-transparent cursor-pointer rounded" />
-                                    <span class="text-[10px] font-mono uppercase text-slate-400">{{ activeImageObject.bgColor }}</span>
-                                    <button 
-                                        @click="activeImageObject.bgColor = '#07090d'" 
-                                        class="ml-auto text-[9px] text-purple-400 hover:underline"
-                                        title="Reset to default dark background"
-                                    >
+</div>
+</div>
+<!-- Photo Background Color -->
+<div class="space-y-1">
+<label class="text-[9px] uppercase font-bold text-slate-500">Photo Background Color</label>
+<div class="flex items-center gap-2 bg-slate-900 border border-white/5 px-2 py-1.5 rounded-lg">
+<input class="w-6 h-6 border-0 bg-transparent cursor-pointer rounded" type="color" v-model="activeImageObject.bgColor"/>
+<span class="text-[10px] font-mono uppercase text-slate-400">{{ activeImageObject.bgColor }}</span>
+<button @click="activeImageObject.bgColor = '#07090d'" class="ml-auto text-[9px] text-purple-400 hover:underline" title="Reset to default dark background">
                                         Reset
                                     </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- No Image warning -->
-                        <div v-else class="text-center bg-slate-950/40 p-4 rounded-xl border border-dashed border-white/5 mt-1">
-                            <span class="material-symbols-outlined text-slate-600 text-xl block mb-1">photo_library</span>
-                            <p class="text-[10px] text-slate-500">No image loaded in slot {{ activeImage }}. Click on the Polaroid frame above to upload.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ═══ Accordion 3: Captions & Typography ═══ -->
-                <div class="border-b border-white/5 group">
-                    <button 
-                        class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors" 
-                        @click="togglePanel('captions')"
-                    >
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">edit_note</span>
-                            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">3. Typography & Ink</span>
-                        </div>
-                        <span class="material-symbols-outlined text-slate-400 text-sm transition duration-200" :class="{'rotate-180': panels.captions}" style="font-size: 18px;">expand_more</span>
-                    </button>
-                    <div class="px-5 pb-5 space-y-4 accordion-body" :class="{'collapsed': !panels.captions}">
-                        
-                        <!-- Text inputs -->
-                        <div class="space-y-2 mt-1">
-                            <div>
-                                <label class="text-[9px] uppercase font-bold text-slate-500">Polaroid A (Left) Caption</label>
-                                <textarea v-model="captionTextA" rows="2" class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5 resize-none overflow-hidden" placeholder="Memory left side..." maxlength="60"></textarea>
-                            </div>
-                            <div>
-                                <label class="text-[9px] uppercase font-bold text-slate-500">Polaroid B (Right) Caption</label>
-                                <textarea v-model="captionTextB" rows="2" class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5 resize-none overflow-hidden" placeholder="Memory right side..." maxlength="60"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Font Family -->
-                        <div class="space-y-1">
-                            <label class="text-[9px] uppercase font-bold text-slate-500">Ink Font Family</label>
-                            <select 
-                                v-model="captionFont"
-                                class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 py-2"
-                            >
-                                <option value="Caveat Brush">Caveat Brush</option>
-                                <option value="Shadows Into Light Two">Shadows Into Light Two</option>
-                                <option value="Coming Soon">Coming Soon</option>
-                                <option value="Caveat">Caveat</option>
-                                <option value="Gochi Hand">Gochi Hand</option>
-                                <option value="Gloria Hallelujah">Gloria Hallelujah</option>
-                                <option value="Shantell Sans">Shantell Sans</option>
-                                <option value="Cedarville Cursive">Cedarville Cursive</option>
-                            </select>
-                        </div>
-
-                        <!-- Font Size & Color Row -->
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="space-y-1">
-                                <label class="text-[9px] uppercase font-bold text-slate-500">Font Size (px)</label>
-                                <input type="number" v-model.number="captionFontSize" class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[9px] uppercase font-bold text-slate-500">Ink Color</label>
-                                <div class="flex items-center gap-2 bg-slate-900 border border-white/5 px-2 py-1 rounded-lg">
-                                    <input type="color" v-model="captionColor" class="w-5 h-5 border-0 bg-transparent cursor-pointer rounded" />
-                                    <span class="text-[9px] font-mono uppercase text-slate-400">{{ captionColor }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Export Buttons (Always fixed at bottom of sidebar for easy accessibility) -->
-            <div class="p-5 pt-4 space-y-3 border-t border-white/5 bg-slate-900/50 backdrop-blur-md shrink-0">
-                <button 
-                    @click="exportPolaroid('pdf')"
-                    id="exportPdfBtn"
-                    class="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs tracking-wider uppercase transition shadow-xl shadow-purple-950/20 flex items-center justify-center gap-2"
-                    :disabled="exporting"
-                >
-                    <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-                    <span>{{ exporting ? 'Compiling PDF...' : 'Export PDF Print Layout' }}</span>
-                </button>
-                <button 
-                    @click="exportPolaroid('jpg')"
-                    id="exportJpgBtn"
-                    class="w-full py-2.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold tracking-wider uppercase transition flex items-center justify-center gap-2"
-                    :disabled="exporting"
-                >
-                    <span class="material-symbols-outlined text-[18px]">image</span>
-                    <span>Download High-Res JPG</span>
-                </button>
-                <p class="text-[9px] text-slate-500 text-center leading-relaxed">
+</div>
+</div>
+</div>
+<!-- No Image warning -->
+<div class="text-center bg-slate-950/40 p-4 rounded-xl border border-dashed border-white/5 mt-1" v-else="">
+<span class="material-symbols-outlined text-slate-600 text-xl block mb-1">photo_library</span>
+<p class="text-[10px] text-slate-500">No image loaded in slot {{ activeImage }}. Click on the Polaroid frame above to upload.</p>
+</div>
+</div>
+</div>
+<!-- ═══ Accordion 3: Captions & Typography ═══ -->
+<div class="border-b border-white/5 group">
+<button @click="togglePanel('captions')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-purple-400 transition" style="font-size: 18px;">edit_note</span>
+<span class="text-[10px] uppercase font-bold tracking-widest text-slate-300">3. Typography &amp; Ink</span>
+</div>
+<span :class="{'rotate-180': panels.captions}" class="material-symbols-outlined text-slate-400 text-sm transition duration-200" style="font-size: 18px;">expand_more</span>
+</button>
+<div :class="{'collapsed': !panels.captions}" class="px-5 pb-5 space-y-4 accordion-body">
+<!-- Text inputs -->
+<div class="space-y-2 mt-1">
+<div>
+<label class="text-[9px] uppercase font-bold text-slate-500">Polaroid A (Left) Caption</label>
+<textarea class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5 resize-none overflow-hidden" maxlength="60" placeholder="Memory left side..." rows="2" v-model="captionTextA"></textarea>
+</div>
+<div>
+<label class="text-[9px] uppercase font-bold text-slate-500">Polaroid B (Right) Caption</label>
+<textarea class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5 resize-none overflow-hidden" maxlength="60" placeholder="Memory right side..." rows="2" v-model="captionTextB"></textarea>
+</div>
+</div>
+<!-- Font Family -->
+<div class="space-y-1">
+<label class="text-[9px] uppercase font-bold text-slate-500">Ink Font Family</label>
+<select class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 py-2" v-model="captionFont">
+<option value="Caveat Brush">Caveat Brush</option>
+<option value="Shadows Into Light Two">Shadows Into Light Two</option>
+<option value="Coming Soon">Coming Soon</option>
+<option value="Caveat">Caveat</option>
+<option value="Gochi Hand">Gochi Hand</option>
+<option value="Gloria Hallelujah">Gloria Hallelujah</option>
+<option value="Shantell Sans">Shantell Sans</option>
+<option value="Cedarville Cursive">Cedarville Cursive</option>
+</select>
+</div>
+<!-- Font Size & Color Row -->
+<div class="grid grid-cols-2 gap-3">
+<div class="space-y-1">
+<label class="text-[9px] uppercase font-bold text-slate-500">Font Size (px)</label>
+<input class="w-full bg-slate-900 border-white/5 focus:border-purple-500 focus:ring-purple-500/20 text-xs rounded-lg text-slate-200 px-3 py-1.5" type="number" v-model.number="captionFontSize"/>
+</div>
+<div class="space-y-1">
+<label class="text-[9px] uppercase font-bold text-slate-500">Ink Color</label>
+<div class="flex items-center gap-2 bg-slate-900 border border-white/5 px-2 py-1 rounded-lg">
+<input class="w-5 h-5 border-0 bg-transparent cursor-pointer rounded" type="color" v-model="captionColor"/>
+<span class="text-[9px] font-mono uppercase text-slate-400">{{ captionColor }}</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Export Buttons (Always fixed at bottom of sidebar for easy accessibility) -->
+<div class="p-5 pt-4 space-y-3 border-t border-white/5 bg-slate-900/50 backdrop-blur-md shrink-0">
+<button :disabled="exporting" @click="exportPolaroid('pdf')" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs tracking-wider uppercase transition shadow-xl shadow-purple-950/20 flex items-center justify-center gap-2" id="exportPdfBtn">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+<span>{{ exporting ? 'Compiling PDF...' : 'Export PDF Print Layout' }}</span>
+</button>
+<button :disabled="exporting" @click="exportPolaroid('jpg')" class="w-full py-2.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold tracking-wider uppercase transition flex items-center justify-center gap-2" id="exportJpgBtn">
+<span class="material-symbols-outlined text-[18px]">image</span>
+<span>Download High-Res JPG</span>
+</button>
+<p class="text-[9px] text-slate-500 text-center leading-relaxed">
                     PDF format preserves absolute dimensions and colors for home printing (ideal for HP Smart Tank 530). JPG is perfect for digital sharing or kiosks.
                 </p>
-            </div>
-        </aside>
-    </main>
-
-    <!-- Hidden high-res rendering canvas -->
-    <canvas id="exportCanvas" class="hidden"></canvas>
-
-    <!-- ═══════════════ Application Core ═══════════════ -->
-    <script>
+</div>
+</aside>
+</main>
+<!-- Hidden high-res rendering canvas -->
+<canvas class="hidden" id="exportCanvas"></canvas>
+<!-- ═══════════════ Application Core ═══════════════ -->
+<script>
         const { createApp, ref, reactive, computed, onMounted, onBeforeUnmount } = Vue;
 
         createApp({

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <!-- Google Tag Manager -->
@@ -8,99 +9,92 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 <!-- End Google Tag Manager -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SignalScope | Audio Visualizer</title>
-    <meta name="description" content="Real-time audio signal visualizer — capture line-in or microphone audio and display waveform and frequency spectrum.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <link href="/style.css" rel="stylesheet">
-    <link rel="icon" href="/logo.png" type="image/png">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SignalScope | Audio Visualizer</title>
+<meta content="Real-time audio signal visualizer — capture line-in or microphone audio and display waveform and frequency spectrum." name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/logo.png" rel="icon" type="image/png"/>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
-
 <nav class="global-nav">
-    <a href="/" class="global-nav-brand">
-        <img src="/logo.png" alt="Logo" class="global-nav-icon">
-        Swiss<span>Web</span>
-    </a>
-    <div class="global-nav-links">
-        <a href="/" class="global-nav-link">Home</a>
-    </div>
+<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
+            Swiss<span>Web</span>
+</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">SignalScope</h1></div></div>
+<div class="global-nav-links">
+<a class="global-nav-link" href="/">Home</a>
+</div>
 </nav>
-
-
-    <!-- Compact Toolbar -->
-    <div class="toolbar">
-        <span class="brand">SignalScope</span>
-        <div class="sep"></div>
-        <div class="controls" id="controlsBar">
-            <select class="device-select" id="deviceSelect" title="Audio Input Device">
-                <option value="">— Select Input —</option>
-            </select>
-            <select class="device-select" id="gainSelect" title="Visual Sensitivity" style="width: 80px;">
-                <option value="1" selected>1x Gain</option>
-                <option value="2">2x Gain</option>
-                <option value="5">5x Gain</option>
-                <option value="10">10x Gain</option>
-                <option value="auto">Auto</option>
-            </select>
-            <button class="btn btn-primary" id="startBtn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-                <span>Start</span>
-            </button>
-            <button class="btn btn-secondary" id="holdBtn" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                <span>Hold</span>
-            </button>
-            <button class="btn btn-secondary selected" id="vizWaveform" data-mode="waveform">Wave</button>
-            <button class="btn btn-secondary" id="vizSpectrum" data-mode="spectrum">Spectrum</button>
-            <button class="btn btn-secondary" id="vizBoth" data-mode="both">Both</button>
-        </div>
-    </div>
-
-    <!-- Visualization (fills remaining space) -->
-    <div class="viz-container" id="vizContainer">
-        <!-- Stats HUD overlay -->
-        <div class="stats-hud" id="statsHud">
-            <div class="stat"><div class="stat-label">Peak</div><div class="stat-value" id="peakDb">—</div></div>
-            <div class="stat"><div class="stat-label">RMS</div><div class="stat-value" id="rmsDb">—</div></div>
-            <div class="stat"><div class="stat-label">Freq</div><div class="stat-value" id="freqPeak">—</div></div>
-            <div class="stat"><div class="stat-label">Rate</div><div class="stat-value" id="sampleRate">—</div></div>
-        </div>
-        <!-- Waveform panel -->
-        <div class="canvas-panel waveform" id="wavePanel">
-            <span class="canvas-label">Waveform</span>
-            <canvas id="waveGridCanvas" class="grid-canvas"></canvas>
-            <canvas id="waveCanvas"></canvas>
-            <div class="idle-overlay" id="idleWave">
-                <div class="idle-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h2l3-9 4 18 4-12 3 6h4"/></svg>
-                </div>
-                <div class="idle-text">Waiting for audio signal…</div>
-            </div>
-        </div>
-        <!-- Spectrum panel -->
-        <div class="canvas-panel" id="specPanel" style="display:none;">
-            <span class="canvas-label">Spectrum</span>
-            <canvas id="specGridCanvas" class="grid-canvas"></canvas>
-            <canvas id="specCanvas"></canvas>
-            <div class="idle-overlay" id="idleSpec">
-                <div class="idle-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="3" height="8" rx="1"/><rect x="7.5" y="8" width="3" height="12" rx="1"/><rect x="12" y="4" width="3" height="16" rx="1"/><rect x="16.5" y="10" width="3" height="10" rx="1"/></svg>
-                </div>
-                <div class="idle-text">Waiting for audio signal…</div>
-            </div>
-        </div>
-    </div>
-
-    <script>
+<!-- Compact Toolbar -->
+<div class="toolbar">
+<span class="brand">SignalScope</span>
+<div class="sep"></div>
+<div class="controls" id="controlsBar">
+<select class="device-select" id="deviceSelect" title="Audio Input Device">
+<option value="">— Select Input —</option>
+</select>
+<select class="device-select" id="gainSelect" style="width: 80px;" title="Visual Sensitivity">
+<option selected="" value="1">1x Gain</option>
+<option value="2">2x Gain</option>
+<option value="5">5x Gain</option>
+<option value="10">10x Gain</option>
+<option value="auto">Auto</option>
+</select>
+<button class="btn btn-primary" id="startBtn">
+<svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+<span>Start</span>
+</button>
+<button class="btn btn-secondary" disabled="" id="holdBtn">
+<svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><rect height="16" width="4" x="6" y="4"></rect><rect height="16" width="4" x="14" y="4"></rect></svg>
+<span>Hold</span>
+</button>
+<button class="btn btn-secondary selected" data-mode="waveform" id="vizWaveform">Wave</button>
+<button class="btn btn-secondary" data-mode="spectrum" id="vizSpectrum">Spectrum</button>
+<button class="btn btn-secondary" data-mode="both" id="vizBoth">Both</button>
+</div>
+</div>
+<!-- Visualization (fills remaining space) -->
+<div class="viz-container" id="vizContainer">
+<!-- Stats HUD overlay -->
+<div class="stats-hud" id="statsHud">
+<div class="stat"><div class="stat-label">Peak</div><div class="stat-value" id="peakDb">—</div></div>
+<div class="stat"><div class="stat-label">RMS</div><div class="stat-value" id="rmsDb">—</div></div>
+<div class="stat"><div class="stat-label">Freq</div><div class="stat-value" id="freqPeak">—</div></div>
+<div class="stat"><div class="stat-label">Rate</div><div class="stat-value" id="sampleRate">—</div></div>
+</div>
+<!-- Waveform panel -->
+<div class="canvas-panel waveform" id="wavePanel">
+<span class="canvas-label">Waveform</span>
+<canvas class="grid-canvas" id="waveGridCanvas"></canvas>
+<canvas id="waveCanvas"></canvas>
+<div class="idle-overlay" id="idleWave">
+<div class="idle-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 12h2l3-9 4 18 4-12 3 6h4"></path></svg>
+</div>
+<div class="idle-text">Waiting for audio signal…</div>
+</div>
+</div>
+<!-- Spectrum panel -->
+<div class="canvas-panel" id="specPanel" style="display:none;">
+<span class="canvas-label">Spectrum</span>
+<canvas class="grid-canvas" id="specGridCanvas"></canvas>
+<canvas id="specCanvas"></canvas>
+<div class="idle-overlay" id="idleSpec">
+<div class="idle-icon">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="8" rx="1" width="3" x="3" y="12"></rect><rect height="12" rx="1" width="3" x="7.5" y="8"></rect><rect height="16" rx="1" width="3" x="12" y="4"></rect><rect height="10" rx="1" width="3" x="16.5" y="10"></rect></svg>
+</div>
+<div class="idle-text">Waiting for audio signal…</div>
+</div>
+</div>
+</div>
+<script>
     (() => {
         // ── DOM Refs ─────────────────────────────
         const deviceSelect   = document.getElementById('deviceSelect');

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
 
+<html lang="en">
 <head>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -9,118 +9,99 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-P6F464KX');</script>
 <!-- End Google Tag Manager -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Mind Map</title>
-    <meta name="description" content="A beautiful, interactive mind mapping tool powered by Mind Elixir.">
-
-    <!-- Mind Elixir v5+ CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mind-elixir/dist/style.css">
-
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="/style.css" rel="stylesheet">
-    <link rel="icon" href="/logo.png" type="image/png">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Interactive Mind Map</title>
+<meta content="A beautiful, interactive mind mapping tool powered by Mind Elixir." name="description"/>
+<!-- Mind Elixir v5+ CSS -->
+<link href="https://cdn.jsdelivr.net/npm/mind-elixir/dist/style.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/logo.png" rel="icon" type="image/png"/>
 </head>
-
 <body>
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
-
 <nav class="global-nav">
-    <a href="/" class="global-nav-brand">
-        <img src="/logo.png" alt="Logo" class="global-nav-icon">
-        Swiss<span>Web</span>
-    </a>
-    <div class="global-nav-links">
-        <a href="/" class="global-nav-link">Home</a>
-    </div>
+<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
+            Swiss<span>Web</span>
+</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">Mind Map</h1></div></div>
+<div class="global-nav-links">
+<a class="global-nav-link" href="/">Home</a>
+</div>
 </nav>
-
-
-    <!-- Floating Controls Panel -->
-    <div class="panel" id="controls-panel">
-        <div class="panel-header">
-            <div class="panel-icon">🧠</div>
-            <span class="panel-title">Mind Map</span>
-        </div>
-
-        <ul class="shortcuts">
-            <li>
-                <span class="emoji">➕</span>
-                <span>Click <kbd>+</kbd> on a node to add child</span>
-            </li>
-            <li>
-                <span class="emoji">⌨️</span>
-                <kbd>Enter</kbd> <span>— Add sibling</span>
-            </li>
-            <li>
-                <span class="emoji">⌨️</span>
-                <kbd>Tab</kbd> <span>— Add child</span>
-            </li>
-            <li>
-                <span class="emoji">🖱️</span>
-                <span>Drag nodes or canvas to pan</span>
-            </li>
-            <li>
-                <span class="emoji">🗑️</span>
-                <kbd>Del</kbd> <span>— Remove selected node</span>
-            </li>
-            <li>
-                <span class="emoji">✏️</span>
-                <span>Double-click to rename</span>
-            </li>
-        </ul>
-
-        <div class="divider"></div>
-
-        <p class="section-label">File</p>
-        <div class="btn-group">
-            <button id="btn-export-file" class="btn btn-success" onclick="exportFile()">
+<!-- Floating Controls Panel -->
+<div class="panel" id="controls-panel">
+<div class="panel-header">
+<div class="panel-icon">🧠</div>
+<span class="panel-title">Mind Map</span>
+</div>
+<ul class="shortcuts">
+<li>
+<span class="emoji">➕</span>
+<span>Click <kbd>+</kbd> on a node to add child</span>
+</li>
+<li>
+<span class="emoji">⌨️</span>
+<kbd>Enter</kbd> <span>— Add sibling</span>
+</li>
+<li>
+<span class="emoji">⌨️</span>
+<kbd>Tab</kbd> <span>— Add child</span>
+</li>
+<li>
+<span class="emoji">🖱️</span>
+<span>Drag nodes or canvas to pan</span>
+</li>
+<li>
+<span class="emoji">🗑️</span>
+<kbd>Del</kbd> <span>— Remove selected node</span>
+</li>
+<li>
+<span class="emoji">✏️</span>
+<span>Double-click to rename</span>
+</li>
+</ul>
+<div class="divider"></div>
+<p class="section-label">File</p>
+<div class="btn-group">
+<button class="btn btn-success" id="btn-export-file" onclick="exportFile()">
                 💾 Export as File
             </button>
-            <button id="btn-import" class="btn btn-accent" onclick="triggerImport()">
+<button class="btn btn-accent" id="btn-import" onclick="triggerImport()">
                 📂 Import File
             </button>
-            <input type="file" id="file-input" accept=".json" style="display:none" onchange="importFile(event)">
-        </div>
-
-        <div class="divider" style="margin-top:14px;"></div>
-
-        <p class="section-label">Misc</p>
-        <div class="btn-group">
-            <button id="btn-reset" class="btn btn-ghost" onclick="resetMap()">
+<input accept=".json" id="file-input" onchange="importFile(event)" style="display:none" type="file"/>
+</div>
+<div class="divider" style="margin-top:14px;"></div>
+<p class="section-label">Misc</p>
+<div class="btn-group">
+<button class="btn btn-ghost" id="btn-reset" onclick="resetMap()">
                 🔄 Reset Map
             </button>
-        </div>
-    </div>
-
-    <!-- Panel toggle button (shown when panel is collapsed) -->
-    <button class="collapse-btn" id="toggle-btn" title="Toggle panel" onclick="togglePanel()">🧠</button>
-
-    <!-- Drag-and-drop overlay -->
-    <div id="drop-overlay">
-        <span class="drop-icon">📂</span>
-        <span>Drop your .json mind map file</span>
-    </div>
-
-    <!-- Mind Map Canvas -->
-    <div id="map"></div>
-
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <span class="toast-icon"></span>
-        <span id="toast-msg"></span>
-    </div>
-
-    <footer style="position: fixed; bottom: 10px; width: 100%; text-align: center; color: var(--text-muted); font-size: 12px; pointer-events: none; z-index: 10;">
-        Made with <span style="color: var(--danger);">&hearts;</span> by Bikram
+</div>
+</div>
+<!-- Panel toggle button (shown when panel is collapsed) -->
+<button class="collapse-btn" id="toggle-btn" onclick="togglePanel()" title="Toggle panel">🧠</button>
+<!-- Drag-and-drop overlay -->
+<div id="drop-overlay">
+<span class="drop-icon">📂</span>
+<span>Drop your .json mind map file</span>
+</div>
+<!-- Mind Map Canvas -->
+<div id="map"></div>
+<!-- Toast -->
+<div class="toast" id="toast">
+<span class="toast-icon"></span>
+<span id="toast-msg"></span>
+</div>
+<footer style="position: fixed; bottom: 10px; width: 100%; text-align: center; color: var(--text-muted); font-size: 12px; pointer-events: none; z-index: 10;">
+        Made with <span style="color: var(--danger);">♥</span> by Bikram
     </footer>
-
-    <!-- Mind Elixir v5+ ESM (type="module" required) -->
-    <script type="module">
+<!-- Mind Elixir v5+ ESM (type="module" required) -->
+<script type="module">
         import MindElixir from 'https://cdn.jsdelivr.net/npm/mind-elixir/dist/MindElixir.js'
 
         const options = {
@@ -304,6 +285,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // Make mind accessible globally for debugging
         window._mind = mind
     </script>
-
 </body>
 </html>

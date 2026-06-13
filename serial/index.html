@@ -1,15 +1,16 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Serial Monitor — SwissWeb</title>
-    <meta name="description" content="Real-time USB serial terminal. Connect any device, choose baud rate, send and receive data.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link href="/style.css" rel="stylesheet">
-    <link rel="icon" href="/logo.png" type="image/png">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Serial Monitor — SwissWeb</title>
+<meta content="Real-time USB serial terminal. Connect any device, choose baud rate, send and receive data." name="description"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/logo.png" rel="icon" type="image/png"/>
+<style>
         body {
             padding-top: 0 !important;
         }
@@ -19,205 +20,154 @@
     </style>
 </head>
 <body>
-
-<div id="app" class="serial-app-container" v-cloak>
-
-    <!-- ═══════════ HEADER ═══════════ -->
-    <header class="header">
-        <div class="header-left" style="display: flex; align-items: center; gap: 1rem; flex: 1;">
-            <a href="/" class="global-nav-brand">
-                <img src="/logo.png" alt="Logo" class="global-nav-icon">
+<div class="serial-app-container" id="app" v-cloak="">
+<!-- ═══════════ HEADER ═══════════ -->
+<nav class="global-nav">
+<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
                 Swiss<span>Web</span>
-            </a>
-            
-            <div class="h-sep"></div>
-
-            <div class="brand">
-                <div class="brand-logo">📡</div>
-                <div class="brand-copy">
-                    <span class="brand-name">Serial Monitor</span>
-                    <span class="brand-tagline">Real-time USB terminal</span>
-                </div>
-            </div>
-
-            <div class="h-sep"></div>
-
-            <div class="status-pill" :class="{ connected, error: hasError }">
-                <span class="pill-dot"></span>
+</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">Serial Monitor</h1></div></div>
+<div class="flex items-center gap-4">
+<div :class="{ connected, error: hasError }" class="md:hidden status-pill">
+<span class="pill-dot"></span>
                 {{ statusText }}
             </div>
-
-            <div class="no-serial" v-if="!serialSupported">
-                ⚠ Web Serial not supported —
-                use <a href="https://www.google.com/chrome/" target="_blank">Chrome</a> /
-                <a href="https://www.microsoft.com/edge" target="_blank">Edge</a> 89+
-            </div>
-        </div>
-
-        <div class="global-nav-links">
-            <a href="/" class="global-nav-link">Home</a>
-        </div>
-    </header>
-
-    <!-- ═══════════ TOOLBAR ═══════════ -->
-    <div class="toolbar" :class="{ locked: !serialSupported }">
-
-        <!-- Connection group -->
-        <div class="tg">
-            <span class="tg-label">Port</span>
-            <select class="wide" v-model="selPortVal" :disabled="connected">
-                <option value="__new__">↗ Request New Port…</option>
-                <option v-for="(lbl, i) in portLabels" :key="i" :value="String(i)">{{ lbl }}</option>
-            </select>
-            <button class="icon-btn" :class="{ spin: refreshing }" :disabled="connected" @click="refreshPorts" title="Refresh ports">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
-                    <path d="M3.51 9a9 9 0 0114.36-3.36L23 10M1 14l5.13 4.36A9 9 0 0020.49 15"/>
-                </svg>
-            </button>
-        </div>
-
-        <!-- Settings group -->
-        <div class="tg">
-            <span class="tg-label">Baud</span>
-            <select class="med" v-model="selBaud" :disabled="connected">
-                <option v-for="b in BAUD_RATES" :key="b" :value="b">{{ b }}</option>
-            </select>
-        </div>
-
-        <div class="tg">
-            <span class="tg-label">Frame</span>
-            <select class="sm" v-model="selData"   :disabled="connected" title="Data bits">
-                <option value="7">7</option><option value="8">8</option>
-            </select>
-            <select class="sm" v-model="selStop"   :disabled="connected" title="Stop bits">
-                <option value="1">1</option><option value="2">2</option>
-            </select>
-            <select class="sm" v-model="selParity" :disabled="connected" title="Parity">
-                <option value="none">N</option><option value="even">E</option><option value="odd">O</option>
-            </select>
-        </div>
-
-        <div class="tg">
-            <span class="tg-label">EOL</span>
-            <select class="med" v-model="selEnding" :disabled="connected">
-                <option value="\n">LF (\n)</option>
-                <option value="\r\n">CRLF</option>
-                <option value="\r">CR (\r)</option>
-                <option value="">None</option>
-            </select>
-        </div>
-
-        <!-- Actions — pushed to the right -->
-        <div class="tg">
-            <button class="btn btn-connect"    id="btn-connect"    @click="connect"       :disabled="connected">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+<div class="global-nav-links">
+<a class="global-nav-link" href="/">Home</a>
+</div>
+</div>
+</nav>
+<!-- ═══════════ TOOLBAR ═══════════ -->
+<div :class="{ locked: !serialSupported }" class="toolbar">
+<!-- Connection group -->
+<div class="tg">
+<span class="tg-label">Port</span>
+<select :disabled="connected" class="wide" v-model="selPortVal">
+<option value="__new__">↗ Request New Port…</option>
+<option :key="i" :value="String(i)" v-for="(lbl, i) in portLabels">{{ lbl }}</option>
+</select>
+<button :class="{ spin: refreshing }" :disabled="connected" @click="refreshPorts" class="icon-btn" title="Refresh ports">
+<svg fill="none" height="13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" viewbox="0 0 24 24" width="13">
+<polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline>
+<path d="M3.51 9a9 9 0 0114.36-3.36L23 10M1 14l5.13 4.36A9 9 0 0020.49 15"></path>
+</svg>
+</button>
+</div>
+<!-- Settings group -->
+<div class="tg">
+<span class="tg-label">Baud</span>
+<select :disabled="connected" class="med" v-model="selBaud">
+<option :key="b" :value="b" v-for="b in BAUD_RATES">{{ b }}</option>
+</select>
+</div>
+<div class="tg">
+<span class="tg-label">Frame</span>
+<select :disabled="connected" class="sm" title="Data bits" v-model="selData">
+<option value="7">7</option><option value="8">8</option>
+</select>
+<select :disabled="connected" class="sm" title="Stop bits" v-model="selStop">
+<option value="1">1</option><option value="2">2</option>
+</select>
+<select :disabled="connected" class="sm" title="Parity" v-model="selParity">
+<option value="none">N</option><option value="even">E</option><option value="odd">O</option>
+</select>
+</div>
+<div class="tg">
+<span class="tg-label">EOL</span>
+<select :disabled="connected" class="med" v-model="selEnding">
+<option value="\n">LF (\n)</option>
+<option value="\r\n">CRLF</option>
+<option value="\r">CR (\r)</option>
+<option value="">None</option>
+</select>
+</div>
+<!-- Actions — pushed to the right -->
+<div class="tg">
+<button :disabled="connected" @click="connect" class="btn btn-connect" id="btn-connect">
+<svg fill="none" height="11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="11"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
                 Connect
             </button>
-            <button class="btn btn-disconnect" id="btn-disconnect" @click="disconnect"    :disabled="!connected">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+<button :disabled="!connected" @click="disconnect" class="btn btn-disconnect" id="btn-disconnect">
+<svg fill="none" height="11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="11"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
                 Disconnect
             </button>
-            <button class="btn btn-ghost"      id="btn-clear"      @click="clearTerminal">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+<button @click="clearTerminal" class="btn btn-ghost" id="btn-clear">
+<svg fill="none" height="11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="11"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>
                 Clear
             </button>
-            <button class="btn btn-ghost"      id="btn-export"     @click="exportLog" :disabled="!lines.length">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+<button :disabled="!lines.length" @click="exportLog" class="btn btn-ghost" id="btn-export">
+<svg fill="none" height="11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="11"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
                 Export
             </button>
-        </div>
-    </div>
-
-    <!-- ═══════════ WORKSPACE ═══════════ -->
-    <div class="workspace">
-
-        <!-- Stats sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-title">Stats</div>
-
-            <div class="stat-item">
-                <span class="stat-key">RX</span>
-                <span class="stat-val">{{ statRx }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-key">TX</span>
-                <span class="stat-val">{{ statTx }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-key">Lines</span>
-                <span class="stat-val">{{ lines.length }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-key">Port</span>
-                <span class="stat-val highlight">{{ portName }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-key">Baud</span>
-                <span class="stat-val">{{ baudName }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-key">Uptime</span>
-                <span class="stat-val">{{ uptimeText }}</span>
-            </div>
-        </aside>
-
-        <!-- Terminal pane -->
-        <div class="terminal-pane">
-
-            <!-- Terminal toolbar -->
-            <div class="term-bar">
-                <span class="term-bar-label">Output</span>
-
-                <label class="autoscroll" for="autoscroll-chk">
-                    <span class="sw">
-                        <input type="checkbox" id="autoscroll-chk" v-model="autoscroll">
-                        <span class="sw-track"></span>
-                    </span>
+</div>
+</div>
+<!-- ═══════════ WORKSPACE ═══════════ -->
+<div class="workspace">
+<!-- Stats sidebar -->
+<aside class="sidebar">
+<div class="sidebar-title">Stats</div>
+<div class="stat-item">
+<span class="stat-key">RX</span>
+<span class="stat-val">{{ statRx }}</span>
+</div>
+<div class="stat-item">
+<span class="stat-key">TX</span>
+<span class="stat-val">{{ statTx }}</span>
+</div>
+<div class="stat-item">
+<span class="stat-key">Lines</span>
+<span class="stat-val">{{ lines.length }}</span>
+</div>
+<div class="stat-item">
+<span class="stat-key">Port</span>
+<span class="stat-val highlight">{{ portName }}</span>
+</div>
+<div class="stat-item">
+<span class="stat-key">Baud</span>
+<span class="stat-val">{{ baudName }}</span>
+</div>
+<div class="stat-item">
+<span class="stat-key">Uptime</span>
+<span class="stat-val">{{ uptimeText }}</span>
+</div>
+</aside>
+<!-- Terminal pane -->
+<div class="terminal-pane">
+<!-- Terminal toolbar -->
+<div class="term-bar">
+<span class="term-bar-label">Output</span>
+<label class="autoscroll" for="autoscroll-chk">
+<span class="sw">
+<input id="autoscroll-chk" type="checkbox" v-model="autoscroll"/>
+<span class="sw-track"></span>
+</span>
                     Auto-scroll
                 </label>
-
-                <span class="line-badge">{{ lines.length }} lines</span>
-            </div>
-
-            <!-- Output -->
-            <div class="term-output" id="terminal-output" ref="terminalEl" role="log" aria-live="polite">
-
-                <!-- Empty state -->
-                <div class="term-empty" v-if="!lines.length">
-                    <span class="term-empty-icon">🖥️</span>
-                    <span class="term-empty-text">Connect a device to start receiving data</span>
-                </div>
-
-                <div v-for="line in lines" :key="line.id" class="t-line">
-                    <span class="t-ts">{{ line.ts }}</span>
-                    <span class="t-text" :class="line.type">{{ line.text }}</span>
-                </div>
-            </div>
-
-            <!-- Send bar -->
-            <div class="send-bar">
-                <input
-                    class="send-input"
-                    type="text"
-                    id="send-input"
-                    v-model="sendText"
-                    :disabled="!connected"
-                    @keydown.enter="sendData"
-                    placeholder="Type a command and press Enter to send…"
-                    autocomplete="off"
-                    spellcheck="false"
-                >
-                <button class="btn btn-connect" id="btn-send" @click="sendData" :disabled="!connected">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+<span class="line-badge">{{ lines.length }} lines</span>
+</div>
+<!-- Output -->
+<div aria-live="polite" class="term-output" id="terminal-output" ref="terminalEl" role="log">
+<!-- Empty state -->
+<div class="term-empty" v-if="!lines.length">
+<span class="term-empty-icon">🖥️</span>
+<span class="term-empty-text">Connect a device to start receiving data</span>
+</div>
+<div :key="line.id" class="t-line" v-for="line in lines">
+<span class="t-ts">{{ line.ts }}</span>
+<span :class="line.type" class="t-text">{{ line.text }}</span>
+</div>
+</div>
+<!-- Send bar -->
+<div class="send-bar">
+<input :disabled="!connected" @keydown.enter="sendData" autocomplete="off" class="send-input" id="send-input" placeholder="Type a command and press Enter to send…" spellcheck="false" type="text" v-model="sendText"/>
+<button :disabled="!connected" @click="sendData" class="btn btn-connect" id="btn-send">
+<svg fill="none" height="11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="11"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                     Send
                 </button>
-            </div>
-        </div>
-    </div>
-
+</div>
+</div>
+</div>
 </div><!-- /#app -->
-
 <script>
 (function () {
     const { createApp, ref, computed, watch, nextTick, onMounted, onUnmounted } = Vue;

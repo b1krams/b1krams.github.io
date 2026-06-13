@@ -27,19 +27,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <nav class="global-nav">
-    <a href="/" class="global-nav-brand">
-        <img src="/logo.png" alt="Logo" class="global-nav-icon">
-        Swiss<span>Web</span>
-    </a>
-    <div class="global-nav-links">
-        <a href="/" class="global-nav-link">Home</a>
-    </div>
+<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
+            Swiss<span>Web</span>
+</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">Quiz Maker</h1></div></div>
+<div class="global-nav-links">
+<a class="global-nav-link" href="/">Home</a>
+</div>
 </nav>
-<div id="app" class="app-container">
+<div class="app-container" id="app">
 <div class="error-banner" v-if="errorMessage">⚠️ {{ errorMessage }}</div>
 <div class="upload-area" v-if="!questions.length">
-
-
 <input @change="handleFileUpload" accept=".md" id="fileInput" style="display: none" type="file"/>
 <button class="btn-action" onclick="document.getElementById('fileInput').click()" style="width: auto; padding: 18px 40px;">Upload Markdown</button>
 <br/>

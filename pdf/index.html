@@ -27,16 +27,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <nav class="global-nav">
-<div class="flex items-center"><a class="global-nav-brand" href="/">
+<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
 <img alt="Logo" class="global-nav-icon" src="/logo.png"/>
         Swiss<span>Web</span>
-</a><div class="hidden sm:block border-l border-slate-700/60 pl-4 ml-4 py-1"><h1 class="text-sm font-bold text-slate-200 m-0 leading-none" style="background: linear-gradient(135deg,#818cf8,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">PDF Swift</h1></div></div>
+</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">PDF Swift</h1></div></div>
 <div class="global-nav-links">
 <a class="global-nav-link" href="/">Home</a>
 </div>
 </nav>
 <div class="max-w-4xl mx-auto py-6 sm:py-12 px-4">
-
 <div class="glass rounded-3xl shadow-xl p-4 sm:p-8">
 <div class="border-2 border-dashed border-slate-700 rounded-2xl p-6 sm:p-10 text-center transition-all cursor-pointer hover:border-indigo-500 group" id="dropZone">
 <input accept="application/pdf,image/jpeg,image/jpg" class="hidden" id="fileInput" multiple="" type="file"/>
@@ -45,7 +44,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <i class="fa-solid fa-cloud-arrow-up text-xl sm:text-2xl"></i>
 </div>
 <p class="text-base sm:text-lg font-medium text-slate-200">Drag &amp; drop PDFs/JPGs or <span class="text-indigo-400">browse</span></p>
-<p class="text-xs sm:text-sm text-slate-500 mt-1">Files are processed locally in your browser</p>
+<p class="text-sm text-slate-400 mt-1">Files are processed locally in your browser</p>
 </div>
 </div>
 <!-- Target Size Input (Top Form) -->
@@ -54,12 +53,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="flex items-center gap-2">
 <i class="fa-solid fa-compress text-violet-400 text-sm"></i>
 <div class="flex flex-col">
-<span class="text-sm font-semibold text-slate-300">Target PDF Size Constraint (Optional)</span>
-<span class="text-xs text-slate-500">Converts pages to JPEG internally to hit target size</span>
+<span class="text-base font-semibold text-slate-200">Target PDF Size Constraint (Optional)</span>
+<span class="text-sm text-slate-400">Converts pages to JPEG internally to hit target size</span>
 </div>
 </div>
 <div class="flex items-center gap-2 bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-2 self-start sm:self-auto">
-<label class="text-xs text-slate-400 whitespace-nowrap" for="targetSizeMB">Target size</label>
+<label class="text-sm text-slate-300 whitespace-nowrap" for="targetSizeMB">Target size</label>
 <div class="flex items-center gap-1">
 <input class="bg-transparent text-slate-100 text-sm w-16 sm:w-20 outline-none placeholder-slate-600 text-right sm:text-left" id="targetSizeMB" min="0.1" placeholder="e.g. 1.5" step="0.1" type="number"/>
 <span class="text-xs text-slate-500 font-medium">MB</span>
@@ -80,36 +79,36 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="flex items-center gap-2">
 <i class="fa-solid fa-print text-violet-400 text-sm"></i>
 <div class="flex flex-col">
-<span class="text-sm font-semibold text-slate-300">Pure Black & White (Save Ink)</span>
-<span class="text-xs text-slate-500">Converts scanned backgrounds to pure white and text to dark black</span>
+<span class="text-base font-semibold text-slate-200">Pure Black &amp; White (Save Ink)</span>
+<span class="text-sm text-slate-400">Converts scanned backgrounds to pure white and text to dark black</span>
 </div>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
-<input type="checkbox" id="binarizeToggle" class="sr-only peer" onchange="toggleBinarize()"/>
+<input class="sr-only peer" id="binarizeToggle" onchange="toggleBinarize()" type="checkbox"/>
 <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
 </label>
 </div>
-<div id="thresholdSliderContainer" class="hidden mt-3 pl-7 flex flex-col gap-3 border-t border-slate-700/20 pt-3">
+<div class="hidden mt-3 pl-7 flex flex-col gap-3 border-t border-slate-700/20 pt-3" id="thresholdSliderContainer">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 <div class="flex flex-col">
-<span class="text-xs font-semibold text-slate-400">B&W Contrast Threshold</span>
-<span class="text-[10px] text-slate-500">Lower for lighter text/wider white background, higher for bolder text</span>
+<span class="text-sm font-medium text-slate-300">B&amp;W Contrast Threshold</span>
+<span class="text-xs text-slate-400">Lower for lighter text/wider white background, higher for bolder text</span>
 </div>
 <div class="flex items-center gap-3">
-<input type="range" id="binarizeThreshold" min="50" max="220" value="140" class="w-32 accent-indigo-500 cursor-pointer h-1 bg-slate-800 rounded-lg appearance-none" oninput="updateThreshold(this.value)"/>
-<span id="thresholdValue" class="text-xs font-mono text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">140</span>
+<input class="w-32 accent-indigo-500 cursor-pointer h-1 bg-slate-800 rounded-lg appearance-none" id="binarizeThreshold" max="220" min="50" oninput="updateThreshold(this.value)" type="range" value="140"/>
+<span class="text-xs font-mono text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20" id="thresholdValue">140</span>
 </div>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-700/10 pt-3">
 <div class="flex flex-col">
-<span class="text-xs font-semibold text-slate-400">Ink Saving Mode / Gray Levels</span>
-<span class="text-[10px] text-slate-500">Choose discrete steps or smooth grays to preserve detail</span>
+<span class="text-sm font-medium text-slate-300">Ink Saving Mode / Gray Levels</span>
+<span class="text-xs text-slate-400">Choose discrete steps or smooth grays to preserve detail</span>
 </div>
-<select id="binarizeLevels" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none text-slate-200 cursor-pointer focus:border-indigo-500 transition-colors" onchange="updateBinarizeLevels(this.value)">
-<option value="2">2 Levels (Pure B&W)</option>
+<select class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none text-slate-200 cursor-pointer focus:border-indigo-500 transition-colors" id="binarizeLevels" onchange="updateBinarizeLevels(this.value)">
+<option value="2">2 Levels (Pure B&amp;W)</option>
 <option value="3">3 Levels (Tri-Tone)</option>
 <option value="4">4 Levels (Quad-Tone)</option>
-<option value="smooth" selected>Smooth Ink-Saver</option>
+<option selected="" value="smooth">Smooth Ink-Saver</option>
 </select>
 </div>
 </div>
@@ -118,12 +117,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="flex items-center gap-2">
 <i class="fa-solid fa-border-none text-violet-400 text-sm"></i>
 <div class="flex flex-col">
-<span class="text-sm font-semibold text-slate-300">Exclude Image Border</span>
-<span class="text-xs text-slate-500">Removes the 0.5-inch white margin around image pages</span>
+<span class="text-base font-semibold text-slate-200">Exclude Image Border</span>
+<span class="text-sm text-slate-400">Removes the 0.5-inch white margin around image pages</span>
 </div>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
-<input type="checkbox" id="excludeBorderToggle" class="sr-only peer" onchange="showToast(this.checked ? 'Border exclusion enabled' : 'Border exclusion disabled')"/>
+<input class="sr-only peer" id="excludeBorderToggle" onchange="showToast(this.checked ? 'Border exclusion enabled' : 'Border exclusion disabled')" type="checkbox"/>
 <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
 </label>
 </div>
@@ -133,12 +132,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="flex items-center gap-2">
 <i class="fa-solid fa-expand text-violet-400 text-sm"></i>
 <div class="flex flex-col">
-<span class="text-sm font-semibold text-slate-300">Original Image Size (No A4 Canvas)</span>
-<span class="text-xs text-slate-500">Includes images as-is without fitting onto an A4 background</span>
+<span class="text-base font-semibold text-slate-200">Original Image Size (No A4 Canvas)</span>
+<span class="text-sm text-slate-400">Includes images as-is without fitting onto an A4 background</span>
 </div>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
-<input type="checkbox" id="originalSizeToggle" class="sr-only peer" onchange="toggleOriginalSize()"/>
+<input class="sr-only peer" id="originalSizeToggle" onchange="toggleOriginalSize()" type="checkbox"/>
 <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
 </label>
 </div>
@@ -148,17 +147,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="flex items-center gap-2">
 <i class="fa-solid fa-book-open text-violet-400 text-sm"></i>
 <div class="flex flex-col">
-<span class="text-sm font-semibold text-slate-300">Booklet Layout (2-Up A4 Landscape)</span>
-<span class="text-xs text-slate-500">Creates a folded middle booklet. Pages are arranged 2 per landscape sheet.</span>
+<span class="text-base font-semibold text-slate-200">Booklet Layout (2-Up A4 Landscape)</span>
+<span class="text-sm text-slate-400">Creates a folded middle booklet. Pages are arranged 2 per landscape sheet.</span>
 </div>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
-<input type="checkbox" id="bookletToggle" class="sr-only peer" onchange="toggleBooklet()"/>
+<input class="sr-only peer" id="bookletToggle" onchange="toggleBooklet()" type="checkbox"/>
 <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
 </label>
 </div>
-<div id="bookletPrintHint" class="hidden mt-3 pl-7 flex flex-col gap-2 border-t border-slate-700/20 pt-3">
-<div class="flex items-start gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3 text-xs text-indigo-300">
+<div class="hidden mt-3 pl-7 flex flex-col gap-2 border-t border-slate-700/20 pt-3" id="bookletPrintHint">
+<div class="flex items-start gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3 text-sm text-indigo-200">
 <i class="fa-solid fa-circle-info mt-0.5 text-indigo-400 flex-shrink-0"></i>
 <div>
 <span class="font-semibold block mb-0.5">Printing Instructions:</span>
@@ -176,11 +175,11 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
 <h3 class="font-semibold text-slate-300 flex items-center text-sm sm:text-base">
 <i class="fa-solid fa-file-pdf mr-2 text-indigo-400"></i> Selected Files
                     </h3>
-<button id="sortByNameBtn" onclick="sortFilesByName()" class="text-xs font-medium text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 shadow-sm" title="Sort files alphabetically by name">
+<button class="text-xs font-medium text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 shadow-sm" id="sortByNameBtn" onclick="sortFilesByName()" title="Sort files alphabetically by name">
 <i class="fa-solid fa-arrow-down-a-z"></i> Sort A-Z
 </button>
 </div>
-<span class="text-xs text-slate-500 flex items-center gap-1">
+<span class="text-sm text-slate-400 flex items-center gap-1">
 <i class="fa-solid fa-grip-lines"></i> Drag rows to reorder
                     </span>
 </div>
@@ -199,53 +198,50 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
 <footer class="mt-8 text-center text-slate-600 text-sm">
             Made with <i class="fa-solid fa-heart text-red-500"></i> by Bikram
         </footer>
-</div>
 <!-- Lightbox Modal -->
-<div id="lightbox" class="fixed inset-0 z-[9999] flex flex-col bg-slate-950/95 backdrop-blur-xl transition-all duration-300 opacity-0 pointer-events-none hidden">
-    <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800 bg-slate-900/50">
-        <div class="flex flex-col">
-            <h2 id="lightboxTitle" class="text-slate-200 font-semibold text-base sm:text-lg truncate max-w-[200px] sm:max-w-md">Filename.pdf</h2>
-            <span id="lightboxPageIndicator" class="text-slate-400 text-xs sm:text-sm">Page 1 of 10</span>
-        </div>
-        <div class="flex items-center gap-2 sm:gap-4">
-            <div class="flex items-center bg-slate-800/80 rounded-lg p-1 border border-slate-700/50">
-                <button id="lightboxCropBtn" onclick="toggleCropMode()" class="hidden text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition mr-1 border-r border-slate-700/50 pr-2 flex items-center gap-1" title="Perspective Crop">
-                    <i class="fa-solid fa-crop-simple text-sm"></i>
-                    <span class="text-xs font-semibold hidden sm:inline">Crop</span>
-                </button>
-                <button onclick="changeZoom(-0.25)" class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" title="Zoom Out"><i class="fa-solid fa-minus text-sm"></i></button>
-                <span id="lightboxZoomText" class="text-slate-300 text-xs font-mono w-10 sm:w-12 text-center">100%</span>
-                <button onclick="changeZoom(0.25)" class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" title="Zoom In"><i class="fa-solid fa-plus text-sm"></i></button>
-                <div class="w-px h-4 bg-slate-600 mx-1"></div>
-                <button onclick="resetZoom()" class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" title="Fit to Screen"><i class="fa-solid fa-expand text-sm"></i></button>
-            </div>
-            <button onclick="closeLightbox()" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 flex items-center justify-center transition border border-slate-700 hover:border-rose-500/30">
-                <i class="fa-solid fa-xmark sm:text-xl"></i>
-            </button>
-        </div>
-    </div>
-    
-    <!-- Main Content Area -->
-    <div class="flex-1 relative overflow-hidden flex items-center justify-center">
-        <!-- Prev Button -->
-        <button id="lightboxPrev" onclick="navigateLightbox(-1)" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/80 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-400 flex items-center justify-center transition border border-slate-700 backdrop-blur-md opacity-0 pointer-events-none shadow-xl">
-            <i class="fa-solid fa-chevron-left text-lg sm:text-xl"></i>
-        </button>
-
-        <!-- Canvas/Image Container -->
-        <div id="lightboxScrollArea" class="w-full h-full overflow-hidden flex items-center justify-center p-4">
-            <div id="lightboxTransform" class="transition-transform duration-200 origin-center flex items-center justify-center">
-                <div id="lightboxLoading" class="absolute hidden flex-col items-center gap-3">
-                    <i class="fa-solid fa-spinner fa-spin text-3xl text-indigo-500"></i>
-                    <span class="text-slate-400 text-sm">Rendering...</span>
-                </div>
-                <canvas id="lightboxCanvas" class="shadow-2xl shadow-black max-w-none hidden bg-white"></canvas>
-                <div id="lightboxImageWrapper" class="relative hidden">
-                    <img id="lightboxImage" class="shadow-2xl shadow-black max-w-none block rounded-md object-contain max-h-[80vh]" />
-                    <!-- SVG Crop Overlay -->
-                    <svg id="cropOverlay" class="absolute inset-0 w-full h-full pointer-events-auto hidden" style="touch-action: none;">
-                        <style>
+<div class="fixed inset-0 z-[9999] flex flex-col bg-slate-950/95 backdrop-blur-xl transition-all duration-300 opacity-0 pointer-events-none hidden" id="lightbox">
+<!-- Header -->
+<div class="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800 bg-slate-900/50">
+<div class="flex flex-col">
+<h2 class="text-slate-200 font-semibold text-base sm:text-lg truncate max-w-[200px] sm:max-w-md" id="lightboxTitle">Filename.pdf</h2>
+<span class="text-slate-400 text-xs sm:text-sm" id="lightboxPageIndicator">Page 1 of 10</span>
+</div>
+<div class="flex items-center gap-2 sm:gap-4">
+<div class="flex items-center bg-slate-800/80 rounded-lg p-1 border border-slate-700/50">
+<button class="hidden text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition mr-1 border-r border-slate-700/50 pr-2 flex items-center gap-1" id="lightboxCropBtn" onclick="toggleCropMode()" title="Perspective Crop">
+<i class="fa-solid fa-crop-simple text-sm"></i>
+<span class="text-xs font-semibold hidden sm:inline">Crop</span>
+</button>
+<button class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" onclick="changeZoom(-0.25)" title="Zoom Out"><i class="fa-solid fa-minus text-sm"></i></button>
+<span class="text-slate-300 text-xs font-mono w-10 sm:w-12 text-center" id="lightboxZoomText">100%</span>
+<button class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" onclick="changeZoom(0.25)" title="Zoom In"><i class="fa-solid fa-plus text-sm"></i></button>
+<div class="w-px h-4 bg-slate-600 mx-1"></div>
+<button class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" onclick="resetZoom()" title="Fit to Screen"><i class="fa-solid fa-expand text-sm"></i></button>
+</div>
+<button class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 flex items-center justify-center transition border border-slate-700 hover:border-rose-500/30" onclick="closeLightbox()">
+<i class="fa-solid fa-xmark sm:text-xl"></i>
+</button>
+</div>
+</div>
+<!-- Main Content Area -->
+<div class="flex-1 relative overflow-hidden flex items-center justify-center">
+<!-- Prev Button -->
+<button class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/80 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-400 flex items-center justify-center transition border border-slate-700 backdrop-blur-md opacity-0 pointer-events-none shadow-xl" id="lightboxPrev" onclick="navigateLightbox(-1)">
+<i class="fa-solid fa-chevron-left text-lg sm:text-xl"></i>
+</button>
+<!-- Canvas/Image Container -->
+<div class="w-full h-full overflow-hidden flex items-center justify-center p-4" id="lightboxScrollArea">
+<div class="transition-transform duration-200 origin-center flex items-center justify-center" id="lightboxTransform">
+<div class="absolute hidden flex-col items-center gap-3" id="lightboxLoading">
+<i class="fa-solid fa-spinner fa-spin text-3xl text-indigo-500"></i>
+<span class="text-slate-400 text-sm">Rendering...</span>
+</div>
+<canvas class="shadow-2xl shadow-black max-w-none hidden bg-white" id="lightboxCanvas"></canvas>
+<div class="relative hidden" id="lightboxImageWrapper">
+<img class="shadow-2xl shadow-black max-w-none block rounded-md object-contain max-h-[80vh]" id="lightboxImage"/>
+<!-- SVG Crop Overlay -->
+<svg class="absolute inset-0 w-full h-full pointer-events-auto hidden" id="cropOverlay" style="touch-action: none;">
+<style>
                             .crop-handle circle {
                                 transition: transform 0.15s ease;
                                 transform-origin: 0px 0px;
@@ -254,51 +250,47 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
                                 transform: scale(1.3);
                             }
                         </style>
-                        <!-- Polygon boundary connecting 4 corners -->
-                        <polygon id="cropPolygon" points="" fill="rgba(99, 102, 241, 0.15)" stroke="#6366f1" stroke-width="2.5" stroke-dasharray="4" />
-                        <!-- Drag handles (4 groups) -->
-                        <g id="handle-tl" class="crop-handle cursor-move">
-                            <circle cx="0" cy="0" r="22" fill="transparent" />
-                            <circle cx="0" cy="0" r="7" fill="#6366f1" stroke="#ffffff" stroke-width="2.5" />
-                        </g>
-                        <g id="handle-tr" class="crop-handle cursor-move">
-                            <circle cx="0" cy="0" r="22" fill="transparent" />
-                            <circle cx="0" cy="0" r="7" fill="#6366f1" stroke="#ffffff" stroke-width="2.5" />
-                        </g>
-                        <g id="handle-br" class="crop-handle cursor-move">
-                            <circle cx="0" cy="0" r="22" fill="transparent" />
-                            <circle cx="0" cy="0" r="7" fill="#6366f1" stroke="#ffffff" stroke-width="2.5" />
-                        </g>
-                        <g id="handle-bl" class="crop-handle cursor-move">
-                            <circle cx="0" cy="0" r="22" fill="transparent" />
-                            <circle cx="0" cy="0" r="7" fill="#6366f1" stroke="#ffffff" stroke-width="2.5" />
-                        </g>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <!-- Next Button -->
-        <button id="lightboxNext" onclick="navigateLightbox(1)" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/80 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-400 flex items-center justify-center transition border border-slate-700 backdrop-blur-md opacity-0 pointer-events-none shadow-xl">
-            <i class="fa-solid fa-chevron-right text-lg sm:text-xl"></i>
-        </button>
-    </div>
-
-    <!-- Crop Action Bar -->
-    <div id="cropActionBar" class="absolute bottom-28 left-1/2 -translate-x-1/2 z-20 hidden flex items-center gap-2 sm:gap-3 px-3 py-2 bg-slate-900/90 backdrop-blur-md rounded-2xl border border-slate-700/80 shadow-2xl w-[90%] sm:w-auto max-w-lg justify-between sm:justify-start">
-        <span class="text-xs text-slate-300 font-medium flex items-center gap-1.5"><i class="fa-solid fa-crop-simple text-indigo-400"></i><span class="hidden xs:inline">Drag corners to fit document</span></span>
-        <div class="flex items-center gap-2">
-            <button onclick="cancelCrop()" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition border border-slate-700">Cancel</button>
-            <button onclick="applyCrop()" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-900/40">Apply Crop</button>
-        </div>
-    </div>
-
-    <!-- Thumbnail Strip -->
-    <div class="h-24 sm:h-28 border-t border-slate-800 bg-slate-900/80 p-2 sm:p-3 overflow-x-auto flex items-center gap-2 sm:gap-3 hide-scrollbar" id="lightboxThumbnails">
-        <!-- Thumbnails injected here -->
-    </div>
+<!-- Polygon boundary connecting 4 corners -->
+<polygon fill="rgba(99, 102, 241, 0.15)" id="cropPolygon" points="" stroke="#6366f1" stroke-dasharray="4" stroke-width="2.5"></polygon>
+<!-- Drag handles (4 groups) -->
+<g class="crop-handle cursor-move" id="handle-tl">
+<circle cx="0" cy="0" fill="transparent" r="22"></circle>
+<circle cx="0" cy="0" fill="#6366f1" r="7" stroke="#ffffff" stroke-width="2.5"></circle>
+</g>
+<g class="crop-handle cursor-move" id="handle-tr">
+<circle cx="0" cy="0" fill="transparent" r="22"></circle>
+<circle cx="0" cy="0" fill="#6366f1" r="7" stroke="#ffffff" stroke-width="2.5"></circle>
+</g>
+<g class="crop-handle cursor-move" id="handle-br">
+<circle cx="0" cy="0" fill="transparent" r="22"></circle>
+<circle cx="0" cy="0" fill="#6366f1" r="7" stroke="#ffffff" stroke-width="2.5"></circle>
+</g>
+<g class="crop-handle cursor-move" id="handle-bl">
+<circle cx="0" cy="0" fill="transparent" r="22"></circle>
+<circle cx="0" cy="0" fill="#6366f1" r="7" stroke="#ffffff" stroke-width="2.5"></circle>
+</g>
+</svg>
 </div>
-
+</div>
+</div>
+<!-- Next Button -->
+<button class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/80 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-400 flex items-center justify-center transition border border-slate-700 backdrop-blur-md opacity-0 pointer-events-none shadow-xl" id="lightboxNext" onclick="navigateLightbox(1)">
+<i class="fa-solid fa-chevron-right text-lg sm:text-xl"></i>
+</button>
+</div>
+<!-- Crop Action Bar -->
+<div class="absolute bottom-28 left-1/2 -translate-x-1/2 z-20 hidden flex items-center gap-2 sm:gap-3 px-3 py-2 bg-slate-900/90 backdrop-blur-md rounded-2xl border border-slate-700/80 shadow-2xl w-[90%] sm:w-auto max-w-lg justify-between sm:justify-start" id="cropActionBar">
+<span class="text-xs text-slate-300 font-medium flex items-center gap-1.5"><i class="fa-solid fa-crop-simple text-indigo-400"></i><span class="hidden xs:inline">Drag corners to fit document</span></span>
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition border border-slate-700" onclick="cancelCrop()">Cancel</button>
+<button class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-900/40" onclick="applyCrop()">Apply Crop</button>
+</div>
+</div>
+<!-- Thumbnail Strip -->
+<div class="h-24 sm:h-28 border-t border-slate-800 bg-slate-900/80 p-2 sm:p-3 overflow-x-auto flex items-center gap-2 sm:gap-3 hide-scrollbar" id="lightboxThumbnails">
+<!-- Thumbnails injected here -->
+</div>
+</div>
 <!-- Toast Container -->
 <div class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none" id="toastContainer"></div>
 <script>
@@ -452,10 +444,10 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
                               <span class="drag-handle px-1 sm:px-2" title="Drag to reorder">⠿</span>
                               <span class="${iconColorClass} w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg font-bold text-xs flex-shrink-0">${index + 1}</span>
                               <p class="truncate font-medium text-slate-200 text-sm sm:text-base">${file.name}</p>
-                              <span class="text-xs text-slate-500 text-nowrap hidden sm:inline">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                              <span class="text-sm text-slate-400 text-nowrap hidden sm:inline">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
                           </div>
                           <div class="flex items-center gap-3 flex-shrink-0">
-                              <span class="text-xs text-slate-500 text-nowrap sm:hidden">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                              <span class="text-sm text-slate-400 text-nowrap sm:hidden">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
                               <button onclick="previewFile(${index})" class="text-slate-600 hover:text-indigo-400 transition-colors" title="Preview Pages">
                                   <i class="fa-solid fa-eye"></i>
                               </button>
@@ -466,11 +458,11 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
                       </div>
                       ${!isImage ? `
                       <div class="flex flex-col sm:flex-row sm:items-center gap-2 pl-2 sm:pl-11 mt-1 sm:mt-0">
-                          <label class="text-slate-400 text-xs flex-shrink-0"><i class="fa-solid fa-minus-circle mr-1"></i>Remove Pages:</label>
-                          <input type="text" placeholder="e.g. 1, 3, 5-7" class="bg-slate-900/60 border border-slate-700/60 rounded px-2 py-1 text-xs outline-none text-slate-200 placeholder-slate-600 w-full sm:flex-1" value="${item.removePages}" oninput="updateRemovePages(${index}, this.value)">
+                          <label class="text-slate-300 text-sm flex-shrink-0"><i class="fa-solid fa-minus-circle mr-1"></i>Remove Pages:</label>
+                          <input type="text" placeholder="e.g. 1, 3, 5-7" class="bg-slate-900/60 border border-slate-700/60 rounded px-2.5 py-1 text-sm outline-none text-slate-200 placeholder-slate-600 w-full sm:flex-1" value="${item.removePages}" oninput="updateRemovePages(${index}, this.value)">
                       </div>
                       ` : `
-                      <div class="flex flex-col sm:flex-row sm:items-center gap-2 pl-2 sm:pl-11 mt-1 sm:mt-0 text-slate-400 text-xs">
+                      <div class="flex flex-col sm:flex-row sm:items-center gap-2 pl-2 sm:pl-11 mt-1 sm:mt-0 text-slate-300 text-sm">
                           <span><i class="fa-solid ${fileIcon} mr-1 text-amber-400"></i> JPG image page (will be added as a page)</span>
                       </div>
                       `}
@@ -1329,7 +1321,7 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
                   thumbDiv.onclick = () => renderPreviewPage(i);
                   
                   const span = document.createElement('span');
-                  span.className = 'absolute text-[10px] text-slate-400 bg-black/60 px-1 rounded';
+                  span.className = 'absolute text-xs text-slate-300 font-semibold bg-black/70 px-1 rounded-sm';
                   span.textContent = i;
                   thumbDiv.appendChild(span);
                   

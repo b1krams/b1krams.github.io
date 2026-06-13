@@ -23,36 +23,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
-<nav class="global-nav flex items-center justify-between px-6">
-    <div class="flex items-center gap-6">
-        <a href="/" class="global-nav-brand">
-            <img src="/logo.png" alt="Logo" class="global-nav-icon">
+<nav class="global-nav">
+<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
+<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
             Swiss<span>Web</span>
-        </a>
-
-        <div class="h-4 w-[1px] bg-slate-700"></div>
-
-        <div class="flex items-center gap-3">
-            <div class="bg-indigo-600 text-white p-1 rounded-md shadow-indigo-500/50 shadow-sm flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M8 9H7a2 2 0 0 0-2 2v2a2 2 0 0 1-2 2 2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h1M16 9h1a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2 2 2 0 0 0-2 2v2a2 2 0 0 1-2 2h-1" />
-                </svg>
-            </div>
-            <span class="font-semibold text-white tracking-tight">JSON Refiner</span>
-        </div>
-    </div>
-
-    <div class="flex items-center gap-4">
-        <a href="/" class="global-nav-link">Home</a>
-        <div class="h-4 w-[1px] bg-slate-700"></div>
-        <button onclick="processJSON()"
-            class="flex items-center gap-2 px-3 py-1 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-all active:scale-95 shadow-md shadow-indigo-500/20">Fix &amp; Format</button>
-        <button onclick="copyToClipboard(this)" id="copy-btn"
-            class="flex items-center gap-2 px-3 py-1 text-sm font-medium text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-md transition-all border border-slate-700 active:scale-95">Copy JSON</button>
-    </div>
+</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">JSON Refiner</h1></div></div>
+<div class="global-nav-links flex items-center gap-4">
+<a class="global-nav-link" href="/">Home</a>
+<div class="h-4 w-[1px] bg-slate-700"></div>
+<button class="flex items-center gap-2 px-3 py-1 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-all active:scale-95 shadow-md shadow-indigo-500/20" onclick="processJSON()">Fix &amp; Format</button>
+<button class="flex items-center gap-2 px-3 py-1 text-sm font-medium text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-md transition-all border border-slate-700 active:scale-95" id="copy-btn" onclick="copyToClipboard(this)">Copy JSON</button>
+</div>
 </nav>
 <div class="w-full">
-
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 <div class="flex flex-col gap-4">
 <div class="flex justify-between items-center h-9">
