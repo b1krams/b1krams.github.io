@@ -198,13 +198,20 @@
         }
 
         .btn-drop.primary {
-            background: var(--accent);
-            border-color: var(--accent);
+            background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            letter-spacing: 0.02em;
         }
 
         .btn-drop.primary:hover {
-            background: var(--accent-hover);
-            box-shadow: 0 4px 12px var(--accent-glow);
+            background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+            transform: translateY(-2px);
         }
 
         /* Modal Panels */
@@ -362,14 +369,16 @@
 
         /* Code display styling */
         .pairing-code-badge {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px dashed var(--card-border);
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px dashed rgba(167, 139, 250, 0.3);
             padding: 0.75rem 1.25rem;
             border-radius: 12px;
-            font-family: monospace;
-            font-size: 1.5rem;
-            letter-spacing: 0.15em;
-            color: var(--accent);
+            font-family: 'Inter', monospace;
+            font-weight: 700;
+            font-size: 1.75rem;
+            letter-spacing: 0.2em;
+            color: #d8b4fe; /* Bright violet */
+            text-shadow: 0 0 12px rgba(167, 139, 250, 0.5);
             text-align: center;
             margin-bottom: 1.5rem;
             user-select: all;
@@ -399,14 +408,41 @@
 
         @media (max-width: 480px) {
             .modal-content {
-                padding: 1.25rem;
+                padding: 1rem 1.25rem;
+                max-width: 90%;
+            }
+            .modal-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.25rem;
+            }
+            .modal-desc {
+                font-size: 0.75rem;
+                margin-bottom: 1rem;
+            }
+            .qr-wrapper {
+                padding: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            .pairing-code-badge {
+                font-size: 1.5rem;
+                padding: 0.5rem 1rem;
+                margin-bottom: 1rem;
             }
             .code-input-group {
-                flex-direction: column;
+                margin-top: 0.5rem;
+                margin-bottom: 0.5rem;
+                gap: 0.4rem;
             }
-            .code-input-group button {
-                width: 100%;
-                justify-content: center;
+            .text-input {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            .btn-drop {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+            hr {
+                margin: 1rem 0 !important;
             }
         }
     </style>
@@ -640,7 +676,7 @@
                                 new QRious({
                                     element: canvas,
                                     value: pairUrl,
-                                    size: 150,
+                                    size: window.innerWidth < 480 ? 110 : 150,
                                     background: '#ffffff',
                                     foreground: '#121212',
                                     level: 'H'
