@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-P6F464KX');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SwissWeb | Drop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <link href="/style.css" rel="stylesheet">
+    <link href="/logo.png" rel="icon" type="image/png">
+    <style>
+        :root {
+            --accent: #7c3aed;
+            --accent-glow: rgba(124, 58, 237, 0.15);
+            --bg-radar: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, rgba(18, 18, 18, 0) 70%);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphic Cards & Layout */
+        .drop-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            z-index: 2;
+        }
+
+        /* Radar scan background effect */
+        .radar-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(600px, 90vw);
+            height: min(600px, 90vw);
+            background: var(--bg-radar);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radar-ring {
+            position: absolute;
+            border: 1px solid rgba(124, 58, 237, 0.15);
+            border-radius: 50%;
+            animation: pulse-ring 4s infinite linear;
+        }
+
+        .radar-ring:nth-child(2) { animation-delay: 1.3s; }
+        .radar-ring:nth-child(3) { animation-delay: 2.6s; }
+
+        @keyframes pulse-ring {
+            0% { width: 0%; height: 0%; opacity: 1; }
+            100% { width: 100%; height: 100%; opacity: 0; }
+        }
+
+        /* Local Device Pulse Outer Rings */
+        .local-device-pulse {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            background: rgba(30, 30, 30, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(10px);
+            z-index: 3;
+            transition: all 0.3s ease;
+        }
+
+        .local-device-pulse:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+            box-shadow: 0 8px 32px 0 var(--accent-glow);
+        }
+
+        /* Active/Target Device Grid */
+        .devices-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2.5rem;
+            width: 100%;
+            max-width: 700px;
+            margin-top: 1rem;
+            z-index: 3;
+        }
+
+        .device-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 120px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .device-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .device-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            position: relative;
+            font-size: 2rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px dashed transparent;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .device-card:hover .device-avatar {
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
+            border-color: var(--accent);
+        }
+
+        .device-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .device-type {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.15rem;
+        }
+
+        /* Action Buttons & Badges */
+        .controls-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            z-index: 3;
+        }
+
+        .btn-drop {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-drop:hover {
+            border-color: var(--accent);
+            background: rgba(124, 58, 237, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .btn-drop.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-drop.primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        /* Modal Panels */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 1.5rem;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: modal-enter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.175);
+        }
+
+        @keyframes modal-enter {
+            from { transform: scale(0.9) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        /* Drag & Drop Visual Overlay */
+        .drag-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(124, 58, 237, 0.15);
+            border: 4px dashed var(--accent);
+            backdrop-filter: blur(5px);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .drag-overlay.active {
+            opacity: 1;
+        }
+
+        .drag-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 1rem;
+        }
+
+        /* Text Input for Code Pairing */
+        .code-input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .text-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .text-input:focus {
+            border-color: var(--accent);
+        }
+
+        /* Transfer Status Display Overlay */
+        .transfer-bubble {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* Progress Circle on Card */
+        .progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        /* Code display styling */
+        .pairing-code-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed var(--card-border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 1.5rem;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            user-select: all;
+        }
+
+        .qr-wrapper {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            width: fit-content;
+            margin: 0 auto 1.5rem auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        .file-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .transfer-details {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <nav class="global-nav">
+        <div class="global-nav-brand-container">
+            <a href="/" class="global-nav-brand">
+                <img src="/logo.png" alt="Logo" class="global-nav-icon">
+                Swiss<span>Web</span>
+            </a>
+            <div class="global-nav-divider">
+                <h1 class="global-nav-tool-title">Drop</h1>
+            </div>
+        </div>
+        <div class="global-nav-links">
+            <a href="/" class="global-nav-link">Home</a>
+        </div>
+    </nav>
+
+    <div id="app" class="drop-container" v-cloak>
+        <!-- Background Radar Ring animations -->
+        <div class="radar-bg">
+            <div class="radar-ring" style="width: 33%; height: 33%"></div>
+            <div class="radar-ring" style="width: 66%; height: 66%"></div>
+            <div class="radar-ring" style="width: 100%; height: 100%"></div>
+        </div>
+
+        <!-- Local Device Card / Radial Hub -->
+        <div class="local-device-pulse" :style="{ borderColor: myColor }">
+            <span style="font-size: 3.5rem;">{{ myIcon }}</span>
+            <div v-if="transferProgress > 0" class="progress-overlay">
+                {{ Math.round(transferProgress) }}%
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 3rem; z-index: 3;">
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem;">{{ myNickname }}</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                {{ isPeerConnected ? 'Ready to share files' : 'Initializing network...' }}
+            </p>
+        </div>
+
+        <!-- Connected/Available Peers -->
+        <div class="devices-grid">
+            <div 
+                v-for="peer in activePeers" 
+                :key="peer.id" 
+                class="device-card"
+                @click="triggerFileSelect(peer)"
+                :title="'Click to send a file to ' + peer.name"
+            >
+                <div class="device-avatar" :style="{ backgroundColor: peer.color + '22', borderColor: peer.color }">
+                    <span>{{ peer.icon }}</span>
+                    <!-- Progress Spinner/Overlay -->
+                    <div v-if="peer.transferProgress !== undefined && peer.transferProgress > 0" class="progress-overlay">
+                        {{ Math.round(peer.transferProgress) }}%
+                    </div>
+                </div>
+                <div class="device-name">{{ peer.name }}</div>
+                <div class="device-type">{{ peer.type }}</div>
+
+                <input 
+                    type="file" 
+                    :id="'file-input-' + peer.id" 
+                    style="display: none;" 
+                    @change="handleFileSelected($event, peer)"
+                >
+            </div>
+
+            <!-- Empty State for discovery -->
+            <div v-if="activePeers.length === 0" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                <div style="font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.35;">📶</div>
+                <p style="font-size: 0.9rem;">Open Drop on another device to start sharing.</p>
+            </div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="controls-row">
+            <button class="btn-drop primary" @click="showPairModal = true">
+                <span>➕</span> Pair Device
+            </button>
+        </div>
+
+        <!-- Pairing Modal -->
+        <div v-if="showPairModal" class="modal-overlay" @click.self="showPairModal = false">
+            <div class="modal-content">
+                <button class="modal-close" @click="showPairModal = false">&times;</button>
+                <h3 class="modal-title">Pair Device</h3>
+                <p class="modal-desc">Scan the QR code or enter the code to connect devices.</p>
+                
+                <div class="qr-wrapper">
+                    <canvas id="qr-canvas"></canvas>
+                </div>
+
+                <div style="text-align: center; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    YOUR CODE:
+                </div>
+                <div class="pairing-code-badge">{{ myPairingCode }}</div>
+
+                <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 1.5rem 0;">
+
+                <div style="text-align: left; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    Enter code of another device:
+                </div>
+                <div class="code-input-group">
+                    <input 
+                        type="text" 
+                        v-model="targetPairingCode" 
+                        class="text-input" 
+                        placeholder="e.g. 128472" 
+                        maxlength="6"
+                        @keyup.enter="pairWithCode"
+                    >
+                    <button class="btn-drop primary" @click="pairWithCode" :disabled="!targetPairingCode || targetPairingCode.length !== 6">
+                        Connect
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incoming File Transfer Confirmation Modal -->
+        <div v-if="incomingFile" class="modal-overlay">
+            <div class="modal-content">
+                <h3 class="modal-title">Incoming File</h3>
+                <p class="modal-desc"><strong>{{ incomingFile.senderName }}</strong> wants to send you a file:</p>
+
+                <div class="file-icon">📁</div>
+                <div style="text-align: center; font-weight: 600; margin-bottom: 0.5rem; word-break: break-all;">
+                    {{ incomingFile.name }}
+                </div>
+                <div style="text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Size: {{ formatBytes(incomingFile.size) }}
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn-drop" style="flex: 1; justify-content: center;" @click="rejectIncomingFile">
+                        Decline
+                    </button>
+                    <button class="btn-drop primary" style="flex: 1; justify-content: center;" @click="acceptIncomingFile">
+                        Accept
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Drag & Drop Overlay -->
+        <div class="drag-overlay" :class="{ active: isDragging }">
+            <span style="font-size: 5rem;">📤</span>
+            <div class="drag-title">Drop your files here</div>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">We'll prompt you to select the device to send to.</p>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
+
+        // Configuration
+        const CHUNK_SIZE = 16384; // 16KB standard WebRTC chunk size for safety
+
+        // List of fun adjectives and animals
+        const adjectives = ["Crimson", "Ocean", "Amber", "Golden", "Neon", "Electric", "Dazzling", "Quiet", "Jolly", "Mystic", "Zen", "Hyper", "Stellar", "Cosmic", "Velvet"];
+        const animals = ["Kangaroo", "Dolphin", "Panda", "Jaguar", "Falcon", "Koala", "Fox", "Otter", "Penguin", "Tiger", "Owl", "Sloth", "Beaver", "Rabbit", "Badger"];
+        const icons = ["🦘", "🐬", "🐼", "🐆", "🦅", "🐨", "🦊", "🦦", "🐧", "🐅", "🦉", "🦥", "🦫", "🐰", "🦡"];
+        const colors = ["#ff453a", "#30d158", "#0a84ff", "#ffd60a", "#bf5af2", "#ff9f0a", "#64d2ff", "#ff375f", "#ac8e68"];
+
+        createApp({
+            setup() {
+                // Identity
+                const myNickname = ref('');
+                const myIcon = ref('');
+                const myColor = ref('');
+                const myPairingCode = ref('');
+                const myDeviceType = ref('Desktop');
+
+                // PeerJS instance and connectivity
+                const peer = ref(null);
+                const isPeerConnected = ref(false);
+                const showPairModal = ref(false);
+                const targetPairingCode = ref('');
+                const isDragging = ref(false);
+
+                // File transfers
+                const incomingFile = ref(null);
+                const activePeers = ref([]); // { id, name, type, icon, color, connection, transferProgress }
+                const transferProgress = ref(0);
+
+                // Initialize random device identity
+                const initIdentity = () => {
+                    const adjIdx = Math.floor(Math.random() * adjectives.length);
+                    const animIdx = Math.floor(Math.random() * animals.length);
+                    myNickname.value = `${adjectives[adjIdx]} ${animals[animIdx]}`;
+                    myIcon.value = icons[animIdx];
+                    myColor.value = colors[Math.floor(Math.random() * colors.length)];
+
+                    // Generate a 6-digit number pairing code
+                    myPairingCode.value = Math.floor(100000 + Math.random() * 900000).toString();
+
+                    // Detect device type
+                    const ua = navigator.userAgent;
+                    if (/tablet|ipad|playbook|silk/i.test(ua)) {
+                        myDeviceType.value = 'Tablet';
+                    } else if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile|webos/i.test(ua)) {
+                        myDeviceType.value = 'Mobile';
+                    } else {
+                        myDeviceType.value = 'Desktop';
+                    }
+                };
+
+                // Helper to format file sizes
+                const formatBytes = (bytes, decimals = 2) => {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const dm = decimals < 0 ? 0 : decimals;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+                };
+
+                // Watch modal display to render QR Code
+                watch(showPairModal, (val) => {
+                    if (val) {
+                        nextTick(() => {
+                            const canvas = document.getElementById('qr-canvas');
+                            if (canvas) {
+                                const pairUrl = `${window.location.origin}${window.location.pathname}?pair=${myPairingCode.value}`;
+                                new QRious({
+                                    element: canvas,
+                                    value: pairUrl,
+                                    size: 150,
+                                    background: '#ffffff',
+                                    foreground: '#121212',
+                                    level: 'H'
+                                });
+                            }
+                        });
+                    }
+                });
+
+                // File receiving storage structures
+                let receivedChunks = {}; // Maps connection.peer to array of chunks
+                let receivedMetadata = {}; // Maps connection.peer to metadata object
+
+                // Connect to another peer by pairing code
+                const pairWithCode = () => {
+                    if (!targetPairingCode.value || targetPairingCode.value.length !== 6) return;
+                    
+                    const peerId = `swissweb-drop-${targetPairingCode.value}`;
+                    connectToPeer(peerId);
+                    showPairModal.value = false;
+                    targetPairingCode.value = '';
+                };
+
+                const connectToPeer = (peerId) => {
+                    if (peerId === peer.value.id) return;
+                    // Check if already connected
+                    if (activePeers.value.some(p => p.id === peerId)) return;
+
+                    const conn = peer.value.connect(peerId, {
+                        reliable: true
+                    });
+
+                    setupConnection(conn);
+                };
+
+                const setupConnection = (conn) => {
+                    conn.on('open', () => {
+                        // Send our handshake details immediately
+                        conn.send({
+                            type: 'handshake',
+                            name: myNickname.value,
+                            icon: myIcon.value,
+                            color: myColor.value,
+                            deviceType: myDeviceType.value,
+                            pairingCode: myPairingCode.value
+                        });
+                    });
+
+                    conn.on('data', (data) => {
+                        handleIncomingData(conn, data);
+                    });
+
+                    conn.on('close', () => {
+                        removePeer(conn.peer);
+                    });
+
+                    conn.on('error', (err) => {
+                        console.error('Connection error:', err);
+                        removePeer(conn.peer);
+                    });
+                };
+
+                const removePeer = (peerId) => {
+                    activePeers.value = activePeers.value.filter(p => p.id !== peerId);
+                };
+
+                const handleIncomingData = (conn, data) => {
+                    // Handshake
+                    if (data.type === 'handshake') {
+                        // Add peer to the active list
+                        const existingIdx = activePeers.value.findIndex(p => p.id === conn.peer);
+                        const peerInfo = {
+                            id: conn.peer,
+                            name: data.name,
+                            icon: data.icon,
+                            color: data.color,
+                            type: data.deviceType,
+                            pairingCode: data.pairingCode,
+                            connection: conn,
+                            transferProgress: 0
+                        };
+
+                        if (existingIdx !== -1) {
+                            activePeers.value[existingIdx] = peerInfo;
+                        } else {
+                            activePeers.value.push(peerInfo);
+                        }
+
+                        // If the connection is incoming, reply with handshake so they know who we are
+                        // (only if they are not already configured on our side)
+                        if (conn.open) {
+                            // Verify if they already know us. We can always just reply.
+                            conn.send({
+                                type: 'handshake-reply',
+                                name: myNickname.value,
+                                icon: myIcon.value,
+                                color: myColor.value,
+                                deviceType: myDeviceType.value,
+                                pairingCode: myPairingCode.value
+                            });
+                        }
+                        return;
+                    }
+
+                    if (data.type === 'handshake-reply') {
+                        const existingIdx = activePeers.value.findIndex(p => p.id === conn.peer);
+                        const peerInfo = {
+                            id: conn.peer,
+                            name: data.name,
+                            icon: data.icon,
+                            color: data.color,
+                            type: data.deviceType,
+                            pairingCode: data.pairingCode,
+                            connection: conn,
+                            transferProgress: 0
+                        };
+                        if (existingIdx !== -1) {
+                            activePeers.value[existingIdx] = peerInfo;
+                        } else {
+                            activePeers.value.push(peerInfo);
+                        }
+                        return;
+                    }
+
+                    // File offer request from sender
+                    if (data.type === 'file-offer') {
+                        receivedChunks[conn.peer] = [];
+                        receivedMetadata[conn.peer] = {
+                            name: data.name,
+                            size: data.size,
+                            mime: data.mime,
+                            totalChunks: data.totalChunks,
+                            senderName: activePeers.value.find(p => p.id === conn.peer)?.name || 'Unknown Device'
+                        };
+
+                        incomingFile.value = {
+                            peerId: conn.peer,
+                            name: data.name,
+                            size: data.size,
+                            senderName: receivedMetadata[conn.peer].senderName
+                        };
+                        return;
+                    }
+
+                    // File accept response from receiver
+                    if (data.type === 'file-accept') {
+                        startFileTransfer(conn.peer);
+                        return;
+                    }
+
+                    // File reject response from receiver
+                    if (data.type === 'file-reject') {
+                        alert('File transfer was declined.');
+                        resetProgress(conn.peer);
+                        return;
+                    }
+
+                    // File chunk transmission
+                    if (data.type === 'chunk') {
+                        const chunks = receivedChunks[conn.peer];
+                        const meta = receivedMetadata[conn.peer];
+                        if (!chunks || !meta) return;
+
+                        chunks.push(data.chunk);
+                        
+                        const progress = (chunks.length / meta.totalChunks) * 100;
+                        updatePeerProgress(conn.peer, progress);
+
+                        // Request next chunk
+                        conn.send({
+                            type: 'chunk-request',
+                            index: chunks.length
+                        });
+                        return;
+                    }
+
+                    // Complete file reconstruction
+                    if (data.type === 'file-complete') {
+                        const chunks = receivedChunks[conn.peer];
+                        const meta = receivedMetadata[conn.peer];
+                        if (!chunks || !meta) return;
+
+                        const blob = new Blob(chunks, { type: meta.mime });
+                        const url = URL.createObjectURL(blob);
+                        
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = meta.name;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+
+                        // Clean up
+                        delete receivedChunks[conn.peer];
+                        delete receivedMetadata[conn.peer];
+                        updatePeerProgress(conn.peer, 0);
+                        return;
+                    }
+
+                    // Chunk request (Sender side receiving next block request)
+                    if (data.type === 'chunk-request') {
+                        sendNextChunk(conn.peer, data.index);
+                        return;
+                    }
+                };
+
+                const updatePeerProgress = (peerId, progress) => {
+                    const target = activePeers.value.find(p => p.id === peerId);
+                    if (target) {
+                        target.transferProgress = progress;
+                    }
+                    transferProgress.value = progress;
+                };
+
+                const resetProgress = (peerId) => {
+                    updatePeerProgress(peerId, 0);
+                };
+
+                // File Sending pipeline variables
+                let outgoingFileState = {}; // Store raw files being sent mapped by peer ID
+
+                const triggerFileSelect = (peerItem) => {
+                    const input = document.getElementById(`file-input-${peerItem.id}`);
+                    if (input) {
+                        input.click();
+                    }
+                };
+
+                const handleFileSelected = (event, peerItem) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    prepareSendFile(file, peerItem);
+                };
+
+                const prepareSendFile = (file, peerItem) => {
+                    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                    outgoingFileState[peerItem.id] = {
+                        file: file,
+                        totalChunks: totalChunks,
+                        connection: peerItem.connection
+                    };
+
+                    // Send offer to the peer
+                    peerItem.connection.send({
+                        type: 'file-offer',
+                        name: file.name,
+                        size: file.size,
+                        mime: file.type || 'application/octet-stream',
+                        totalChunks: totalChunks
+                    });
+                };
+
+                const startFileTransfer = (peerId) => {
+                    const state = outgoingFileState[peerId];
+                    if (!state) return;
+
+                    // Trigger chunk transmission
+                    sendNextChunk(peerId, 0);
+                };
+
+                const sendNextChunk = (peerId, chunkIndex) => {
+                    const state = outgoingFileState[peerId];
+                    if (!state) return;
+
+                    const file = state.file;
+                    const totalChunks = state.totalChunks;
+                    const conn = state.connection;
+
+                    if (chunkIndex >= totalChunks) {
+                        // All chunks sent! Notify receiver.
+                        conn.send({
+                            type: 'file-complete'
+                        });
+                        updatePeerProgress(peerId, 0);
+                        delete outgoingFileState[peerId];
+                        return;
+                    }
+
+                    const start = chunkIndex * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, file.size);
+                    const slice = file.slice(start, end);
+
+                    // Read chunk as array buffer and send
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        conn.send({
+                            type: 'chunk',
+                            chunk: e.target.result
+                        });
+                        
+                        const progress = (chunkIndex / totalChunks) * 100;
+                        updatePeerProgress(peerId, progress);
+                    };
+                    reader.readAsArrayBuffer(slice);
+                };
+
+                // File acceptance flow
+                const acceptIncomingFile = () => {
+                    if (!incomingFile.value) return;
+                    const peerId = incomingFile.value.peerId;
+                    const peerInfo = activePeers.value.find(p => p.id === peerId);
+
+                    if (peerInfo && peerInfo.connection) {
+                        peerInfo.connection.send({
+                            type: 'file-accept'
+                        });
+                    }
+                    incomingFile.value = null;
+                };
+
+                const rejectIncomingFile = () => {
+                    if (!incomingFile.value) return;
+                    const peerId = incomingFile.value.peerId;
+                    const peerInfo = activePeers.value.find(p => p.id === peerId);
+
+                    if (peerInfo && peerInfo.connection) {
+                        peerInfo.connection.send({
+                            type: 'file-reject'
+                        });
+                    }
+                    incomingFile.value = null;
+                };
+
+                // Drag & Drop handlers
+                const initDragAndDrop = () => {
+                    window.addEventListener('dragenter', (e) => {
+                        e.preventDefault();
+                        isDragging.value = true;
+                    });
+
+                    window.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                    });
+
+                    window.addEventListener('dragleave', (e) => {
+                        if (e.relatedTarget === null || e.clientX <= 0 || e.clientY <= 0) {
+                            isDragging.value = false;
+                        }
+                    });
+
+                    window.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        isDragging.value = false;
+
+                        const files = e.dataTransfer.files;
+                        if (files.length > 0 && activePeers.value.length > 0) {
+                            // If exactly one peer is available, send directly or open device selection
+                            if (activePeers.value.length === 1) {
+                                prepareSendFile(files[0], activePeers.value[0]);
+                            } else {
+                                alert("Drop the file on a specific device icon to send it directly.");
+                            }
+                        }
+                    });
+                };
+
+                // Start PeerJS client node
+                const startPeerConnection = () => {
+                    const customPeerId = `swissweb-drop-${myPairingCode.value}`;
+                    
+                    // Create Peer connecting to public broker server
+                    const peerInstance = new Peer(customPeerId);
+
+                    peerInstance.on('open', (id) => {
+                        isPeerConnected.value = true;
+                        console.log('Connected to signaling server as: ' + id);
+
+                        // Check URL for automatic pairing code parameters (e.g. ?pair=123456)
+                        const params = new URLSearchParams(window.location.search);
+                        const urlPairCode = params.get('pair');
+                        if (urlPairCode && urlPairCode.length === 6) {
+                            targetPairingCode.value = urlPairCode;
+                            pairWithCode();
+                            // Clean URL parameter
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        }
+                    });
+
+                    peerInstance.on('connection', (conn) => {
+                        setupConnection(conn);
+                    });
+
+                    peerInstance.on('disconnected', () => {
+                        isPeerConnected.value = false;
+                        // Attempt reconnect
+                        peerInstance.reconnect();
+                    });
+
+                    peerInstance.on('error', (err) => {
+                        console.error('Peer error:', err);
+                        // If peer ID already taken (unlikely but possible), regenerate pairing code and reconnect
+                        if (err.type === 'unavailable-id') {
+                            myPairingCode.value = Math.floor(100000 + Math.random() * 900000).toString();
+                            startPeerConnection();
+                        }
+                    });
+
+                    peer.value = peerInstance;
+                };
+
+                onMounted(() => {
+                    initIdentity();
+                    startPeerConnection();
+                    initDragAndDrop();
+                });
+
+                return {
+                    myNickname,
+                    myIcon,
+                    myColor,
+                    myPairingCode,
+                    myDeviceType,
+                    isPeerConnected,
+                    activePeers,
+                    showPairModal,
+                    targetPairingCode,
+                    incomingFile,
+                    transferProgress,
+                    isDragging,
+                    pairWithCode,
+                    triggerFileSelect,
+                    handleFileSelected,
+                    acceptIncomingFile,
+                    rejectIncomingFile,
+                    formatBytes
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
