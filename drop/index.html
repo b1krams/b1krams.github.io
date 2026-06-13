@@ -743,6 +743,7 @@
                                 pairingCode: myPairingCode.value
                             });
                         }
+                        showPairModal.value = false;
                         return;
                     }
 
@@ -763,6 +764,7 @@
                         } else {
                             activePeers.value.push(peerInfo);
                         }
+                        showPairModal.value = false;
                         return;
                     }
 
