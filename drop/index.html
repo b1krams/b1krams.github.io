@@ -645,7 +645,53 @@
         const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
 
         // Configuration
-        const CHUNK_SIZE = 65536; // 64KB standard WebRTC chunk size for throughput
+        const CHUNK_SIZE = 262144; // 256KB optimized chunk size for throughput
+
+        // Inline Web Worker code for background high-performance file reading and slicing (zero-copy via transferables)
+        const workerCode = `
+            let fileMap = new Map();
+
+            self.onmessage = async (e) => {
+                const { action, id, file, chunkIndex, chunkSize } = e.data;
+                
+                if (action === 'register') {
+                    fileMap.set(id, file);
+                    return;
+                }
+                
+                if (action === 'read') {
+                    const activeFile = fileMap.get(id);
+                    if (!activeFile) return;
+                    
+                    const start = chunkIndex * chunkSize;
+                    const end = Math.min(start + chunkSize, activeFile.size);
+                    const slice = activeFile.slice(start, end);
+                    
+                    try {
+                        const buffer = await slice.arrayBuffer();
+                        // Transfer buffer ownership to the main thread (zero-copy)
+                        self.postMessage({
+                            action: 'chunk',
+                            id,
+                            chunkIndex,
+                            buffer
+                        }, [buffer]);
+                    } catch (err) {
+                        self.postMessage({ action: 'error', id, chunkIndex, error: err.message });
+                    }
+                    return;
+                }
+                
+                if (action === 'unregister') {
+                    fileMap.delete(id);
+                    return;
+                }
+            };
+        `;
+
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        const workerUrl = URL.createObjectURL(blob);
+        const fileWorker = new Worker(workerUrl);
 
         // List of fun adjectives and animals
         const adjectives = ["Crimson", "Ocean", "Amber", "Golden", "Neon", "Electric", "Dazzling", "Quiet", "Jolly", "Mystic", "Zen", "Hyper", "Stellar", "Cosmic", "Velvet"];
@@ -966,6 +1012,29 @@
                     });
                 };
 
+                // Helper to query the background Web Worker for a specific chunk (using zero-copy transferable objects)
+                const getChunkFromWorker = (fileId, chunkIndex) => {
+                    return new Promise((resolve, reject) => {
+                        const handler = (e) => {
+                            if (e.data.id === fileId && e.data.chunkIndex === chunkIndex) {
+                                fileWorker.removeEventListener('message', handler);
+                                if (e.data.action === 'chunk') {
+                                    resolve(e.data.buffer);
+                                } else if (e.data.action === 'error') {
+                                    reject(new Error(e.data.error));
+                                }
+                            }
+                        };
+                        fileWorker.addEventListener('message', handler);
+                        fileWorker.postMessage({
+                            action: 'read',
+                            id: fileId,
+                            chunkIndex,
+                            chunkSize: CHUNK_SIZE
+                        });
+                    });
+                };
+
                 const startFileTransfer = async (peerId) => {
                     const state = outgoingFileState[peerId];
                     if (!state) return;
@@ -993,17 +1062,22 @@
                         }
                     });
 
+                    // Generate a unique transmission ID for this file registration in the background worker
+                    const fileId = `${peerId}-${Date.now()}`;
+                    fileWorker.postMessage({
+                        action: 'register',
+                        id: fileId,
+                        file: file
+                    });
+
                     try {
                         for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
                             await waitBuffer();
 
                             if (!conn.open) break;
 
-                            const start = chunkIndex * CHUNK_SIZE;
-                            const end = Math.min(start + CHUNK_SIZE, file.size);
-                            const slice = file.slice(start, end);
-                            
-                            const arrayBuffer = await slice.arrayBuffer();
+                            // Fetch slice array buffer from background thread (zero-copy via transferables)
+                            const arrayBuffer = await getChunkFromWorker(fileId, chunkIndex);
                             
                             conn.send({
                                 type: 'chunk',
@@ -1023,6 +1097,7 @@
                         console.error('File transfer error:', e);
                         alert('An error occurred during file transfer.');
                     } finally {
+                        fileWorker.postMessage({ action: 'unregister', id: fileId });
                         updatePeerProgress(peerId, 0);
                         delete outgoingFileState[peerId];
                     }
