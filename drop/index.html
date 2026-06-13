@@ -993,6 +993,11 @@
                     // Create Peer connecting to public broker server
                     const peerInstance = new Peer(customPeerId);
 
+                    // Cleanly close signaling and connections on tab close
+                    window.addEventListener('beforeunload', () => {
+                        peerInstance.destroy();
+                    });
+
                     peerInstance.on('open', (id) => {
                         isPeerConnected.value = true;
                         console.log('Connected to signaling server as: ' + id);
