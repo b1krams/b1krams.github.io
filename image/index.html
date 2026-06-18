@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html class="dark" lang="en">
+<html class="dark h-full" lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -11,99 +11,107 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "on-surface-variant": "#c7c4d7",
-            "surface-container-high": "#262a31",
-            "on-error": "#690005",
-            "surface-container-lowest": "#0a0e14",
-            "surface-variant": "#31353c",
-            "secondary-container": "#6f00be",
-            "on-primary-fixed": "#07006c",
-            "background": "#10141a",
-            "on-primary": "#1000a9",
-            "on-surface": "#dfe2eb",
-            "on-error-container": "#ffdad6",
-            "on-secondary-fixed": "#2c0051",
-            "surface-tint": "#c0c1ff",
-            "on-secondary": "#490080",
-            "secondary": "#ddb7ff",
-            "on-tertiary-container": "#452000",
-            "primary": "#c0c1ff",
-            "on-background": "#dfe2eb",
-            "tertiary-fixed": "#ffdcc5",
-            "tertiary-container": "#d97721",
-            "surface-container-low": "#181c22",
-            "on-tertiary-fixed": "#301400",
-            "on-tertiary": "#4f2500",
-            "primary-container": "#8083ff",
-            "surface-bright": "#353940",
-            "on-primary-fixed-variant": "#2f2ebe",
-            "surface-dim": "#10141a",
-            "on-primary-container": "#0d0096",
-            "inverse-on-surface": "#2d3137",
-            "tertiary": "#ffb783",
-            "secondary-fixed": "#f0dbff",
-            "error": "#ffb4ab",
-            "surface-container": "#1c2026",
-            "primary-fixed-dim": "#c0c1ff",
-            "outline-variant": "#464554",
-            "outline": "#908fa0",
-            "on-secondary-fixed-variant": "#6900b3",
-            "primary-fixed": "#e1e0ff",
-            "secondary-fixed-dim": "#ddb7ff",
-            "inverse-primary": "#494bd6",
-            "surface": "#10141a",
-            "tertiary-fixed-dim": "#ffb783",
-            "on-tertiary-fixed-variant": "#703700",
-            "surface-container-highest": "#31353c",
-            "error-container": "#93000a",
-            "inverse-surface": "#dfe2eb",
-            "on-secondary-container": "#d6a9ff"
-          },
-          borderRadius: {
-            DEFAULT: "0.125rem",
-            lg: "0.25rem",
-            xl: "0.5rem",
-            full: "0.75rem"
-          },
-          spacing: {
-            gutter: "16px",
-            "sidebar-width": "340px",
-            unit: "4px",
-            "panel-padding": "20px",
-            "toolbar-width": "56px"
-          },
-          fontFamily: {
-            sans: ["Inter", "system-ui", "sans-serif"],
-            "mono-label": ["Inter"],
-            "headline-md": ["Inter"],
-            "headline-sm": ["Inter"],
-            "body-lg": ["Inter"],
-            "headline-lg": ["Inter"],
-            "body-md": ["Inter"],
-            "label-caps": ["Inter"]
-          },
-          fontSize: {
-            "mono-label": ["12px", { lineHeight: "1.2", letterSpacing: "0.02em", fontWeight: "500" }],
-            "headline-md": ["24px", { lineHeight: "1.3", letterSpacing: "-0.01em", fontWeight: "600" }],
-            "headline-sm": ["18px", { lineHeight: "1.4", fontWeight: "600" }],
-            "body-lg": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
-            "headline-lg": ["32px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
-            "body-md": ["14px", { lineHeight: "1.5", fontWeight: "400" }],
-            "label-caps": ["11px", { lineHeight: "1.2", letterSpacing: "0.08em", fontWeight: "700" }]
-          }
-        }
-      }
-    };
-  </script>
-<link href="/style.css" rel="stylesheet"/>
-<link href="/logo.png" rel="icon" type="image/png"/>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style type="text/tailwindcss">
+  @theme {
+    --color-on-surface-variant: #c7c4d7;
+    --color-surface-container-high: #262a31;
+    --color-on-error: #690005;
+    --color-surface-container-lowest: #0a0e14;
+    --color-surface-variant: #31353c;
+    --color-secondary-container: #6f00be;
+    --color-on-primary-fixed: #07006c;
+    --color-background: #10141a;
+    --color-on-primary: #1000a9;
+    --color-on-surface: #dfe2eb;
+    --color-on-error-container: #ffdad6;
+    --color-on-secondary-fixed: #2c0051;
+    --color-surface-tint: #c0c1ff;
+    --color-on-secondary: #490080;
+    --color-secondary: #ddb7ff;
+    --color-on-tertiary-container: #452000;
+    --color-primary: #c0c1ff;
+    --color-on-background: #dfe2eb;
+    --color-tertiary-fixed: #ffdcc5;
+    --color-tertiary-container: #d97721;
+    --color-surface-container-low: #181c22;
+    --color-on-tertiary-fixed: #301400;
+    --color-on-tertiary: #4f2500;
+    --color-primary-container: #8083ff;
+    --color-surface-bright: #353940;
+    --color-on-primary-fixed-variant: #2f2ebe;
+    --color-surface-dim: #10141a;
+    --color-on-primary-container: #0d0096;
+    --color-inverse-on-surface: #2d3137;
+    --color-tertiary: #ffb783;
+    --color-secondary-fixed: #f0dbff;
+    --color-error: #ffb4ab;
+    --color-surface-container: #1c2026;
+    --color-primary-fixed-dim: #c0c1ff;
+    --color-outline-variant: #464554;
+    --color-outline: #908fa0;
+    --color-on-secondary-fixed-variant: #6900b3;
+    --color-primary-fixed: #e1e0ff;
+    --color-secondary-fixed-dim: #ddb7ff;
+    --color-inverse-primary: #494bd6;
+    --color-surface: #10141a;
+    --color-tertiary-fixed-dim: #ffb783;
+    --color-on-tertiary-fixed-variant: #703700;
+    --color-surface-container-highest: #31353c;
+    --color-error-container: #93000a;
+    --color-inverse-surface: #dfe2eb;
+    --color-on-secondary-container: #d6a9ff;
+  
+    --font-sans: "Inter", sans-serif;
+
+    --spacing-gutter: 16px;
+    --spacing-sidebar-width: 340px;
+    --spacing-unit: 4px;
+    --spacing-panel-padding: 20px;
+    --spacing-toolbar-width: 56px;
+  }
+
+  @utility text-mono-label {
+    font-size: 12px;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+  }
+  @utility text-headline-md {
+    font-size: 24px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+  @utility text-headline-sm {
+    font-size: 18px;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+  @utility text-body-lg {
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  @utility text-headline-lg {
+    font-size: 32px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  @utility text-body-md {
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  @utility text-label-caps {
+    font-size: 11px;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+</style>
+<link rel="icon" href="/logo.svg" type="image/svg+xml"/><link rel="alternate icon" href="/logo.png" type="image/png"/>
 <style>
   .cropper-view-box::after, .cropper-canvas::after {
     content: '';
@@ -137,26 +145,51 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(192, 193, 255, 0.15) transparent;
   }
+
+  /* Accordion transition */
+  .accordion-body {
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+  }
+  .accordion-body.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    pointer-events: none;
+  }
 </style>
 </head>
 <body class="bg-background text-on-background min-h-screen flex flex-col overflow-hidden selection:bg-primary-container selection:text-on-primary-container font-sans" id="app">
-<nav class="global-nav">
-<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
-<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
-            Swiss<span>Web</span>
-</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">ImageFlow</h1></div></div>
-<div class="global-nav-links flex items-center gap-4">
-<button @click="resetEdits" class="text-body-md text-on-surface-variant hover:text-primary transition-colors hover:scale-95 duration-150 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-primary/50 hover:bg-primary/5" id="resetEditsBtn" v-show="imageLoaded">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0; font-size: 18px;">restore</span>
-            Reset Edits
+
+<header class="border-b border-zinc-900 bg-zinc-900/50 backdrop-blur-md sticky top-0 z-50 w-full">
+  <div class="w-full px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <div class="flex-1 flex items-center gap-4">
+        <a class="flex items-center gap-2 font-bold text-white text-lg" href="/">
+          <img class="h-8 w-auto" src="/logo.svg" alt="Logo">
+          <span>Swiss<span class="text-cyan-500">Web</span></span>
+        </a>
+        <div class="border-l border-slate-700 pl-4 ml-4">
+          <h1 class="text-sm font-semibold text-slate-300">ImageFlow</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button @click="resetEdits" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-350 hover:bg-slate-800 hover:text-white transition cursor-pointer" v-show="imageLoaded">
+          <span class="material-symbols-outlined" style="font-size: 16px;">restore</span>
+          Reset Edits
         </button>
-<button @click="resetAll" class="text-body-md text-on-surface-variant hover:text-primary transition-colors hover:scale-95 duration-150 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-primary/50 hover:bg-primary/5" id="resetBtn" v-show="imageLoaded">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0; font-size: 18px;">restart_alt</span>
-            Start Over
+        <button @click="resetAll" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-350 hover:bg-slate-800 hover:text-white transition cursor-pointer" v-show="imageLoaded">
+          <span class="material-symbols-outlined" style="font-size: 16px;">restart_alt</span>
+          Start Over
         </button>
-<a class="global-nav-link" href="/">Home</a>
-</div>
-</nav>
+        <a class="rounded-md bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 transition" href="/">
+          Home
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
 <!-- SVG filter for curves (hidden) -->
 <svg aria-hidden="true" focusable="false" style="width:0;height:0;position:absolute;">
 <filter id="curveFilter">
@@ -196,7 +229,7 @@
 <input @change="filesSelected" accept="image/*" class="hidden" ref="fileInput" type="file"/>
 </div>
 <!-- Image workspace (visible when image loaded) -->
-<div :class="{'workspace-hidden': !imageLoaded}" class="w-full h-full flex items-center justify-center p-4" ref="workspace">
+<div v-show="imageLoaded" class="w-full h-full flex items-center justify-center p-4" ref="workspace">
 <img :src="imageSrc" alt="Preview" class="max-w-full max-h-full block" ref="imagePreview"/>
 </div>
 </div>
@@ -220,7 +253,7 @@
       <span class="text-mono-label text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20 w-12 text-center text-xs font-semibold">{{ exportQuality }}%</span>
     </div>
   </div>
-  <button @click="exportImage" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-[#6366f1] to-[#a855f7] hover:from-[#5053e3] hover:to-[#9333ea] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 active:scale-98 transition-all" id="exportBtn">
+  <button @click="exportImage" class="w-full py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/40 transition-all cursor-pointer active:scale-98" id="exportBtn">
     <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 18px;">download</span>
     <span id="exportBtnText">Export JPG</span>
   </button>
@@ -244,7 +277,7 @@
 <label class="text-mono-label text-on-surface-variant">Exposure</label>
 <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ exposure > 0 ? '+' : '' }}{{ exposure.toFixed(1) }} EV</span>
 </div>
-<input max="4" min="-4" step="0.1" type="range" v-model.number="exposure"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="4" min="-4" step="0.1" type="range" v-model.number="exposure"/>
 </div>
 <!-- Brightness -->
 <div class="space-y-2 cursor-pointer select-none" @dblclick="brightness = 0" title="Double-click to reset">
@@ -252,7 +285,7 @@
 <label class="text-mono-label text-on-surface-variant">Brightness</label>
 <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ brightness > 0 ? '+' : '' }}{{ brightness }}</span>
 </div>
-<input max="100" min="-100" type="range" v-model.number="brightness"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="100" min="-100" type="range" v-model.number="brightness"/>
 </div>
 <!-- Contrast -->
 <div class="space-y-2 cursor-pointer select-none" @dblclick="contrast = 0" title="Double-click to reset">
@@ -260,7 +293,7 @@
 <label class="text-mono-label text-on-surface-variant">Contrast</label>
 <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ contrast > 0 ? '+' : '' }}{{ contrast }}</span>
 </div>
-<input max="100" min="-100" type="range" v-model.number="contrast"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="100" min="-100" type="range" v-model.number="contrast"/>
 </div>
 <!-- Clarity -->
 <div class="space-y-2 cursor-pointer select-none" @dblclick="clarity = 0" title="Double-click to reset">
@@ -268,7 +301,7 @@
 <label class="text-mono-label text-on-surface-variant">Clarity</label>
 <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ clarity > 0 ? '+' : '' }}{{ clarity }}</span>
 </div>
-<input max="100" min="-100" type="range" v-model.number="clarity"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="100" min="-100" type="range" v-model.number="clarity"/>
 </div>
 <!-- Shadows -->
 <div class="space-y-2 cursor-pointer select-none" @dblclick="shadows = 0" title="Double-click to reset">
@@ -276,7 +309,7 @@
 <label class="text-mono-label text-on-surface-variant">Shadows</label>
 <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ shadows > 0 ? '+' : '' }}{{ shadows }}</span>
 </div>
-<input max="100" min="-100" type="range" v-model.number="shadows"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="100" min="-100" type="range" v-model.number="shadows"/>
 </div>
 <!-- Highlights -->
 <div class="space-y-2 cursor-pointer select-none" @dblclick="highlights = 0" title="Double-click to reset">
@@ -284,7 +317,7 @@
 <label class="text-mono-label text-on-surface-variant">Highlights</label>
 <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ highlights > 0 ? '+' : '' }}{{ highlights }}</span>
 </div>
-<input max="100" min="-100" type="range" v-model.number="highlights"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="100" min="-100" type="range" v-model.number="highlights"/>
 </div>
 <!-- Saturation -->
 <div class="space-y-2 cursor-pointer select-none" @dblclick="saturation = 0" title="Double-click to reset">
@@ -292,7 +325,7 @@
 <label class="text-mono-label text-on-surface-variant">Saturation</label>
 <span class="text-mono-label text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded border border-white/5">{{ saturation > 0 ? '+' : '' }}{{ saturation }}</span>
 </div>
-<input max="100" min="-100" type="range" v-model.number="saturation"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="100" min="-100" type="range" v-model.number="saturation"/>
 </div>
 <!-- Sharpness -->
 <div class="space-y-2 cursor-pointer select-none" @dblclick="sharpness = 0" title="Double-click to reset">
@@ -300,7 +333,7 @@
 <label class="text-mono-label text-on-surface-variant">Sharpness</label>
 <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ sharpness > 0 ? '+' : '' }}{{ sharpness }}</span>
 </div>
-<input max="100" min="0" type="range" v-model.number="sharpness"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="100" min="0" type="range" v-model.number="sharpness"/>
 </div>
 <!-- Dehaze -->
 <div class="space-y-2 cursor-pointer select-none" @dblclick="dehaze = 0" title="Double-click to reset">
@@ -308,7 +341,7 @@
 <label class="text-mono-label text-on-surface-variant">Dehaze</label>
 <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ dehaze > 0 ? '+' : '' }}{{ dehaze }}</span>
 </div>
-<input max="100" min="0" type="range" v-model.number="dehaze"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="100" min="0" type="range" v-model.number="dehaze"/>
 </div>
 <!-- Vignette -->
 <div class="space-y-2 cursor-pointer select-none" @dblclick="vignette = 0" title="Double-click to reset">
@@ -316,7 +349,7 @@
 <label class="text-mono-label text-on-surface-variant">Vignette</label>
 <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ vignette > 0 ? '+' : '' }}{{ vignette }}</span>
 </div>
-<input max="100" min="0" type="range" v-model.number="vignette"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="100" min="0" type="range" v-model.number="vignette"/>
 </div>
 </div>
 </div>
@@ -358,7 +391,7 @@
 <label class="text-mono-label text-on-surface-variant">Output Scale</label>
 <span class="text-mono-label text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{{ outputScale }}%</span>
 </div>
-<input max="400" min="1" type="range" v-model.number="outputScale"/>
+<input class="w-full accent-primary h-1 bg-[#0d1117] rounded-lg cursor-pointer" max="400" min="1" type="range" v-model.number="outputScale"/>
 </div>
 <!-- Width / Height -->
 <div class="grid grid-cols-2 gap-3">

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -12,102 +12,147 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>JSON Fix &amp; Format</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.css" rel="stylesheet" type="text/css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="/style.css" rel="stylesheet"/>
-<link href="/logo.png" rel="icon" type="image/png"/>
+<link rel="icon" href="/logo.svg" type="image/svg+xml"/><link rel="alternate icon" href="/logo.png" type="image/png"/>
+<style>
+    /* Styling override for JSON editor to fit dark theme */
+    .jsoneditor {
+        border-color: #1e293b !important;
+        border-radius: 0.5rem;
+    }
+    .jsoneditor-menu {
+        background-color: #0f172a !important;
+        border-bottom: 1px solid #1e293b !important;
+    }
+    .jsoneditor-navigation-bar {
+        background-color: #0f172a !important;
+    }
+    .jsoneditor-outer {
+        background-color: #0f172a !important;
+    }
+    .jsoneditor-search {
+        background-color: #0f172a !important;
+    }
+    .jsoneditor-value {
+        color: #34d399 !important;
+    }
+    .jsoneditor-string {
+        color: #34d399 !important;
+    }
+</style>
+
+<style type="text/tailwindcss">
+    @theme {
+        --font-sans: "Inter", sans-serif;
+    }
+</style>
 </head>
-<body class="text-slate-200 p-4 md:p-8">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
-<nav class="global-nav">
-<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
-<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
-            Swiss<span>Web</span>
-</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">JSON Refiner</h1></div></div>
-<div class="global-nav-links flex items-center gap-4">
-<a class="global-nav-link" href="/">Home</a>
-<div class="h-4 w-[1px] bg-slate-700"></div>
-<button class="flex items-center gap-2 px-3 py-1 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-all active:scale-95 shadow-md shadow-indigo-500/20" onclick="processJSON()">Fix &amp; Format</button>
-<button class="flex items-center gap-2 px-3 py-1 text-sm font-medium text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-md transition-all border border-slate-700 active:scale-95" id="copy-btn" onclick="copyToClipboard(this)">Copy JSON</button>
+
+<header class="border-b border-zinc-900 bg-zinc-900/50 backdrop-blur-md sticky top-0 z-50">
+  <div class="w-full px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <div class="flex-1 flex items-center gap-4">
+        <a class="flex items-center gap-2 font-bold text-white text-lg" href="/">
+          <img class="h-8 w-auto" src="/logo.svg" alt="Logo">
+          <span>Swiss<span class="text-cyan-500">Web</span></span>
+        </a>
+        <div class="border-l border-slate-700 pl-4 ml-4">
+          <h1 class="text-sm font-semibold text-slate-300">JSON Refiner</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="inline-flex items-center gap-1.5 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700 transition cursor-pointer" onclick="processJSON()">
+          Fix &amp; Format
+        </button>
+        <button class="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-700 transition cursor-pointer" id="copy-btn" onclick="copyToClipboard(this)">
+          Copy JSON
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-screen-xl w-full mx-auto px-4 flex-1 py-8 flex flex-col">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1">
+        <div class="flex flex-col gap-4">
+            <label class="text-sm font-medium text-slate-300 px-1">Raw Input</label>
+            <textarea class="w-full flex-1 min-h-[400px] lg:min-h-[500px] rounded-lg border border-slate-800 bg-slate-900 p-4 font-mono text-sm text-emerald-400 placeholder-slate-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:outline-none" id="jsonInput" placeholder='{"tip": "Paste messy or broken JSON here..."}'></textarea>
+        </div>
+        
+        <div class="flex flex-col gap-4">
+            <label class="text-sm font-medium text-slate-300 px-1">Formatted Output</label>
+            <div class="w-full flex-1 min-h-[400px] lg:min-h-[500px] rounded-lg overflow-hidden border border-slate-800 shadow-2xl" id="jsoneditor"></div>
+        </div>
+    </div>
 </div>
-</nav>
-<div class="w-full">
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-<div class="flex flex-col gap-4">
-<div class="flex justify-between items-center h-9">
-<label class="font-medium text-slate-300">Raw Input</label>
-</div>
-<textarea class="w-full h-[500px] lg:h-[calc(100vh-250px)] bg-slate-900/50 border border-slate-800 rounded-xl p-4 font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none text-emerald-400 placeholder-slate-700" id="jsonInput" placeholder='{"tip": "Paste messy or broken JSON here..."}'></textarea>
-</div>
-<div class="flex flex-col gap-4">
-<div class="flex justify-between items-center h-9">
-<label class="font-medium text-slate-300">Formatted Output</label>
-</div>
-<div class="h-[500px] lg:h-[calc(100vh-250px)] shadow-2xl" id="jsoneditor"></div>
-</div>
-</div>
-<footer class="mt-12 text-center text-slate-500 text-xs">
-            Made with ❤️ by Bikram
-        </footer>
-</div>
+
+<footer class="bg-zinc-950 py-8 border-t border-zinc-900 text-center mt-auto">
+    <p class="text-xs text-slate-500">Made with ❤️ by Bikram</p>
+</footer>
+
 <script>
-        // Initialize JSON Editor
-        const container = document.getElementById("jsoneditor");
-        const options = {
-            mode: 'view', // 'view' allows collapsing, 'tree' allows editing
-            modes: ['view', 'tree', 'code', 'preview'],
-            mainMenuBar: true,
-            navigationBar: false,
-            statusBar: true,
-        };
-        const editor = new JSONEditor(container, options);
+    // Initialize JSON Editor
+    const container = document.getElementById("jsoneditor");
+    const options = {
+        mode: 'view', // 'view' allows collapsing, 'tree' allows editing
+        modes: ['view', 'tree', 'code', 'preview'],
+        mainMenuBar: true,
+        navigationBar: false,
+        statusBar: true,
+    };
+    const editor = new JSONEditor(container, options);
 
-        // Function to fix and format
-        function processJSON() {
-            const rawValue = document.getElementById('jsonInput').value.trim();
-            if (!rawValue) return;
+    // Function to fix and format
+    function processJSON() {
+        const rawValue = document.getElementById('jsonInput').value.trim();
+        if (!rawValue) return;
 
+        try {
+            // Try to parse normally
+            const parsed = JSON.parse(rawValue);
+            editor.set(parsed);
+            editor.expandAll();
+        } catch (e) {
+            // Attempt a "lazy" fix for minor issues (like single quotes or missing quotes)
             try {
-                // Try to parse normally
-                const parsed = JSON.parse(rawValue);
-                editor.set(parsed);
+                const fixed = eval('(' + rawValue + ')');
+                editor.set(fixed);
                 editor.expandAll();
-            } catch (e) {
-                // Attempt a "lazy" fix for minor issues (like single quotes or missing quotes)
-                try {
-                    const fixed = eval('(' + rawValue + ')');
-                    editor.set(fixed);
-                    editor.expandAll();
-                } catch (err) {
-                    alert("Invalid JSON: Could not automatically fix this syntax error.");
-                }
+            } catch (err) {
+                alert("Invalid JSON: Could not automatically fix this syntax error.");
             }
         }
+    }
 
-        // Copy functionality
-        function copyToClipboard(btn) {
-            const button = btn || document.getElementById('copy-btn') || event?.target;
-            const json = JSON.stringify(editor.get(), null, 2);
-            navigator.clipboard.writeText(json).then(() => {
-                const originalText = button.innerText;
-                button.innerText = "Copied!";
-                button.classList.add('bg-emerald-600');
-                button.classList.add('text-white');
-                setTimeout(() => {
-                    button.innerText = originalText;
-                    button.classList.remove('bg-emerald-600');
-                    button.classList.remove('text-white');
-                }, 2000);
-            });
-        }
+    // Copy functionality
+    function copyToClipboard(btn) {
+        const button = btn || document.getElementById('copy-btn') || event?.target;
+        const json = JSON.stringify(editor.get(), null, 2);
+        navigator.clipboard.writeText(json).then(() => {
+            const originalText = button.innerText;
+            button.innerText = "Copied!";
+            button.classList.add('!bg-emerald-600');
+            button.classList.add('!border-emerald-600');
+            button.classList.add('text-white');
+            setTimeout(() => {
+                button.innerText = originalText;
+                button.classList.remove('!bg-emerald-600');
+                button.classList.remove('!border-emerald-600');
+                button.classList.remove('text-white');
+            }, 2000);
+        });
+    }
 
-        // Load dummy data on start
-        const initialData = { "status": "success", "message": "Paste your JSON on the left", "features": ["Collapsible", "Fixes single quotes", "Modern UI"], "count": 3 };
-        editor.set(initialData);
-    </script>
+    // Load dummy data on start
+    const initialData = { "status": "success", "message": "Paste your JSON on the left", "features": ["Collapsible", "Fixes single quotes", "Modern UI"], "count": 3 };
+    editor.set(initialData);
+</script>
 </body>
 </html>

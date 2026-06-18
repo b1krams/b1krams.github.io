@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -12,7 +12,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Scribe | Modern Markdown Editor</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <!-- KaTeX CSS & JS, Marked Extension for LaTeX support -->
 <link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet"/>
@@ -35,119 +35,173 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-diff.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked-alert/lib/index.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked-gfm-heading-id/lib/index.umd.js"></script>
-<link href="/style.css" rel="stylesheet"/>
-<link href="/logo.png" rel="icon" type="image/png"/>
+<link rel="icon" href="/logo.svg" type="image/svg+xml"/><link rel="alternate icon" href="/logo.png" type="image/png"/>
 <style>
-        /* Disable background grid/noise leakage from other pages */
-        body::before, body::after {
-            display: none !important;
-            content: none !important;
+    /* Basic style resets to prevent layout leaks */
+    html, body {
+        background-color: #020617 !important;
+        color: #f8fafc !important;
+    }
+    
+    /* Custom style resets for Markdown HTML outputs */
+    #preview-content h1 {
+        font-size: 1.875rem;
+        font-weight: 800;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #1e293b;
+        padding-bottom: 0.5rem;
+        color: #ffffff;
+    }
+    #preview-content h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        color: #ffffff;
+    }
+    #preview-content h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: #ffffff;
+    }
+    #preview-content p {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        line-height: 1.75;
+    }
+    #preview-content a {
+        color: #818cf8;
+        text-decoration: underline;
+    }
+    #preview-content code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.875em;
+        background-color: #0f172a;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        color: #38bdf8;
+    }
+    #preview-content pre {
+        background-color: #0f172a;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+        border: 1px solid #1e293b;
+    }
+    #preview-content pre code {
+        background-color: transparent;
+        padding: 0;
+        color: inherit;
+    }
+    #preview-content blockquote {
+        border-left: 4px solid #4f46e5;
+        padding-left: 1rem;
+        font-style: italic;
+        color: #94a3b8;
+        margin-bottom: 1rem;
+    }
+    #preview-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+    #preview-content th, #preview-content td {
+        border: 1px solid #1e293b;
+        padding: 0.5rem 0.75rem;
+    }
+    #preview-content th {
+        background-color: #0f172a;
+    }
+    #preview-content hr {
+        border: 0;
+        border-top: 1px solid #1e293b;
+        margin: 1.5rem 0;
+    }
+    
+    @media print {
+        @page {
+            margin: 1cm;
         }
-
-        /* Override leaked dark background styles to keep page background white */
         html, body {
-            background: #ffffff !important;
-            color: #1e293b !important;
+            height: auto !important;
+            overflow: visible !important;
+            background: white !important;
+            color: black !important;
         }
+        header, footer, main > section:first-of-type, main > section:last-of-type > div:first-child {
+            display: none !important;
+        }
+        main {
+            display: block !important;
+            overflow: visible !important;
+            height: auto !important;
+        }
+        main > section:last-of-type {
+            width: 100% !important;
+            display: block !important;
+            overflow: visible !important;
+            height: auto !important;
+        }
+        #preview-content {
+            padding: 0 !important;
+            overflow: visible !important;
+            display: block !important;
+            height: auto !important;
+            background: transparent !important;
+            color: black !important;
+        }
+        #preview-content h1, #preview-content h2, #preview-content h3, #preview-content h4 {
+            color: black !important;
+        }
+    }
+</style>
 
-        @media print {
-            @page {
-                margin: 1cm;
-            }
-            html, body {
-                height: auto !important;
-                overflow: visible !important;
-                padding-top: 0 !important;
-                background: white !important;
-            }
-            nav, 
-            footer, 
-            main > section:first-of-type, 
-            main > section:last-of-type > div:first-child {
-                display: none !important;
-            }
-            main {
-                display: block !important;
-                overflow: visible !important;
-                height: auto !important;
-            }
-            main > section:last-of-type {
-                width: 100% !important;
-                display: block !important;
-                overflow: visible !important;
-                height: auto !important;
-            }
-            #preview-content {
-                padding: 0 !important;
-                overflow: visible !important;
-                display: block !important;
-                height: auto !important;
-                background: transparent !important;
-            }
-            #preview-content h1 {
-                font-size: 1.8rem !important;
-                margin-bottom: 0.5rem !important;
-                padding-bottom: 0.25rem !important;
-            }
-            #preview-content h2 {
-                font-size: 1.35rem !important;
-                margin-top: 1rem !important;
-                margin-bottom: 0.5rem !important;
-            }
-            #preview-content h3 {
-                font-size: 1.15rem !important;
-                margin-top: 0.85rem !important;
-                margin-bottom: 0.35rem !important;
-            }
-            #preview-content h4 {
-                font-size: 1.05rem !important;
-                margin-top: 0.75rem !important;
-                margin-bottom: 0.25rem !important;
-            }
-            #preview-content p {
-                margin-bottom: 0.6rem !important;
-            }
-            #preview-content blockquote {
-                margin: 0.75rem 0 !important;
-                padding-top: 0.35rem !important;
-                padding-bottom: 0.35rem !important;
-                padding-left: 1rem !important;
-            }
-            #preview-content pre {
-                margin: 0.75rem 0 !important;
-                padding: 0.75rem !important;
-            }
-            #preview-content ul, #preview-content ol {
-                margin-bottom: 0.75rem !important;
-            }
-            #preview-content hr {
-                margin: 0.6rem 0 !important;
-            }
-        }
-    </style>
-</link></head>
-<body class="h-screen flex flex-col overflow-hidden pt-[60px]">
+<style type="text/tailwindcss">
+    @theme {
+        --font-sans: "Inter", sans-serif;
+    }
+</style>
+</head>
+<body class="min-h-screen flex flex-col font-sans bg-zinc-950 text-zinc-100 overflow-hidden">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
-<nav class="global-nav">
-<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
-<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
-            Swiss<span>Web</span>
-</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">Scribe MarkDown Editor</h1></div></div>
-<div class="global-nav-links flex items-center gap-4">
-<a class="global-nav-link" href="/">Home</a>
-<div class="h-4 w-[1px] bg-slate-700"></div>
-<button class="text-xs font-medium text-slate-300 hover:text-red-400 transition-colors" onclick="clearAll()">Clear</button>
-<button class="flex items-center gap-2 px-3 py-1 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors active:scale-95" onclick="downloadFile()">HTML</button>
-</div>
-</nav>
+
+<header class="border-b border-zinc-900 bg-zinc-900/50 backdrop-blur-md sticky top-0 z-50">
+  <div class="w-full px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <div class="flex-1 flex items-center gap-4">
+        <a class="flex items-center gap-2 font-bold text-white text-lg" href="/">
+          <img class="h-8 w-auto" src="/logo.svg" alt="Logo">
+          <span>Swiss<span class="text-cyan-500">Web</span></span>
+        </a>
+        <div class="border-l border-slate-700 pl-4 ml-4">
+          <h1 class="text-sm font-semibold text-slate-300">Scribe Markdown</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="inline-flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 px-4 py-2 text-sm font-medium text-zinc-400 hover:text-slate-200 transition cursor-pointer" onclick="clearAll()">
+          Clear
+        </button>
+        <button class="inline-flex items-center gap-1.5 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700 transition cursor-pointer" onclick="downloadFile()">
+          Download HTML
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
 <main class="flex-1 flex overflow-hidden">
-<section class="w-1/2 flex flex-col border-r border-slate-200 bg-white">
-<div class="h-8 flex items-center px-4 bg-slate-50 border-b border-slate-200">
-<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Markdown Editor</span>
-</div>
-<textarea class="flex-1 p-8 outline-none bg-transparent code-font text-[14px] leading-relaxed text-slate-900 placeholder-slate-300 resize-none" id="editor" placeholder="# Start writing..." spellcheck="false"># Comprehensive Markdown Guide
+    <!-- Editor Panel -->
+    <section class="w-1/2 flex flex-col border-r border-zinc-900 bg-zinc-950">
+        <div class="h-10 flex items-center px-4 bg-slate-900/40 border-b border-zinc-900">
+            <span class="text-2xs font-bold text-slate-500 uppercase tracking-widest">Editor</span>
+        </div>
+        <textarea class="flex-1 p-6 outline-none bg-zinc-950 font-mono text-sm leading-relaxed text-zinc-100 placeholder-slate-650 resize-none border-0 focus:ring-0" id="editor" placeholder="# Start writing..." spellcheck="false"># Comprehensive Markdown Guide
 
 Welcome to Scribe. This document demonstrates advanced Markdown features including diagrams, math, and interactive elements.
 
@@ -179,7 +233,7 @@ Subscripts: H~2~O, Superscripts: E=mc^2^.
 &lt;details&gt;
 &lt;summary&gt;Click to see more!&lt;/summary&gt;
 This is hidden content that saves space. You can put anything inside here!
-&lt;/details&gt;
+&lt;/details>
 
 ---
 
@@ -224,11 +278,11 @@ Markdown supports emojis: 🚀 🔥 ✅ 💻.
 ### Flowchart
 ```mermaid
 graph TD;
-    A[Start] --&gt; B{Is it working?};
-    B -- Yes --&gt; C[Great!];
-    B -- No --&gt; D[Debug];
-    D --&gt; B;
-    C --&gt; E[End];
+    A[Start] --> B{Is it working?};
+    B -- Yes --> C[Great!];
+    B -- No --> D[Debug];
+    D --> B;
+    C --> E[End];
 ```
 
 ### Pie Chart
@@ -267,189 +321,186 @@ Here is a claim that needs a reference.[^1]
 
 [^1]: This is the footnote content at the bottom of the page.
 </textarea>
-</section>
-<section class="w-1/2 flex flex-col bg-white">
-<div class="h-8 flex items-center px-4 bg-slate-50 border-b border-slate-200">
-<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Preview</span>
-</div>
-<div class="flex-1 p-8 overflow-y-auto bg-transparent" id="preview-content">
-<!-- Preview will be generated here -->
-</div>
-</section>
+    </section>
+
+    <!-- Preview Panel -->
+    <section class="w-1/2 flex flex-col bg-slate-900/20">
+        <div class="h-10 flex items-center px-4 bg-slate-900/40 border-b border-zinc-900">
+            <span class="text-2xs font-bold text-slate-500 uppercase tracking-widest">Preview</span>
+        </div>
+        <div class="flex-1 p-8 overflow-y-auto bg-zinc-950 text-slate-300" id="preview-content">
+            <!-- Preview will be generated here -->
+        </div>
+    </section>
 </main>
-<footer class="mt-8 text-center text-slate-400 text-sm pb-4">
-        Made with <span class="text-red-500">♥</span> by Bikram
-    </footer>
+
 <script>
-        const editor = document.getElementById('editor');
-        const previewContent = document.getElementById('preview-content');
+    const editor = document.getElementById('editor');
+    const previewContent = document.getElementById('preview-content');
 
-        // Initialize Mermaid
-        mermaid.initialize({ startOnLoad: false, theme: 'default' });
+    // Initialize Mermaid
+    mermaid.initialize({ startOnLoad: false, theme: 'dark' });
 
-        // Init KaTeX into Marked
-        if (typeof window.markedKatex !== 'undefined') {
-            const extension = window.markedKatex.default || window.markedKatex;
-            marked.use(extension({
-                throwOnError: false,
-                output: 'html',
-                displayMode: false,
-                nonStandard: true
-            }));
-        }
+    // Init KaTeX into Marked
+    if (typeof window.markedKatex !== 'undefined') {
+        const extension = window.markedKatex.default || window.markedKatex;
+        marked.use(extension({
+            throwOnError: false,
+            output: 'html',
+            displayMode: false,
+            nonStandard: true
+        }));
+    }
 
-        if (typeof window.markedFootnote !== 'undefined') {
-            marked.use(markedFootnote());
-        }
+    if (typeof window.markedFootnote !== 'undefined') {
+        marked.use(markedFootnote());
+    }
 
-        if (typeof window.markedAlert !== 'undefined') {
-            marked.use(window.markedAlert.default || window.markedAlert());
-        }
+    if (typeof window.markedAlert !== 'undefined') {
+        marked.use(window.markedAlert.default || window.markedAlert());
+    }
 
-        if (typeof window.markedGfmHeadingId !== 'undefined') {
-            const extension = window.markedGfmHeadingId.gfmHeadingId || window.markedGfmHeadingId;
-            marked.use(extension());
-        }
+    if (typeof window.markedGfmHeadingId !== 'undefined') {
+        const extension = window.markedGfmHeadingId.gfmHeadingId || window.markedGfmHeadingId;
+        marked.use(extension());
+    }
 
-        // Highlight Extension (==text==)
-        const highlightExtension = {
-            name: 'highlight',
-            level: 'inline',
-            start(src) { return src.match(/==/)?.index; },
-            tokenizer(src, tokens) {
-                const rule = /^==([^=]+)==/;
-                const match = rule.exec(src);
-                if (match) {
-                    return { type: 'highlight', raw: match[0], text: match[1] };
-                }
-            },
-            renderer(token) { return `<mark class="bg-yellow-200 px-1 rounded text-slate-900">${token.text}</mark>`; }
-        };
-
-        // Sub/Sup Extension (~sub~, ^sup^)
-        const subSupExtension = {
-            name: 'subSup',
-            level: 'inline',
-            start(src) { return src.match(/[~^]/)?.index; },
-            tokenizer(src, tokens) {
-                const subRule = /^~([^~]+)~/;
-                const supRule = /^\^([^^]+)\^/;
-                let match;
-                if (match = subRule.exec(src)) return { type: 'subSup', raw: match[0], text: match[1], tag: 'sub' };
-                if (match = supRule.exec(src)) return { type: 'subSup', raw: match[0], text: match[1], tag: 'sup' };
-            },
-            renderer(token) { return `<${token.tag} class="text-[0.8em]">${token.text}</${token.tag}>`; }
-        };
-
-        // Mention Extension (@user)
-        const mentionExtension = {
-            name: 'mention',
-            level: 'inline',
-            start(src) { return src.match(/@/)?.index; },
-            tokenizer(src, tokens) {
-                const rule = /^@([a-zA-Z0-9_]+)/;
-                const match = rule.exec(src);
-                if (match) return { type: 'mention', raw: match[0], user: match[1] };
-            },
-            renderer(token) { return `<span class="mention bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-medium text-[0.9em]">@${token.user}</span>`; }
-        };
-
-        // Issue Extension (#123)
-        const issueExtension = {
-            name: 'issue',
-            level: 'inline',
-            start(src) { return src.match(/#/)?.index; },
-            tokenizer(src, tokens) {
-                const rule = /^#([0-9]+)/;
-                const match = rule.exec(src);
-                if (match) return { type: 'issue', raw: match[0], id: match[1] };
-            },
-            renderer(token) { return `<span class="issue text-emerald-600 font-semibold text-[0.9em]">#${token.id}</span>`; }
-        };
-
-        marked.use({
-            breaks: true,
-            extensions: [highlightExtension, subSupExtension, mentionExtension, issueExtension]
-        });
-
-        // Definition List Extension
-        const definitionListExtension = {
-            name: 'definitionList',
-            level: 'block',
-            start(src) { return src.match(/[^\n]+\n:/)?.index; },
-            tokenizer(src, tokens) {
-                const rule = /^([^\n]+)\n: ([^\n]+)(?:\n|$)/;
-                const match = rule.exec(src);
-                if (match) {
-                    return {
-                        type: 'definitionList',
-                        raw: match[0],
-                        dt: match[1].trim(),
-                        dd: match[2].trim()
-                    };
-                }
-            },
-            renderer(token) {
-                return `<dl><dt>${token.dt}</dt><dd>${token.dd}</dd></dl>`;
+    // Highlight Extension (==text==)
+    const highlightExtension = {
+        name: 'highlight',
+        level: 'inline',
+        start(src) { return src.match(/==/)?.index; },
+        tokenizer(src, tokens) {
+            const rule = /^==([^=]+)==/;
+            const match = rule.exec(src);
+            if (match) {
+                return { type: 'highlight', raw: match[0], text: match[1] };
             }
-        };
-        marked.use({ extensions: [definitionListExtension] });
+        },
+        renderer(token) { return `<mark class="bg-yellow-500/30 border border-yellow-500/20 px-1 rounded text-yellow-200">${token.text}</mark>`; }
+    };
 
-        // Custom renderer for Mermaid
-        marked.use({
-            renderer: {
-                code(obj) {
-                    // Support both old (code, lang) and new ({text, lang}) signatures
-                    const code = typeof obj === 'object' ? obj.text : arguments[0];
-                    const lang = typeof obj === 'object' ? obj.lang : arguments[1];
+    // Sub/Sup Extension (~sub~, ^sup^)
+    const subSupExtension = {
+        name: 'subSup',
+        level: 'inline',
+        start(src) { return src.match(/[~^]/)?.index; },
+        tokenizer(src, tokens) {
+            const subRule = /^~([^~]+)~/;
+            const supRule = /^\^([^^]+)\^/;
+            let match;
+            if (match = subRule.exec(src)) return { type: 'subSup', raw: match[0], text: match[1], tag: 'sub' };
+            if (match = supRule.exec(src)) return { type: 'subSup', raw: match[0], text: match[1], tag: 'sup' };
+        },
+        renderer(token) { return `<${token.tag} class="text-[0.8em]">${token.text}</${token.tag}>`; }
+    };
 
-                    if (lang === 'mermaid') {
-                        return `<pre class="mermaid">${code}</pre>`;
-                    }
-                    return false; // fallback to default
-                }
+    // Mention Extension (@user)
+    const mentionExtension = {
+        name: 'mention',
+        level: 'inline',
+        start(src) { return src.match(/@/)?.index; },
+        tokenizer(src, tokens) {
+            const rule = /^@([a-zA-Z0-9_]+)/;
+            const match = rule.exec(src);
+            if (match) return { type: 'mention', raw: match[0], user: match[1] };
+        },
+        renderer(token) { return `<span class="mention bg-cyan-950 text-cyan-400 border border-cyan-900/30 px-1.5 py-0.5 rounded-md font-medium text-[0.9em]">@${token.user}</span>`; }
+    };
+
+    // Issue Extension (#123)
+    const issueExtension = {
+        name: 'issue',
+        level: 'inline',
+        start(src) { return src.match(/#/)?.index; },
+        tokenizer(src, tokens) {
+            const rule = /^#([0-9]+)/;
+            const match = rule.exec(src);
+            if (match) return { type: 'issue', raw: match[0], id: match[1] };
+        },
+        renderer(token) { return `<span class="issue text-emerald-400 font-semibold text-[0.9em]">#${token.id}</span>`; }
+    };
+
+    marked.use({
+        breaks: true,
+        extensions: [highlightExtension, subSupExtension, mentionExtension, issueExtension]
+    });
+
+    // Definition List Extension
+    const definitionListExtension = {
+        name: 'definitionList',
+        level: 'block',
+        start(src) { return src.match(/[^\n]+\n:/)?.index; },
+        tokenizer(src, tokens) {
+            const rule = /^([^\n]+)\n: ([^\n]+)(?:\n|$)/;
+            const match = rule.exec(src);
+            if (match) {
+                return {
+                    type: 'definitionList',
+                    raw: match[0],
+                    dt: match[1].trim(),
+                    dd: match[2].trim()
+                };
             }
-        });
+        },
+        renderer(token) {
+            return `<dl class="my-4"><dt class="font-bold text-white">${token.dt}</dt><dd class="pl-4 text-zinc-400">${token.dd}</dd></dl>`;
+        }
+    };
+    marked.use({ extensions: [definitionListExtension] });
 
-        async function updatePreview() {
-            const markdown = editor.value;
-            // Parse Markdown to HTML
-            const html = marked.parse(markdown);
-            previewContent.innerHTML = html;
+    // Custom renderer for Mermaid
+    marked.use({
+        renderer: {
+            code(obj) {
+                const code = typeof obj === 'object' ? obj.text : arguments[0];
+                const lang = typeof obj === 'object' ? obj.lang : arguments[1];
 
-            // Re-run Prism.js syntax highlighting
-            if (window.Prism) {
-                Prism.highlightAllUnder(previewContent);
-            }
-
-            // Re-run Mermaid
-            if (window.mermaid) {
-                try {
-                    await mermaid.run({
-                        nodes: previewContent.querySelectorAll('.mermaid'),
-                    });
-                } catch (err) {
-                    console.error('Mermaid error:', err);
+                if (lang === 'mermaid') {
+                    return `<pre class="mermaid">${code}</pre>`;
                 }
+                return false; // fallback to default
             }
         }
+    });
 
-        // Initialize and listen for changes
-        editor.addEventListener('input', updatePreview);
-        updatePreview(); // initial render
+    async function updatePreview() {
+        const markdown = editor.value;
+        const html = marked.parse(markdown);
+        previewContent.innerHTML = html;
 
-        function clearAll() {
-            editor.value = '';
-            updatePreview();
+        // Re-run Prism.js syntax highlighting
+        if (window.Prism) {
+            Prism.highlightAllUnder(previewContent);
         }
 
-        function downloadFile() {
-            const origin = window.location.origin;
-            const headContent = document.head.innerHTML
-                .replace(/href="\/style\.css"/g, `href="${origin}/style.css"`)
-                .replace(/href="\/logo\.png"/g, `href="${origin}/logo.png"`)
-                .replace(/<title>[^<]*<\/title>/gi, '<title>&nbsp;</title>');
-            const fullHtml = `<!DOCTYPE html>
+        // Re-run Mermaid
+        if (window.mermaid) {
+            try {
+                await mermaid.run({
+                    nodes: previewContent.querySelectorAll('.mermaid'),
+                });
+            } catch (err) {
+                console.error('Mermaid error:', err);
+            }
+        }
+    }
+
+    // Initialize and listen for changes
+    editor.addEventListener('input', updatePreview);
+    updatePreview(); // initial render
+
+    function clearAll() {
+        editor.value = '';
+        updatePreview();
+    }
+
+    function downloadFile() {
+        const origin = window.location.origin;
+        const headContent = document.head.innerHTML
+            .replace(/href="\/logo\.png"/g, `href="${origin}/logo.png"`)
+            .replace(/<title>[^<]*<\/title>/gi, '<title>&nbsp;</title>');
+        const fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <!-- Google Tag Manager -->
@@ -543,24 +594,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </style>
 </head>
 <body class="bg-white p-4 sm:p-8">
-    <div id="preview-content" class="max-w-4xl mx-auto">
+    <div id="preview-content" class="max-w-4xl mx-auto text-slate-800">
         ${previewContent.innerHTML}
     </div>
 </body>
 </html>`;
-            const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'scribe_document.html';
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }, 100);
-        }
-    </script>
+        const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'scribe_document.html';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+    }
+</script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -16,90 +16,138 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- Mind Elixir v5+ CSS -->
 <link href="https://cdn.jsdelivr.net/npm/mind-elixir/dist/style.css" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="/style.css" rel="stylesheet"/>
-<link href="/logo.png" rel="icon" type="image/png"/>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="icon" href="/logo.svg" type="image/svg+xml"/><link rel="alternate icon" href="/logo.png" type="image/png"/>
+<style>
+    /* Styling resets to keep page dark background */
+    html, body {
+        background-color: #020617 !important;
+        color: #f8fafc !important;
+    }
+    
+    /* Toast styles */
+    #toast.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Drop overlay */
+    #drop-overlay.active {
+        display: flex !important;
+    }
+</style>
+
+<style type="text/tailwindcss">
+    @theme {
+        --font-sans: "Inter", sans-serif;
+    }
+</style>
 </head>
-<body>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans relative overflow-hidden">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
-<nav class="global-nav">
-<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
-<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
-            Swiss<span>Web</span>
-</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">Mind Map</h1></div></div>
-<div class="global-nav-links">
-<a class="global-nav-link" href="/">Home</a>
-</div>
-</nav>
+
+<header class="border-b border-zinc-900 bg-zinc-900/50 backdrop-blur-md sticky top-0 z-50 w-full">
+  <div class="w-full px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <div class="flex-1 flex items-center gap-4">
+        <a class="flex items-center gap-2 font-bold text-white text-lg" href="/">
+          <img class="h-8 w-auto" src="/logo.svg" alt="Logo">
+          <span>Swiss<span class="text-cyan-500">Web</span></span>
+        </a>
+        <div class="border-l border-slate-700 pl-4 ml-4">
+          <h1 class="text-sm font-semibold text-slate-300">Mind Map</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <a class="rounded-md bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 transition" href="/">
+          Home
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
 <!-- Floating Controls Panel -->
-<div class="panel" id="controls-panel">
-<div class="panel-header">
-<div class="panel-icon">🧠</div>
-<span class="panel-title">Mind Map</span>
-</div>
-<ul class="shortcuts">
-<li>
-<span class="emoji">➕</span>
-<span>Click <kbd>+</kbd> on a node to add child</span>
-</li>
-<li>
-<span class="emoji">⌨️</span>
-<kbd>Enter</kbd> <span>— Add sibling</span>
-</li>
-<li>
-<span class="emoji">⌨️</span>
-<kbd>Tab</kbd> <span>— Add child</span>
-</li>
-<li>
-<span class="emoji">🖱️</span>
-<span>Drag nodes or canvas to pan</span>
-</li>
-<li>
-<span class="emoji">🗑️</span>
-<kbd>Del</kbd> <span>— Remove selected node</span>
-</li>
-<li>
-<span class="emoji">✏️</span>
-<span>Double-click to rename</span>
-</li>
-</ul>
-<div class="divider"></div>
-<p class="section-label">File</p>
-<div class="btn-group">
-<button class="btn btn-success" id="btn-export-file" onclick="exportFile()">
-                💾 Export as File
+<div id="controls-panel" class="fixed top-20 left-4 z-45 max-w-xs w-full bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-2xl backdrop-blur-md transition-all duration-300 transform" style="transition-property: transform, opacity;">
+    <div class="flex items-center gap-2 mb-4 border-b border-slate-850 pb-3">
+        <span class="text-lg">🧠</span>
+        <span class="text-sm font-bold text-zinc-100">Controls Panel</span>
+    </div>
+    
+    <ul class="space-y-3 text-xs text-zinc-400 mb-5">
+        <li class="flex items-center gap-2">
+            <span>➕</span>
+            <span>Click <kbd class="bg-slate-800 text-slate-200 px-1 py-0.5 rounded">+</kbd> to add child</span>
+        </li>
+        <li class="flex items-center gap-2">
+            <span>⌨️</span>
+            <span><kbd class="bg-slate-800 text-slate-200 px-1 py-0.5 rounded">Enter</kbd> — Add sibling</span>
+        </li>
+        <li class="flex items-center gap-2">
+            <span>⌨️</span>
+            <span><kbd class="bg-slate-800 text-slate-200 px-1 py-0.5 rounded">Tab</kbd> — Add child</span>
+        </li>
+        <li class="flex items-center gap-2">
+            <span>🖱️</span>
+            <span>Drag nodes or canvas to pan</span>
+        </li>
+        <li class="flex items-center gap-2">
+            <span>🗑️</span>
+            <span><kbd class="bg-slate-800 text-slate-200 px-1 py-0.5 rounded">Del</kbd> — Remove selected</span>
+        </li>
+        <li class="flex items-center gap-2">
+            <span>✏️</span>
+            <span>Double-click to rename</span>
+        </li>
+    </ul>
+    
+    <div class="border-t border-slate-850 pt-4 space-y-4">
+        <div>
+            <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">File actions</span>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="inline-flex items-center justify-center rounded-lg bg-cyan-650 px-3 py-2 text-xs font-semibold text-white hover:bg-cyan-700 transition cursor-pointer" onclick="exportFile()">
+                    Export
+                </button>
+                <button class="inline-flex items-center justify-center rounded-lg border border-slate-800 bg-zinc-950 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-900 hover:text-white transition cursor-pointer" onclick="triggerImport()">
+                    Import
+                </button>
+            </div>
+            <input accept=".json" id="file-input" onchange="importFile(event)" class="hidden" type="file"/>
+        </div>
+        
+        <div class="border-t border-slate-850 pt-4">
+            <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Danger zone</span>
+            <button class="w-full inline-flex items-center justify-center rounded-lg border border-red-900/50 bg-red-950/20 px-3 py-2 text-xs font-semibold text-red-400 hover:bg-red-900/25 transition cursor-pointer" onclick="resetMap()">
+                Reset Map
             </button>
-<button class="btn btn-accent" id="btn-import" onclick="triggerImport()">
-                📂 Import File
-            </button>
-<input accept=".json" id="file-input" onchange="importFile(event)" style="display:none" type="file"/>
+        </div>
+    </div>
 </div>
-<div class="divider" style="margin-top:14px;"></div>
-<p class="section-label">Misc</p>
-<div class="btn-group">
-<button class="btn btn-ghost" id="btn-reset" onclick="resetMap()">
-                🔄 Reset Map
-            </button>
-</div>
-</div>
+
 <!-- Panel toggle button (shown when panel is collapsed) -->
-<button class="collapse-btn" id="toggle-btn" onclick="togglePanel()" title="Toggle panel">🧠</button>
+<button id="toggle-btn" onclick="togglePanel()" class="fixed top-20 left-4 z-40 w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-lg hover:bg-slate-850 cursor-pointer shadow-lg" title="Toggle controls">🧠</button>
+
 <!-- Drag-and-drop overlay -->
-<div id="drop-overlay">
-<span class="drop-icon">📂</span>
-<span>Drop your .json mind map file</span>
+<div id="drop-overlay" class="fixed inset-0 bg-zinc-950/90 backdrop-blur-md z-50 hidden flex-col items-center justify-center text-center p-8 border-4 border-dashed border-cyan-500 m-4 rounded-2xl">
+    <span class="text-5xl mb-4 text-cyan-400">📂</span>
+    <span class="text-lg font-bold text-slate-200">Drop your .json mind map file</span>
 </div>
+
 <!-- Mind Map Canvas -->
-<div id="map"></div>
-<!-- Toast -->
-<div class="toast" id="toast">
-<span class="toast-icon"></span>
-<span id="toast-msg"></span>
+<div id="map" class="flex-1 w-full h-full"></div>
+
+<!-- Toast notification component -->
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-slate-900 border border-slate-850 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 opacity-0 translate-y-2 transition duration-300 pointer-events-none">
+    <span class="toast-icon text-sm"></span>
+    <span id="toast-msg" class="text-xs font-semibold text-slate-200"></span>
 </div>
-<footer style="position: fixed; bottom: 10px; width: 100%; text-align: center; color: var(--text-muted); font-size: 12px; pointer-events: none; z-index: 10;">
-        Made with <span style="color: var(--danger);">♥</span> by Bikram
-    </footer>
+
+<footer class="fixed bottom-4 left-0 right-0 text-center text-[10px] text-slate-600 pointer-events-none z-10">
+    Made with ❤️ by Bikram
+</footer>
+
 <!-- Mind Elixir v5+ ESM (type="module" required) -->
 <script type="module">
         import MindElixir from 'https://cdn.jsdelivr.net/npm/mind-elixir/dist/MindElixir.js'
@@ -247,10 +295,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         function startCollapseTimer() {
             clearTimeout(collapseTimer)
             collapseTimer = setTimeout(() => {
-                if (!panelEl.classList.contains('collapsed')) {
-                    panelEl.classList.add('collapsed')
-                    btnEl.classList.add('visible')
-                }
+                panelEl.classList.add('opacity-0', 'pointer-events-none', 'scale-95')
+                btnEl.classList.remove('hidden')
             }, 5000)
         }
 
@@ -258,12 +304,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         panelEl.addEventListener('mouseleave', startCollapseTimer)
 
         window.togglePanel = function () {
-            panelEl.classList.toggle('collapsed')
-            btnEl.classList.toggle('visible')
-            
-            if (!panelEl.classList.contains('collapsed')) {
+            const collapsed = panelEl.classList.contains('opacity-0')
+            if (collapsed) {
+                panelEl.classList.remove('opacity-0', 'pointer-events-none', 'scale-95')
+                btnEl.classList.add('hidden')
                 startCollapseTimer()
             } else {
+                panelEl.classList.add('opacity-0', 'pointer-events-none', 'scale-95')
+                btnEl.classList.remove('hidden')
                 clearTimeout(collapseTimer)
             }
         }

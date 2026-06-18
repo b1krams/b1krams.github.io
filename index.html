@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -14,83 +14,153 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="description" content="A comprehensive collection of developer tools including JSON formatter, Markdown editor, PDF utilities, and more.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
-    <link href="/style.css" rel="stylesheet">
-    <link rel="icon" href="/logo.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="alternate icon" href="/logo.png" type="image/png">
+    <style>
+        [v-cloak] { display: none !important; }
+    </style>
+
+<style type="text/tailwindcss">
+    @theme {
+        --font-sans: "Inter", sans-serif;
+    }
+</style>
 </head>
-<body>
+<body class="bg-zinc-950 text-zinc-100 flex flex-col min-h-screen font-sans">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
-<nav class="global-nav">
-    <a href="/" class="global-nav-brand">
-        <img src="/logo.png" alt="Logo" class="global-nav-icon">
-        Swiss<span>Web</span>
-    </a>
-    <div class="global-nav-links">
-        <a href="/" class="global-nav-link">Home</a>
-    </div>
-</nav>
+    <header class="border-b border-zinc-900 bg-zinc-900/50 backdrop-blur-md sticky top-0 z-50">
+      <div class="w-full px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+          <div class="flex-1 md:flex md:items-center md:gap-12">
+            <a class="flex items-center gap-2.5 font-bold text-white text-lg" href="/">
+              <img class="h-8 w-auto" src="/logo.svg" alt="Logo">
+              <span>Swiss<span class="text-cyan-500">Web</span></span>
+            </a>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="text-xs text-zinc-400 hidden sm:inline-block">Your Swiss Army Knife for the Web</span>
+          </div>
+        </div>
+      </div>
+    </header>
 
-    <div id="app" class="container" v-cloak>
-        <div class="controls">
-            <div class="search-bar">
-                <span class="search-icon">🔍</span>
-                <input 
-                    type="text" 
-                    v-model="searchQuery" 
-                    class="search-input" 
-                    placeholder="Search tools by name or description..."
-                >
+    <div id="app" class="flex-1 flex flex-col" v-cloak>
+        <section class="text-white py-12 px-4">
+          <div class="mx-auto max-w-screen-xl text-center">
+            <h1 class="bg-gradient-to-r from-cyan-400 via-teal-400 to-indigo-500 bg-clip-text text-3xl font-extrabold text-transparent sm:text-5xl">
+              SwissWeb Utility Hub
+            </h1>
+            <p class="mx-auto mt-4 max-w-xl sm:text-lg text-zinc-400">
+              A curated collection of fast, local, and privacy-focused developer and productivity tools right in your browser.
+            </p>
+          </div>
+        </section>
+
+        <div class="max-w-screen-xl w-full mx-auto px-4 mb-8">
+            <div class="relative max-w-md mx-auto mb-8">
+              <label for="Search" class="sr-only"> Search </label>
+              <input
+                type="text"
+                id="Search"
+                v-model="searchQuery"
+                placeholder="Search tools..."
+                class="w-full rounded-lg border border-zinc-800 bg-zinc-900 py-2.5 pe-10 shadow-sm text-sm text-zinc-100 placeholder-zinc-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:outline-none px-4"
+              />
+              <span class="absolute inset-y-0 end-0 grid w-10 place-content-center">
+                <button type="button" class="text-zinc-400 hover:text-zinc-300">
+                  <span class="sr-only">Search</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="h-4 w-4"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.637 10.637z"
+                    />
+                  </svg>
+                </button>
+              </span>
             </div>
             
-            <div class="categories">
-                <button 
-                    v-for="cat in categories" 
-                    :key="cat"
-                    class="category-btn"
-                    :class="{ active: activeCategory === cat }"
-                    @click="activeCategory = cat"
+            <div class="flex justify-center mb-8 border-b border-zinc-800">
+              <nav class="-mb-px flex gap-6" aria-label="Tabs">
+                <button
+                  v-for="cat in categories"
+                  :key="cat"
+                  @click="activeCategory = cat"
+                  :class="activeCategory === cat ? 'border-cyan-500 text-cyan-400' : 'border-transparent text-zinc-400 hover:border-zinc-700 hover:text-zinc-300'"
+                  class="shrink-0 border-b-2 px-1 pb-4 text-sm font-medium transition-colors cursor-pointer focus:outline-none"
                 >
-                    {{ cat }}
+                  {{ cat }}
                 </button>
+              </nav>
             </div>
         </div>
 
-        <transition-group name="list" tag="main" class="tools-grid">
-            <a 
-                v-for="tool in filteredTools" 
-                :key="tool.name" 
-                :href="tool.url" 
-                class="tool-card"
-            >
-                <div class="card-header">
-                    <div class="icon-wrapper">{{ tool.icon }}</div>
-                    <button 
-                        class="star-btn" 
-                        :class="{ active: isFavorite(tool.name) }"
-                        @click.prevent="toggleFavorite(tool.name)"
-                        title="Toggle Favorite"
-                    >
-                        ★
-                    </button>
-                </div>
-                <h2 class="tool-title">{{ tool.name }}</h2>
-                <p class="tool-desc">{{ tool.desc }}</p>
-                <div class="tool-category">{{ tool.category }}</div>
-            </a>
-            
-            <div v-if="filteredTools.length === 0" key="empty" class="empty-state">
-                <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">📭</div>
-                <h3>No tools found matching your criteria.</h3>
-                <p style="margin-top: 0.5rem;">Try adjusting your search or category filter.</p>
-            </div>
-        </transition-group>
+        <main class="max-w-screen-xl w-full mx-auto px-4 flex-1">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div 
+                    v-for="tool in filteredTools" 
+                    :key="tool.name" 
+                    class="group relative rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-sm hover:border-zinc-700 transition duration-300 flex flex-col justify-between"
+                >
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-3xl">{{ tool.icon }}</span>
+                            <button 
+                                @click.prevent="toggleFavorite(tool.name)"
+                                :class="isFavorite(tool.name) ? 'text-yellow-400' : 'text-zinc-650 hover:text-zinc-400'"
+                                class="text-xl transition-colors cursor-pointer"
+                                title="Toggle Favorite"
+                            >
+                                ★
+                            </button>
+                        </div>
 
-        <footer style="text-align: center; margin-top: 4rem; padding-bottom: 2rem; color: var(--text-secondary); font-size: 0.875rem; opacity: 0.7;">
-            Made with ❤️ by Bikram
+                        <h3 class="mt-4 text-lg font-bold text-white">{{ tool.name }}</h3>
+
+                        <p class="mt-2 text-sm text-zinc-400">
+                            {{ tool.desc }}
+                        </p>
+                    </div>
+
+                    <div class="mt-6 flex items-center justify-between">
+                        <span class="inline-flex items-center justify-center rounded-full bg-cyan-950/50 px-2.5 py-0.5 text-xs text-cyan-300 border border-cyan-900/50">
+                            {{ tool.category }}
+                        </span>
+
+                        <a 
+                            :href="tool.url"
+                            class="inline-flex items-center gap-1 text-sm font-medium text-cyan-400 hover:text-cyan-300"
+                        >
+                            Open tool
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div v-if="filteredTools.length === 0" class="text-center py-12">
+                <div class="text-5xl mb-4 opacity-50">📭</div>
+                <h3 class="text-lg font-medium text-slate-300">No tools found matching your criteria.</h3>
+                <p class="text-sm text-slate-500 mt-1">Try adjusting your search or category filter.</p>
+            </div>
+        </main>
+
+        <footer class="bg-slate-950 py-8 border-t border-slate-900 mt-16 text-center">
+            <p class="text-xs text-slate-500">Made with ❤️ by Bikram</p>
         </footer>
     </div>
 
@@ -102,7 +172,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 const tools = ref([
                     { name: 'PDF Utilities', url: './pdf/', icon: '📄', desc: 'Merge, split, compress, and manipulate your PDF documents locally.', category: 'Utilities' },
                     { name: 'Image Tools', url: './image/', icon: '🖼️', desc: 'Quickly process, convert, and manipulate your images right in the browser.', category: 'Media' },
-                    { name: 'Pomodoro Timer', url: './pomo/', icon: '⏱️', desc: 'Boost your focus and productivity with the proven Pomodoro technique.', category: 'Productivity' },
                     { name: 'News Reader', url: './news/', icon: '📰', desc: 'Stay updated with the latest headlines and articles in a clean interface.', category: 'Utilities' },
                     { name: 'Mind Map', url: './mind/', icon: '🧠', desc: 'Visualize your thoughts, brainstorm, and organize complex ideas graphically.', category: 'Productivity' },
                     { name: 'Markdown Editor', url: './md/', icon: '📝', desc: 'Write, edit, and preview markdown with real-time rendering capabilities.', category: 'Developer' },

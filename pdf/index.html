@@ -20,16 +20,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <script src="https://cdn.jsdelivr.net/npm/glfx-es6/dist/glfx-es6.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="/style.css" rel="stylesheet"/>
-<link href="/logo.png" rel="icon" type="image/png"/>
+<link rel="icon" href="/logo.svg" type="image/svg+xml"/><link rel="alternate icon" href="/logo.png" type="image/png"/>
 </head>
-<body class="min-h-screen font-sans text-slate-100">
+<body class="min-h-screen font-sans text-zinc-100">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <nav class="global-nav">
 <div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
-<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
-        Swiss<span>Web</span>
+<img alt="Logo" class="global-nav-icon" src="/logo.svg"/>
+        Swiss<span class="text-cyan-500">Web</span>
 </a><div class="global-nav-divider"><h1 class="global-nav-tool-title">PDF Swift</h1></div></div>
 <div class="global-nav-links">
 <a class="global-nav-link" href="/">Home</a>
@@ -37,74 +37,74 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </nav>
 <div class="max-w-4xl mx-auto py-6 sm:py-12 px-4">
 <div class="glass rounded-3xl shadow-xl p-4 sm:p-8">
-<div class="border-2 border-dashed border-slate-700 rounded-2xl p-6 sm:p-10 text-center transition-all cursor-pointer hover:border-indigo-500 group" id="dropZone">
+<div class="border-2 border-dashed border-slate-700 rounded-2xl p-6 sm:p-10 text-center transition-all cursor-pointer hover:border-cyan-500 group" id="dropZone">
 <input accept="application/pdf,image/jpeg,image/jpg" class="hidden" id="fileInput" multiple="" type="file"/>
 <div class="flex flex-col items-center">
-<div class="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-500/10 text-indigo-400 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<div class="w-14 h-14 sm:w-16 sm:h-16 bg-cyan-500/10 text-cyan-400 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
 <i class="fa-solid fa-cloud-arrow-up text-xl sm:text-2xl"></i>
 </div>
-<p class="text-base sm:text-lg font-medium text-slate-200">Drag &amp; drop PDFs/JPGs or <span class="text-indigo-400">browse</span></p>
-<p class="text-sm text-slate-400 mt-1">Files are processed locally in your browser</p>
+<p class="text-base sm:text-lg font-medium text-slate-200">Drag &amp; drop PDFs/JPGs or <span class="text-cyan-400">browse</span></p>
+<p class="text-sm text-zinc-400 mt-1">Files are processed locally in your browser</p>
 </div>
 </div>
 <!-- Target Size Input (Top Form) -->
-<div class="mt-5 p-4 rounded-2xl border border-violet-500/20 bg-violet-500/5">
+<div class="mt-5 p-4 rounded-2xl border border-cyan-500/20 bg-cyan-500/5">
 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
 <div class="flex items-center gap-2">
-<i class="fa-solid fa-compress text-violet-400 text-sm"></i>
+<i class="fa-solid fa-compress text-cyan-400 text-sm"></i>
 <div class="flex flex-col">
 <span class="text-base font-semibold text-slate-200">Target PDF Size Constraint (Optional)</span>
-<span class="text-sm text-slate-400">Converts pages to JPEG internally to hit target size</span>
+<span class="text-sm text-zinc-400">Converts pages to JPEG internally to hit target size</span>
 </div>
 </div>
 <div class="flex items-center gap-2 bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-2 self-start sm:self-auto">
 <label class="text-sm text-slate-300 whitespace-nowrap" for="targetSizeMB">Target size</label>
 <div class="flex items-center gap-1">
-<input class="bg-transparent text-slate-100 text-sm w-16 sm:w-20 outline-none placeholder-slate-600 text-right sm:text-left" id="targetSizeMB" min="0.1" placeholder="e.g. 1.5" step="0.1" type="number"/>
+<input class="bg-transparent text-zinc-100 text-sm w-16 sm:w-20 outline-none placeholder-slate-600 text-right sm:text-left" id="targetSizeMB" min="0.1" placeholder="e.g. 1.5" step="0.1" type="number"/>
 <span class="text-xs text-slate-500 font-medium">MB</span>
 </div>
 </div>
 </div>
 <div class="hidden mt-4 space-y-1.5 border-t border-slate-700/60 pt-3" id="compressProgress">
 <div class="flex items-center justify-between">
-<span class="text-xs text-slate-400" id="compressStatus">Processing...</span>
-<span class="text-xs text-violet-400 font-mono" id="compressPercent">0%</span>
+<span class="text-xs text-zinc-400" id="compressStatus">Processing...</span>
+<span class="text-xs text-cyan-400 font-mono" id="compressPercent">0%</span>
 </div>
 <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-<div class="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-[width] duration-300" id="compressBar" style="width:0%"></div>
+<div class="h-full bg-gradient-to-r from-cyan-500 to-cyan-500 rounded-full transition-[width] duration-300" id="compressBar" style="width:0%"></div>
 </div>
 </div>
 <div class="mt-4 flex flex-col border-t border-slate-700/40 pt-4">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-2">
-<i class="fa-solid fa-print text-violet-400 text-sm"></i>
+<i class="fa-solid fa-print text-cyan-400 text-sm"></i>
 <div class="flex flex-col">
 <span class="text-base font-semibold text-slate-200">Pure Black &amp; White (Save Ink)</span>
-<span class="text-sm text-slate-400">Converts scanned backgrounds to pure white and text to dark black</span>
+<span class="text-sm text-zinc-400">Converts scanned backgrounds to pure white and text to dark black</span>
 </div>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
 <input class="sr-only peer" id="binarizeToggle" onchange="toggleBinarize()" type="checkbox"/>
-<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
+<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600 peer-checked:after:bg-white peer-checked:after:border-cyan-600"></div>
 </label>
 </div>
 <div class="hidden mt-3 pl-7 flex flex-col gap-3 border-t border-slate-700/20 pt-3" id="thresholdSliderContainer">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 <div class="flex flex-col">
 <span class="text-sm font-medium text-slate-300">B&amp;W Contrast Threshold</span>
-<span class="text-xs text-slate-400">Lower for lighter text/wider white background, higher for bolder text</span>
+<span class="text-xs text-zinc-400">Lower for lighter text/wider white background, higher for bolder text</span>
 </div>
 <div class="flex items-center gap-3">
-<input class="w-32 accent-indigo-500 cursor-pointer h-1 bg-slate-800 rounded-lg appearance-none" id="binarizeThreshold" max="220" min="50" oninput="updateThreshold(this.value)" type="range" value="140"/>
-<span class="text-xs font-mono text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20" id="thresholdValue">140</span>
+<input class="w-32 accent-cyan-500 cursor-pointer h-1 bg-slate-800 rounded-lg appearance-none" id="binarizeThreshold" max="220" min="50" oninput="updateThreshold(this.value)" type="range" value="140"/>
+<span class="text-xs font-mono text-cyan-400 font-bold bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20" id="thresholdValue">140</span>
 </div>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-700/10 pt-3">
 <div class="flex flex-col">
 <span class="text-sm font-medium text-slate-300">Ink Saving Mode / Gray Levels</span>
-<span class="text-xs text-slate-400">Choose discrete steps or smooth grays to preserve detail</span>
+<span class="text-xs text-zinc-400">Choose discrete steps or smooth grays to preserve detail</span>
 </div>
-<select class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none text-slate-200 cursor-pointer focus:border-indigo-500 transition-colors" id="binarizeLevels" onchange="updateBinarizeLevels(this.value)">
+<select class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none text-slate-200 cursor-pointer focus:border-cyan-500 transition-colors" id="binarizeLevels" onchange="updateBinarizeLevels(this.value)">
 <option value="2">2 Levels (Pure B&amp;W)</option>
 <option value="3">3 Levels (Tri-Tone)</option>
 <option value="4">4 Levels (Quad-Tone)</option>
@@ -115,53 +115,53 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="mt-4 flex flex-col border-t border-slate-700/40 pt-4">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-2">
-<i class="fa-solid fa-border-none text-violet-400 text-sm"></i>
+<i class="fa-solid fa-border-none text-cyan-400 text-sm"></i>
 <div class="flex flex-col">
 <span class="text-base font-semibold text-slate-200">Exclude Image Border</span>
-<span class="text-sm text-slate-400">Removes the 0.5-inch white margin around image pages</span>
+<span class="text-sm text-zinc-400">Removes the 0.5-inch white margin around image pages</span>
 </div>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
 <input class="sr-only peer" id="excludeBorderToggle" onchange="showToast(this.checked ? 'Border exclusion enabled' : 'Border exclusion disabled')" type="checkbox"/>
-<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
+<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600 peer-checked:after:bg-white peer-checked:after:border-cyan-600"></div>
 </label>
 </div>
 </div>
 <div class="mt-4 flex flex-col border-t border-slate-700/40 pt-4">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-2">
-<i class="fa-solid fa-expand text-violet-400 text-sm"></i>
+<i class="fa-solid fa-expand text-cyan-400 text-sm"></i>
 <div class="flex flex-col">
 <span class="text-base font-semibold text-slate-200">Original Image Size (No A4 Canvas)</span>
-<span class="text-sm text-slate-400">Includes images as-is without fitting onto an A4 background</span>
+<span class="text-sm text-zinc-400">Includes images as-is without fitting onto an A4 background</span>
 </div>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
 <input class="sr-only peer" id="originalSizeToggle" onchange="toggleOriginalSize()" type="checkbox"/>
-<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
+<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600 peer-checked:after:bg-white peer-checked:after:border-cyan-600"></div>
 </label>
 </div>
 </div>
 <div class="mt-4 flex flex-col border-t border-slate-700/40 pt-4">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-2">
-<i class="fa-solid fa-book-open text-violet-400 text-sm"></i>
+<i class="fa-solid fa-book-open text-cyan-400 text-sm"></i>
 <div class="flex flex-col">
 <span class="text-base font-semibold text-slate-200">Booklet Layout (2-Up A4 Landscape)</span>
-<span class="text-sm text-slate-400">Creates a folded middle booklet. Pages are arranged 2 per landscape sheet.</span>
+<span class="text-sm text-zinc-400">Creates a folded middle booklet. Pages are arranged 2 per landscape sheet.</span>
 </div>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
 <input class="sr-only peer" id="bookletToggle" onchange="toggleBooklet()" type="checkbox"/>
-<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
+<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600 peer-checked:after:bg-white peer-checked:after:border-cyan-600"></div>
 </label>
 </div>
 <div class="hidden mt-3 pl-7 flex flex-col gap-2 border-t border-slate-700/20 pt-3" id="bookletPrintHint">
-<div class="flex items-start gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3 text-sm text-indigo-200">
-<i class="fa-solid fa-circle-info mt-0.5 text-indigo-400 flex-shrink-0"></i>
+<div class="flex items-start gap-2 bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3 text-sm text-cyan-200">
+<i class="fa-solid fa-circle-info mt-0.5 text-cyan-400 flex-shrink-0"></i>
 <div>
 <span class="font-semibold block mb-0.5">Printing Instructions:</span>
-Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose <strong class="text-slate-100">"Flip on Short Edge"</strong> (Landscape flip) in printer settings. Then fold the printed pages from the middle.
+Print on <strong class="text-zinc-100">both sides (duplex)</strong> and choose <strong class="text-zinc-100">"Flip on Short Edge"</strong> (Landscape flip) in printer settings. Then fold the printed pages from the middle.
 </div>
 </div>
 </div>
@@ -173,23 +173,23 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
 <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
 <div class="flex items-center gap-3">
 <h3 class="font-semibold text-slate-300 flex items-center text-sm sm:text-base">
-<i class="fa-solid fa-file-pdf mr-2 text-indigo-400"></i> Selected Files
+<i class="fa-solid fa-file-pdf mr-2 text-cyan-400"></i> Selected Files
                     </h3>
-<button class="text-xs font-medium text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 shadow-sm" id="sortByNameBtn" onclick="sortFilesByName()" title="Sort files alphabetically by name">
+<button class="text-xs font-medium text-cyan-400 hover:text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 hover:border-cyan-500/30 px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 shadow-sm" id="sortByNameBtn" onclick="sortFilesByName()" title="Sort files alphabetically by name">
 <i class="fa-solid fa-arrow-down-a-z"></i> Sort A-Z
 </button>
 </div>
-<span class="text-sm text-slate-400 flex items-center gap-1">
+<span class="text-sm text-zinc-400 flex items-center gap-1">
 <i class="fa-solid fa-grip-lines"></i> Drag rows to reorder
                     </span>
 </div>
 <ul class="space-y-3 mb-8" id="fileList">
 </ul>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 border-t border-slate-700/60 pt-6 sm:pt-8">
-<button class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all shadow-lg shadow-indigo-900/40 text-sm sm:text-base" id="mergeBtn" onclick="mergePDFs()">
+<button class="flex items-center justify-center bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all shadow-lg shadow-indigo-900/40 text-sm sm:text-base" id="mergeBtn" onclick="mergePDFs()">
 <i class="fa-solid fa-layer-group mr-2"></i> Combine &amp; Save PDF
                     </button>
-<button class="btn-split flex items-center justify-center font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all border-2 border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10 text-sm sm:text-base" id="splitBtn" onclick="splitPDFs()">
+<button class="btn-split flex items-center justify-center font-bold py-3 px-4 sm:py-4 sm:px-6 rounded-xl transition-all border-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 text-sm sm:text-base" id="splitBtn" onclick="splitPDFs()">
 <i class="fa-solid fa-scissors mr-2"></i> Split Pages to ZIP
                     </button>
 </div>
@@ -199,24 +199,24 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
             Made with <i class="fa-solid fa-heart text-red-500"></i> by Bikram
         </footer>
 <!-- Lightbox Modal -->
-<div class="fixed inset-0 z-[9999] flex flex-col bg-slate-950/95 backdrop-blur-xl transition-all duration-300 opacity-0 pointer-events-none hidden" id="lightbox">
+<div class="fixed inset-0 z-[9999] flex flex-col bg-zinc-950/95 backdrop-blur-xl transition-all duration-300 opacity-0 pointer-events-none hidden" id="lightbox">
 <!-- Header -->
-<div class="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800 bg-slate-900/50">
+<div class="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800 bg-zinc-900/50">
 <div class="flex flex-col">
 <h2 class="text-slate-200 font-semibold text-base sm:text-lg truncate max-w-[200px] sm:max-w-md" id="lightboxTitle">Filename.pdf</h2>
-<span class="text-slate-400 text-xs sm:text-sm" id="lightboxPageIndicator">Page 1 of 10</span>
+<span class="text-zinc-400 text-xs sm:text-sm" id="lightboxPageIndicator">Page 1 of 10</span>
 </div>
 <div class="flex items-center gap-2 sm:gap-4">
 <div class="flex items-center bg-slate-800/80 rounded-lg p-1 border border-slate-700/50">
-<button class="hidden text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition mr-1 border-r border-slate-700/50 pr-2 flex items-center gap-1" id="lightboxCropBtn" onclick="toggleCropMode()" title="Perspective Crop">
+<button class="hidden text-zinc-400 hover:text-cyan-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition mr-1 border-r border-slate-700/50 pr-2 flex items-center gap-1" id="lightboxCropBtn" onclick="toggleCropMode()" title="Perspective Crop">
 <i class="fa-solid fa-crop-simple text-sm"></i>
 <span class="text-xs font-semibold hidden sm:inline">Crop</span>
 </button>
-<button class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" onclick="changeZoom(-0.25)" title="Zoom Out"><i class="fa-solid fa-minus text-sm"></i></button>
+<button class="text-zinc-400 hover:text-cyan-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" onclick="changeZoom(-0.25)" title="Zoom Out"><i class="fa-solid fa-minus text-sm"></i></button>
 <span class="text-slate-300 text-xs font-mono w-10 sm:w-12 text-center" id="lightboxZoomText">100%</span>
-<button class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" onclick="changeZoom(0.25)" title="Zoom In"><i class="fa-solid fa-plus text-sm"></i></button>
+<button class="text-zinc-400 hover:text-cyan-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" onclick="changeZoom(0.25)" title="Zoom In"><i class="fa-solid fa-plus text-sm"></i></button>
 <div class="w-px h-4 bg-slate-600 mx-1"></div>
-<button class="text-slate-400 hover:text-indigo-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" onclick="resetZoom()" title="Fit to Screen"><i class="fa-solid fa-expand text-sm"></i></button>
+<button class="text-zinc-400 hover:text-cyan-400 p-1.5 sm:p-2 rounded hover:bg-slate-700 transition" onclick="resetZoom()" title="Fit to Screen"><i class="fa-solid fa-expand text-sm"></i></button>
 </div>
 <button class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 flex items-center justify-center transition border border-slate-700 hover:border-rose-500/30" onclick="closeLightbox()">
 <i class="fa-solid fa-xmark sm:text-xl"></i>
@@ -226,15 +226,15 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
 <!-- Main Content Area -->
 <div class="flex-1 relative overflow-hidden flex items-center justify-center">
 <!-- Prev Button -->
-<button class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/80 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-400 flex items-center justify-center transition border border-slate-700 backdrop-blur-md opacity-0 pointer-events-none shadow-xl" id="lightboxPrev" onclick="navigateLightbox(-1)">
+<button class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/80 hover:bg-cyan-500/20 text-slate-300 hover:text-cyan-400 flex items-center justify-center transition border border-slate-700 backdrop-blur-md opacity-0 pointer-events-none shadow-xl" id="lightboxPrev" onclick="navigateLightbox(-1)">
 <i class="fa-solid fa-chevron-left text-lg sm:text-xl"></i>
 </button>
 <!-- Canvas/Image Container -->
 <div class="w-full h-full overflow-hidden flex items-center justify-center p-4" id="lightboxScrollArea">
 <div class="transition-transform duration-200 origin-center flex items-center justify-center" id="lightboxTransform">
 <div class="absolute hidden flex-col items-center gap-3" id="lightboxLoading">
-<i class="fa-solid fa-spinner fa-spin text-3xl text-indigo-500"></i>
-<span class="text-slate-400 text-sm">Rendering...</span>
+<i class="fa-solid fa-spinner fa-spin text-3xl text-cyan-500"></i>
+<span class="text-zinc-400 text-sm">Rendering...</span>
 </div>
 <canvas class="shadow-2xl shadow-black max-w-none hidden bg-white" id="lightboxCanvas"></canvas>
 <div class="relative hidden" id="lightboxImageWrapper">
@@ -274,16 +274,16 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
 </div>
 </div>
 <!-- Next Button -->
-<button class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/80 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-400 flex items-center justify-center transition border border-slate-700 backdrop-blur-md opacity-0 pointer-events-none shadow-xl" id="lightboxNext" onclick="navigateLightbox(1)">
+<button class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/80 hover:bg-cyan-500/20 text-slate-300 hover:text-cyan-400 flex items-center justify-center transition border border-slate-700 backdrop-blur-md opacity-0 pointer-events-none shadow-xl" id="lightboxNext" onclick="navigateLightbox(1)">
 <i class="fa-solid fa-chevron-right text-lg sm:text-xl"></i>
 </button>
 </div>
 <!-- Crop Action Bar -->
 <div class="absolute bottom-28 left-1/2 -translate-x-1/2 z-20 hidden flex items-center gap-2 sm:gap-3 px-3 py-2 bg-slate-900/90 backdrop-blur-md rounded-2xl border border-slate-700/80 shadow-2xl w-[90%] sm:w-auto max-w-lg justify-between sm:justify-start" id="cropActionBar">
-<span class="text-xs text-slate-300 font-medium flex items-center gap-1.5"><i class="fa-solid fa-crop-simple text-indigo-400"></i><span class="hidden xs:inline">Drag corners to fit document</span></span>
+<span class="text-xs text-slate-300 font-medium flex items-center gap-1.5"><i class="fa-solid fa-crop-simple text-cyan-400"></i><span class="hidden xs:inline">Drag corners to fit document</span></span>
 <div class="flex items-center gap-2">
 <button class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition border border-slate-700" onclick="cancelCrop()">Cancel</button>
-<button class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-900/40" onclick="applyCrop()">Apply Crop</button>
+<button class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition shadow-lg shadow-indigo-900/40" onclick="applyCrop()">Apply Crop</button>
 </div>
 </div>
 <!-- Thumbnail Strip -->
@@ -430,39 +430,39 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
               selectedFiles.forEach((item, index) => {
                   const file = item.file;
                   const li = document.createElement('li');
-                  li.className = "file-item flex flex-col p-4 bg-white/[0.03] rounded-xl border border-slate-700/60 gap-3";
+                  li.className = "file-item flex flex-col p-4 sm:p-5 bg-slate-900/35 rounded-xl border border-zinc-900 hover:border-slate-800 transition duration-300 gap-3 relative shadow-sm hover:shadow-md";
                   li.draggable = true;
                   li.dataset.index = index;
 
                   const isImage = item.isImage;
-                  const iconColorClass = isImage ? "text-amber-400 bg-amber-500/15" : "text-indigo-400 bg-indigo-500/15";
+                  const iconColorClass = isImage ? "text-amber-400 bg-amber-500/15 border border-amber-500/10" : "text-cyan-400 bg-cyan-500/15 border border-cyan-500/10";
                   const fileIcon = isImage ? "fa-solid fa-file-image" : "fa-solid fa-file-pdf";
 
                   li.innerHTML = `
                       <div class="flex items-center justify-between gap-2">
                           <div class="flex items-center space-x-2 sm:space-x-3 overflow-hidden">
-                              <span class="drag-handle px-1 sm:px-2" title="Drag to reorder">⠿</span>
+                              <span class="drag-handle px-1 sm:px-2 text-slate-500 cursor-grab active:cursor-grabbing hover:text-slate-300 transition" title="Drag to reorder">⠿</span>
                               <span class="${iconColorClass} w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg font-bold text-xs flex-shrink-0">${index + 1}</span>
                               <p class="truncate font-medium text-slate-200 text-sm sm:text-base">${file.name}</p>
-                              <span class="text-sm text-slate-400 text-nowrap hidden sm:inline">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                              <span class="text-sm text-zinc-400 text-nowrap hidden sm:inline">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
                           </div>
                           <div class="flex items-center gap-3 flex-shrink-0">
-                              <span class="text-sm text-slate-400 text-nowrap sm:hidden">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                              <button onclick="previewFile(${index})" class="text-slate-600 hover:text-indigo-400 transition-colors" title="Preview Pages">
+                              <span class="text-sm text-zinc-400 text-nowrap sm:hidden">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                              <button onclick="previewFile(${index})" class="text-slate-500 hover:text-cyan-455 transition-colors cursor-pointer" title="Preview Pages">
                                   <i class="fa-solid fa-eye"></i>
                               </button>
-                              <button onclick="removeFile(${index})" class="text-slate-600 hover:text-red-400 transition-colors" title="Remove File">
+                              <button onclick="removeFile(${index})" class="text-slate-500 hover:text-red-455 transition-colors cursor-pointer" title="Remove File">
                                   <i class="fa-solid fa-trash-can"></i>
                               </button>
                           </div>
                       </div>
                       ${!isImage ? `
                       <div class="flex flex-col sm:flex-row sm:items-center gap-2 pl-2 sm:pl-11 mt-1 sm:mt-0">
-                          <label class="text-slate-300 text-sm flex-shrink-0"><i class="fa-solid fa-minus-circle mr-1"></i>Remove Pages:</label>
-                          <input type="text" placeholder="e.g. 1, 3, 5-7" class="bg-slate-900/60 border border-slate-700/60 rounded px-2.5 py-1 text-sm outline-none text-slate-200 placeholder-slate-600 w-full sm:flex-1" value="${item.removePages}" oninput="updateRemovePages(${index}, this.value)">
+                          <label class="text-zinc-400 text-xs font-semibold flex-shrink-0"><i class="fa-solid fa-minus-circle mr-1"></i>Remove Pages:</label>
+                          <input type="text" placeholder="e.g. 1, 3, 5-7" class="bg-zinc-950 border border-slate-850 rounded-lg px-3 py-1.5 text-xs outline-none text-slate-200 placeholder-slate-700 w-full sm:flex-1 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition font-semibold" value="${item.removePages}" oninput="updateRemovePages(${index}, this.value)">
                       </div>
                       ` : `
-                      <div class="flex flex-col sm:flex-row sm:items-center gap-2 pl-2 sm:pl-11 mt-1 sm:mt-0 text-slate-300 text-sm">
+                      <div class="flex flex-col sm:flex-row sm:items-center gap-2 pl-2 sm:pl-11 mt-1 sm:mt-0 text-zinc-400 text-xs font-semibold">
                           <span><i class="fa-solid ${fileIcon} mr-1 text-amber-400"></i> JPG image page (will be added as a page)</span>
                       </div>
                       `}
@@ -1355,11 +1355,11 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
               const thumbs = lightboxThumbnails.querySelectorAll('.thumbnail-item');
               thumbs.forEach(t => {
                   if (parseInt(t.dataset.page) === num) {
-                      t.classList.add('border-indigo-500');
+                      t.classList.add('border-cyan-500');
                       t.classList.remove('border-transparent', 'hover:border-slate-500');
                       t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                   } else {
-                      t.classList.remove('border-indigo-500');
+                      t.classList.remove('border-cyan-500');
                       t.classList.add('border-transparent', 'hover:border-slate-500');
                   }
               });
@@ -1457,7 +1457,7 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
               const scrollArea = document.getElementById('lightboxScrollArea');
 
               if (isCropMode) {
-                  cropBtn.classList.add('bg-indigo-600/30', 'text-indigo-400');
+                  cropBtn.classList.add('bg-cyan-600/30', 'text-cyan-400');
                   cropOverlay.classList.remove('hidden');
                   cropActionBar.classList.remove('hidden');
                   scrollArea.classList.remove('cursor-grab');
@@ -1474,7 +1474,7 @@ Print on <strong class="text-slate-100">both sides (duplex)</strong> and choose 
 
                   updateCropOverlay();
               } else {
-                  cropBtn.classList.remove('bg-indigo-600/30', 'text-indigo-400');
+                  cropBtn.classList.remove('bg-cyan-600/30', 'text-cyan-400');
                   cropOverlay.classList.add('hidden');
                   cropActionBar.classList.add('hidden');
                   scrollArea.classList.remove('cursor-default');

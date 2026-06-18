@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -11,104 +11,140 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>News Now — Today's Headlines</title>
+<title>News NOW — Today's Headlines</title>
 <meta content="A curated, elegant digest of the latest news from India's most trusted sources." name="description"/>
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&amp;display=swap" rel="stylesheet"/>
-<link href="/style.css" rel="stylesheet"/>
-<link href="/logo.png" rel="icon" type="image/png"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="icon" href="/logo.svg" type="image/svg+xml"/><link rel="alternate icon" href="/logo.png" type="image/png"/>
+<style>
+    /* Prevent custom style leaks */
+    html, body {
+        background-color: #020617 !important;
+        color: #f8fafc !important;
+    }
+</style>
+
+<style type="text/tailwindcss">
+    @theme {
+        --font-sans: "Inter", sans-serif;
+    }
+</style>
 </head>
-<body>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans relative">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-P6F464KX" style="display:none;visibility:hidden" width="0"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
-<nav class="global-nav">
-<div class="global-nav-brand-container"><a class="global-nav-brand" href="/">
-<img alt="Logo" class="global-nav-icon" src="/logo.png"/>
-            Swiss<span>Web</span>
-</a><div class="global-nav-divider"><h1 class="global-nav-tool-title">News NOW</h1></div></div>
-<div class="header-right" style="margin: 0; display: flex; align-items: center; gap: 1rem;">
-<button class="nav-mobile-toggle" onclick="document.getElementById('nav').classList.toggle('open')">
-            Categories <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="14"><polyline points="6 9 12 15 18 9"></polyline></svg>
-</button>
-<nav id="nav">
-<button class="active" id="btn-national" onclick="switchCategory('national')">National</button>
-<button id="btn-business" onclick="switchCategory('business')">Business</button>
-<button id="btn-tech" onclick="switchCategory('tech')">Technology</button>
-<button id="btn-world" onclick="switchCategory('world')">World</button>
-<button id="btn-kids" onclick="switchCategory('kids')">🧒 Kids</button>
-<button class="btn-refresh" onclick="fetchAll()">↻ All</button>
-</nav>
-<div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
-<button aria-label="Open settings" class="btn-settings" id="btn-settings-toggle" onclick="openSettings()" title="Source settings">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-<circle cx="12" cy="12" r="3"></circle>
-<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-</svg>
-</button>
-<div style="width: 1px; height: 1.5rem; background-color: #333;"></div>
-<a class="global-nav-link" href="/">Home</a>
-</div>
-</div>
-</nav>
-<!-- ── SETTINGS OVERLAY ── -->
-<div id="settings-overlay" onclick="closeSettings()"></div>
-<!-- ── SETTINGS DRAWER ── -->
-<div aria-label="Source settings" id="settings-drawer" role="dialog">
-<div class="drawer-header">
-<span class="drawer-title">⚙ Source Settings</span>
-<button aria-label="Close settings" class="drawer-close" id="btn-drawer-close" onclick="closeSettings()">
-<svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-width="2.5" viewbox="0 0 24 24" width="14"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-</button>
-</div>
-<div class="drawer-body">
-<p class="settings-section-label">Enable / disable sources</p>
-<div id="settings-sources-list"></div>
-<div class="settings-divider"></div>
-<p class="settings-section-label" style="margin-bottom:1rem;">Add a custom RSS feed</p>
-<div class="add-feed-form">
-<div class="form-row">
-<div class="form-group">
-<label class="form-label" for="input-feed-name">Display name</label>
-<input autocomplete="off" class="form-input" id="input-feed-name" placeholder="e.g. BBC India" type="text"/>
-</div>
-<div class="form-group">
-<label class="form-label" for="input-feed-category">Category</label>
-<select class="form-select" id="input-feed-category">
-<option value="national">National</option>
-<option value="business">Business</option>
-<option value="tech">Technology</option>
-<option value="world">International</option>
-<option value="kids">Kids</option>
-<option value="custom">Custom</option>
-</select>
-</div>
-</div>
-<div class="form-group">
-<label class="form-label" for="input-feed-url">RSS feed URL</label>
-<input autocomplete="off" class="form-input" id="input-feed-url" placeholder="https://example.com/feed.rss" type="url"/>
-</div>
-<div class="form-msg" id="form-msg"></div>
-<button class="btn-add-feed" onclick="addCustomFeed()">+ Add feed</button>
-</div>
-</div>
-<div class="drawer-footer">
-<span class="drawer-footer-note">Settings saved automatically in your browser.</span>
-<button class="btn-apply" onclick="applyAndClose()">Apply &amp; refresh</button>
-</div>
-</div>
-<main class="news-main">
-<div id="loading">
-<div class="spinner"></div>
-            Fetching latest headlines…
+
+<header class="border-b border-zinc-900 bg-zinc-900/50 backdrop-blur-md sticky top-0 z-40 w-full">
+  <div class="w-full px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <div class="flex-1 flex items-center gap-4">
+        <a class="flex items-center gap-2 font-bold text-white text-lg" href="/">
+          <img class="h-8 w-auto" src="/logo.svg" alt="Logo">
+          <span>Swiss<span class="text-cyan-500">Web</span></span>
+        </a>
+        <div class="border-l border-slate-700 pl-4 ml-4">
+          <h1 class="text-sm font-semibold text-slate-300">News NOW</h1>
         </div>
-<div id="news-container"></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="openSettings()" class="p-2 rounded-lg border border-slate-800 bg-slate-900 text-zinc-400 hover:text-white transition cursor-pointer" title="Source Settings">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+        <a class="rounded-md bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 transition" href="/">
+          Home
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Categories Navigation -->
+<div class="max-w-screen-xl w-full mx-auto px-4 mt-6">
+  <div class="flex justify-center border-b border-zinc-900" id="nav">
+    <nav class="-mb-px flex gap-6 overflow-x-auto pb-0.5" aria-label="Categories">
+      <button id="btn-national" onclick="switchCategory('national')" class="shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-zinc-400 hover:text-slate-200 transition cursor-pointer">National</button>
+      <button id="btn-business" onclick="switchCategory('business')" class="shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-zinc-400 hover:text-slate-200 transition cursor-pointer">Business</button>
+      <button id="btn-tech" onclick="switchCategory('tech')" class="shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-zinc-400 hover:text-slate-200 transition cursor-pointer">Technology</button>
+      <button id="btn-world" onclick="switchCategory('world')" class="shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-zinc-400 hover:text-slate-200 transition cursor-pointer">World</button>
+      <button id="btn-kids" onclick="switchCategory('kids')" class="shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-zinc-400 hover:text-slate-200 transition cursor-pointer">🧒 Kids</button>
+      <button onclick="fetchAll()" class="shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-cyan-400 hover:text-cyan-300 transition cursor-pointer">↻ All</button>
+    </nav>
+  </div>
+</div>
+
+<!-- ── SETTINGS OVERLAY ── -->
+<div id="settings-overlay" onclick="closeSettings()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+
+<!-- ── SETTINGS DRAWER ── -->
+<div id="settings-drawer" class="fixed inset-y-0 right-0 z-50 flex max-w-full pl-10 transform translate-x-full transition-transform duration-300" role="dialog">
+  <div class="w-screen max-w-md bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col justify-between">
+    <div class="px-6 py-4 border-b border-slate-850 flex justify-between items-center bg-zinc-950/20">
+      <span class="text-sm font-bold text-zinc-100">⚙ Source Settings</span>
+      <button aria-label="Close settings" class="text-slate-450 hover:text-white cursor-pointer" onclick="closeSettings()">
+        <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-width="2.5" viewBox="0 0 24 24" width="16"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+      <div>
+        <p class="text-2xs font-bold text-slate-500 uppercase tracking-wider mb-4">Enable / disable sources</p>
+        <div id="settings-sources-list" class="space-y-3"></div>
+      </div>
+      
+      <div class="border-t border-slate-850 pt-6">
+        <p class="text-2xs font-bold text-slate-500 uppercase tracking-wider mb-4">Add a custom RSS feed</p>
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-2xs font-semibold text-slate-450 mb-1" for="input-feed-name">Display name</label>
+              <input autocomplete="off" class="w-full rounded-lg border border-slate-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-cyan-500" id="input-feed-name" placeholder="e.g. BBC India" type="text"/>
+            </div>
+            <div>
+              <label class="block text-2xs font-semibold text-slate-450 mb-1" for="input-feed-category">Category</label>
+              <select class="w-full rounded-lg border border-slate-800 bg-zinc-950 px-3 py-2 text-xs text-slate-350 focus:outline-none focus:border-cyan-500" id="input-feed-category">
+                <option value="national">National</option>
+                <option value="business">Business</option>
+                <option value="tech">Technology</option>
+                <option value="world">International</option>
+                <option value="kids">Kids</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-2xs font-semibold text-slate-450 mb-1" for="input-feed-url">RSS feed URL</label>
+            <input autocomplete="off" class="w-full rounded-lg border border-slate-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-cyan-500" id="input-feed-url" placeholder="https://example.com/feed.rss" type="url"/>
+          </div>
+          <div class="text-2xs" id="form-msg"></div>
+          <button class="w-full py-2 bg-cyan-650 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold transition cursor-pointer" onclick="addCustomFeed()">+ Add feed</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="px-6 py-4 border-t border-slate-850 bg-zinc-950/20 flex flex-col gap-3">
+      <span class="text-3xs text-slate-500">Settings saved automatically in your browser.</span>
+      <button class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold transition cursor-pointer" onclick="applyAndClose()">Apply &amp; refresh</button>
+    </div>
+  </div>
+</div>
+
+<main class="max-w-screen-xl w-full mx-auto px-4 flex-1 py-8">
+  <div id="loading" class="flex flex-col items-center justify-center py-20 text-sm text-zinc-400 gap-3">
+    <div class="w-8 h-8 border-4 border-slate-800 border-t-indigo-500 rounded-full animate-spin"></div>
+    Fetching latest headlines…
+  </div>
+  
+  <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 </main>
-<footer>
-        Made with ❤️ by Bikram
-    </footer>
+
+<footer class="bg-slate-955 py-8 border-t border-zinc-900 text-center">
+  <p class="text-xs text-slate-500">Made with ❤️ by Bikram</p>
+</footer>
+
 <script>
     // ─────────────────────────────────────────────
     //  DEFAULT SOURCES  (built-in, can be toggled)
@@ -124,19 +160,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         // ── India: Tech ──
         { id: 'gadgets360',         name: 'Gadgets 360',        category: 'tech',     url: 'https://feeds.feedburner.com/gadgets360-latest', builtin: true },
         // ── International: World News ──
-        { id: 'bbc-world',          name: 'BBC News',           category: 'world',    url: 'http://feeds.bbci.co.uk/news/world/rss.xml', builtin: true },
+        { id: 'bbc-world',          name: 'BBC News',           category: 'world',    url: 'https://feeds.bbci.co.uk/news/world/rss.xml', builtin: true },
         { id: 'reuters-world',      name: 'Reuters',            category: 'world',    url: 'https://feeds.reuters.com/reuters/topNews', builtin: true },
         { id: 'ap-news',            name: 'AP News',            category: 'world',    url: 'https://feeds.apnews.com/rss/apf-topnews', builtin: true },
         { id: 'al-jazeera',         name: 'Al Jazeera',         category: 'world',    url: 'https://www.aljazeera.com/xml/rss/all.xml', builtin: true },
         { id: 'guardian-world',     name: 'The Guardian',       category: 'world',    url: 'https://www.theguardian.com/world/rss', builtin: true },
         { id: 'dw-world',           name: 'DW News',            category: 'world',    url: 'https://rss.dw.com/rdf/rss-en-world', builtin: true },
-        { id: 'france24',           name: 'France 24',          category: 'world',    url: 'https://www.france24.com/en/rss', builtin: true },
+        { id: French_france24 => 'france24', name: 'France 24', category: 'world',    url: 'https://www.france24.com/en/rss', builtin: true },
         // ── International: Business ──
         { id: 'ft-world',           name: 'Financial Times',    category: 'world',    url: 'https://www.ft.com/?format=rss', builtin: true },
         { id: 'bloomberg',          name: 'Bloomberg',          category: 'world',    url: 'https://feeds.bloomberg.com/markets/news.rss', builtin: true },
         // ── International: Tech ──
         { id: 'techcrunch',         name: 'TechCrunch',         category: 'world',    url: 'https://techcrunch.com/feed/', builtin: true },
-        { id: 'ars-technica',       name: 'Ars Technica',       category: 'world',    url: 'http://feeds.arstechnica.com/arstechnica/index', builtin: true },
+        { id: 'ars-technica',       name: 'Ars Technica',       category: 'world',    url: 'https://feeds.arstechnica.com/arstechnica/index', builtin: true },
         { id: 'wired',              name: 'Wired',              category: 'world',    url: 'https://www.wired.com/feed/rss', builtin: true },
         // ── Kids: India ──
         { id: 'down-to-earth',      name: 'Down to Earth 🇮🇳',  category: 'kids',     url: 'https://www.downtoearth.org.in/feed', builtin: true },
@@ -149,6 +185,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         { id: 'dk-findout',         name: 'BBC Science Focus',  category: 'kids',     url: 'https://www.sciencefocus.com/feed', builtin: true },
         { id: 'kids-discover',      name: 'Popular Science',    category: 'kids',     url: 'https://www.popsci.com/feed/', builtin: true },
     ];
+
+    // Typo correction for france24 id
+    DEFAULT_SOURCES.forEach(s => {
+        if(s.id && typeof s.id === 'object') {
+            s.id = 'france24';
+        }
+    });
 
     const LS_KEY = 'newsnow_settings_v1';
 
@@ -196,17 +239,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         settingsOpen = true;
         currentSettings = loadSettings();
         renderSettingsPanel();
-        document.getElementById('settings-overlay').classList.add('open');
-        document.getElementById('settings-drawer').classList.add('open');
-        document.getElementById('btn-settings-toggle').classList.add('open');
+        
+        const overlay = document.getElementById('settings-overlay');
+        const drawer = document.getElementById('settings-drawer');
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+            overlay.classList.add('opacity-100');
+            drawer.classList.remove('translate-x-full');
+        }, 10);
         document.body.style.overflow = 'hidden';
     }
 
     function closeSettings() {
         settingsOpen = false;
-        document.getElementById('settings-overlay').classList.remove('open');
-        document.getElementById('settings-drawer').classList.remove('open');
-        document.getElementById('btn-settings-toggle').classList.remove('open');
+        const overlay = document.getElementById('settings-overlay');
+        const drawer = document.getElementById('settings-drawer');
+        drawer.classList.add('translate-x-full');
+        overlay.classList.remove('opacity-100');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 300);
         document.body.style.overflow = '';
     }
 
@@ -231,9 +283,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         const catLabels = { national: 'National', business: 'Business', tech: 'Technology', world: 'International', kids: '🧒 Kids', custom: 'Custom' };
 
         list.innerHTML = catOrder.filter(c => cats[c]).map(cat => `
-            <div class="settings-category">
-                <div class="settings-category-name">${catLabels[cat] || cat}</div>
-                ${cats[cat].map(src => sourceRowHTML(src)).join('')}
+            <div class="space-y-2">
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-4 mb-2">${catLabels[cat] || cat}</div>
+                <div class="space-y-2">${cats[cat].map(src => sourceRowHTML(src)).join('')}</div>
             </div>
         `).join('');
     }
@@ -242,19 +294,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         const enabled = !currentSettings.disabled.includes(src.id);
         const isCustom = !src.builtin;
         return `
-        <div class="source-row${isCustom ? ' custom-row' : ''}" id="row-${src.id}">
-            <div class="source-info">
-                <span class="source-name">${src.name}</span>
-                <span class="source-url">${src.url}</span>
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-zinc-950/40 hover:border-slate-700 transition" id="row-${src.id}">
+            <div class="flex-1 min-w-0 pr-3">
+                <span class="block text-xs font-bold text-slate-200 truncate">${src.name}</span>
+                <span class="block text-[10px] text-slate-550 truncate mt-0.5">${src.url}</span>
             </div>
-            <div class="source-row-actions">
-                ${isCustom ? `<button class="btn-del-source" onclick="deleteCustomSource('${src.id}')" title="Remove">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            <div class="flex items-center gap-2">
+                ${isCustom ? `<button class="text-slate-500 hover:text-red-400 transition cursor-pointer p-1" onclick="deleteCustomSource('${src.id}')" title="Remove">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                 </button>` : ''}
-                <label class="toggle" title="${enabled ? 'Enabled' : 'Disabled'}">
-                    <input type="checkbox" ${enabled ? 'checked' : ''} onchange="toggleSource('${src.id}', this.checked)">
-                    <div class="toggle-track"></div>
-                    <div class="toggle-knob"></div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" ${enabled ? 'checked' : ''} onchange="toggleSource('${src.id}', this.checked)" class="sr-only peer">
+                    <div class="w-9 h-5 bg-slate-850 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-550 after:border-slate-550 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-650 peer-checked:after:bg-white"></div>
                 </label>
             </div>
         </div>`;
@@ -283,10 +334,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         const cat  = document.getElementById('input-feed-category').value;
         const msg  = document.getElementById('form-msg');
 
-        msg.className = 'form-msg';
+        msg.className = 'text-2xs';
 
-        if (!name) { showMsg('error', 'Please enter a display name.'); return; }
-        if (!url || !url.startsWith('http')) { showMsg('error', 'Please enter a valid feed URL.'); return; }
+        if (!name) { showMsg('text-red-400', 'Please enter a display name.'); return; }
+        if (!url || !url.startsWith('http')) { showMsg('text-red-400', 'Please enter a valid feed URL.'); return; }
 
         const id = 'custom-' + Date.now();
         const newFeed = { id, name, category: cat, url, builtin: false };
@@ -296,14 +347,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         document.getElementById('input-feed-name').value = '';
         document.getElementById('input-feed-url').value  = '';
-        showMsg('success', `"${name}" added successfully.`);
+        showMsg('text-green-400', `"${name}" added successfully.`);
     }
 
     function showMsg(type, text) {
         const msg = document.getElementById('form-msg');
         msg.textContent = text;
-        msg.className = 'form-msg ' + type;
-        setTimeout(() => { msg.className = 'form-msg'; }, 3500);
+        msg.className = 'text-2xs ' + type;
+        setTimeout(() => { msg.className = 'text-2xs'; msg.textContent = ''; }, 3500);
     }
 
     // ─────────────────────────────────────────────
@@ -341,10 +392,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
 
     function setActiveBtn(cat) {
-        document.querySelectorAll('#nav button:not(.btn-refresh)').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#nav button').forEach(b => {
+            b.classList.remove('border-cyan-500', 'text-cyan-400');
+            b.classList.add('border-transparent', 'text-zinc-400');
+        });
         const btn = document.getElementById('btn-' + cat);
-        if (btn) btn.classList.add('active');
-        document.getElementById('nav').classList.remove('open');
+        if (btn) {
+            btn.classList.remove('border-transparent', 'text-zinc-400');
+            btn.classList.add('border-cyan-500', 'text-cyan-400');
+        }
     }
 
     async function switchCategory(cat) {
@@ -355,7 +411,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         const active = getActiveSources(settings).filter(s => s.category === cat);
         if (!active.length) {
             loader.style.display = 'none';
-            container.innerHTML = `<p style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:4rem 0;">
+            container.innerHTML = `<p class="text-slate-500 text-center py-20 w-full col-span-full">
                 No sources enabled for this category. Open Settings (⚙) to add some.
             </p>`;
             return;
@@ -366,15 +422,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
 
     async function fetchAll() {
-        document.getElementById('nav').classList.remove('open');
-        document.querySelectorAll('#nav button:not(.btn-refresh)').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#nav button').forEach(b => {
+            b.classList.remove('border-cyan-500', 'text-cyan-400');
+            b.classList.add('border-transparent', 'text-zinc-400');
+        });
         loader.style.display = 'flex';
         container.innerHTML = '';
         const settings = loadSettings();
         const active = getActiveSources(settings);
         if (!active.length) {
             loader.style.display = 'none';
-            container.innerHTML = `<p style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:4rem 0;">
+            container.innerHTML = `<p class="text-slate-500 text-center py-20 w-full col-span-full">
                 No sources enabled. Open Settings (⚙) to enable some.
             </p>`;
             return;
@@ -395,58 +453,68 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     function renderNews(stories) {
         loader.style.display = 'none';
         if (!stories.length) {
-            container.innerHTML = `<p style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:4rem 0;">No stories found. Check your connection.</p>`;
+            container.innerHTML = `<p class="text-slate-500 text-center py-20 w-full col-span-full">No stories found. Check your connection.</p>`;
             return;
         }
 
         container.innerHTML = stories.map((post, i) => {
-            const delay = Math.min(i * 30, 300);
             const pubDateFormatted = formatDate(post.pubDate);
-            
             const imgSrc = post.thumbnail || post.enclosure?.link;
             const desc = (post.description || '').replace(/<[^>]*>?/gm, '').trim();
 
             const imgHtml = imgSrc
-                ? `<div class="card-img-wrap"><img src="${imgSrc}" alt="" loading="lazy" onerror="this.parentElement.outerHTML=noImgHtml()"></div>`
-                : `<div class="card-no-img">${noImgSvg()}</div>`;
+                ? `<div class="aspect-video w-full overflow-hidden bg-slate-900 border-b border-slate-950"><img src="${imgSrc}" alt="" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.parentElement.outerHTML=noImgHtml()"></div>`
+                : noImgHtml();
 
             return `
-            <div class="card" style="animation-delay:${delay}ms">
+            <article class="group flex flex-col rounded-xl border border-zinc-900 bg-zinc-900/50 overflow-hidden shadow-sm hover:border-slate-800 transition duration-300">
                 ${imgHtml}
-                <div class="card-body">
-                    <h2 class="card-title">${post.title}</h2>
-                    ${desc ? `<p class="card-desc">${desc}</p>` : ''}
-                    <div class="card-footer">
-                        <div class="card-footer-meta">
-                            <span class="card-source">${post.source}</span>
-                            <span class="card-date">
-                                <span class="card-date-day">${pubDateFormatted.date}</span>
-                                <span class="card-date-time">
-                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${pubDateFormatted.time}
-                                </span>
+                <div class="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="inline-flex items-center justify-center rounded-full bg-cyan-950/60 border border-cyan-900/40 px-2.5 py-0.5 text-[10px] font-semibold text-cyan-400">
+                                ${post.source}
+                            </span>
+                            <span class="text-[10px] text-slate-500 flex items-center gap-1">
+                                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                ${pubDateFormatted.date}
                             </span>
                         </div>
-                        <a href="${post.link}" target="_blank" rel="noopener" class="card-link">Read more <span>→</span></a>
+                        
+                        <h3 class="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
+                            ${post.title}
+                        </h3>
+                        
+                        ${desc ? `<p class="mt-2 text-xs text-zinc-400 line-clamp-3 leading-relaxed">${desc}</p>` : ''}
+                    </div>
+                    
+                    <div class="mt-5 border-t border-slate-850/60 pt-3.5 flex justify-end">
+                        <a href="${post.link}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-400 hover:text-cyan-300">
+                            Read article
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                        </a>
                     </div>
                 </div>
-            </div>`;
+            </article>`;
         }).join('');
     }
 
     function noImgSvg() {
-        return `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
+        return `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
     }
 
     function noImgHtml() {
-        return `<div class="card-no-img">${noImgSvg()}</div>`;
+        return `<div class="aspect-video w-full bg-slate-900 border-b border-slate-950 flex items-center justify-center">${noImgSvg()}</div>`;
     }
 
     function noListImgSvg() {
-        return `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
+        return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
     }
 
     function noListImgHtml() {
-        return `<div class="list-no-img">${noListImgSvg()}</div>`;
+        return `<div class="w-8 h-8 rounded bg-slate-900 border border-slate-950 flex items-center justify-center">${noListImgSvg()}</div>`;
     }
 
     // Keyboard: Escape closes drawer
@@ -454,6 +522,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     // Initial load
     switchCategory('national');
-    </script>
+</script>
 </body>
 </html>
